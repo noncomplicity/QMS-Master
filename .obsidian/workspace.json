@@ -11,10 +11,14 @@
             "id": "c645f445e8a6329c",
             "type": "leaf",
             "state": {
-              "type": "graph",
-              "state": {},
-              "icon": "lucide-git-fork",
-              "title": "Graph view"
+              "type": "markdown",
+              "state": {
+                "file": "Templates/Header-Specification.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Header-Specification"
             }
           }
         ]
@@ -175,11 +179,20 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "ef25cacf69c5755f",
+  "active": "c645f445e8a6329c",
   "lastOpenFiles": [
-    "README.md",
+    "Templates/Header-WI.md",
+    "Templates/Header-SOP.md",
+    "Templates/Header-Role.md",
+    "Templates/Header-Requirement.md",
+    "Templates/Header-Report.md",
+    "Templates/Header-Plan.md",
+    "External",
+    "Templates/MOCTemplate.md",
     "Assets/Clinical Evaluation Plans.md",
+    "Templates/MeetingMinutesTemplate.md",
     "Assets/Clinical Development Plan.md",
+    "README.md",
     "Assets/Access Management.md",
     "Assets/Bookkeeping.md",
     "Requirements/EN ISO 13485 5.3 Management representative.md",
@@ -203,14 +216,6 @@
     "Assets/Product Management Objectives.md",
     "Assets/Company Goals.md",
     "Assets/User Interface Evaluation Report.md",
-    "Assets/User Interface Specification.md",
-    "Assets/Summative Evaluation Report.md",
-    "Assets/User Interface.md",
-    "Assets/Software Deployment Procedure.md",
-    "Assets/Software Deployment Records.md",
-    "Assets/Change Management Procedure.md",
-    "Assets/Software Integration Test Report.md",
-    "Assets/Software Integration Test Plan.md",
-    "Assets/Support ticket.md"
+    "Assets/User Interface Specification.md"
   ]
 }

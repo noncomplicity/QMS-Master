@@ -1,10 +1,8 @@
 Process: [[Clinical Evaluation Procedure]]
 Requirements: [[]]
 Owner: [[]]
-
-Status: #Template 
-Type: #Plan 
-Date: 2023-05-09
+ 
+Type: #Template 
 
 
 # Scope

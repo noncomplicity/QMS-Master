@@ -1,7 +1,5 @@
 Process: [[]]
 Requirements: [[]]
 Owner: [[]]
+Type: #StandardOperatingProcedure 
 
-Status: #Draft 
-Type: #Report 
-Date: {{date}}
