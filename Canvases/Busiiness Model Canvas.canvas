@@ -1,0 +1,14 @@
+{
+	"nodes":[
+		{"id":"44839b2451cbac41","x":71,"y":-175,"width":400,"height":400,"type":"file","file":"Assets/Customer channels.md"},
+		{"id":"a6dbfb80145db1a5","x":71,"y":-575,"width":400,"height":400,"type":"file","file":"Assets/Customer relationships.md"},
+		{"id":"3c71e5287cf78135","x":471,"y":-575,"width":400,"height":800,"type":"file","file":"Assets/Customer segments.md"},
+		{"id":"ed3ce0e5700041b1","x":-329,"y":-575,"width":400,"height":800,"type":"file","file":"Assets/Value Proposition.md"},
+		{"id":"1a1a7d2f85eb8d53","x":-729,"y":-575,"width":400,"height":400,"type":"file","file":"Assets/Key activities.md"},
+		{"id":"5f6d546073ee4712","x":-1129,"y":-575,"width":400,"height":800,"type":"file","file":"Assets/Key partners.md"},
+		{"id":"6ff48d35dbd4ac2f","x":-729,"y":-175,"width":400,"height":400,"type":"file","file":"Assets/Key resources.md"},
+		{"id":"705fa1332cd523ae","x":-1129,"y":225,"width":1000,"height":400,"type":"file","file":"Assets/Cost structure.md"},
+		{"id":"f0453462b514368b","x":-129,"y":225,"width":1000,"height":400,"type":"file","file":"Assets/Revenue streams.md"}
+	],
+	"edges":[]
+}

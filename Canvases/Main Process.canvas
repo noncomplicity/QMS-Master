@@ -1,0 +1,21 @@
+{
+	"nodes":[
+		{"type":"file","file":"Assets/Product Development Procedure.md","id":"75e1969c267081df","x":-919,"y":-1609,"width":400,"height":400},
+		{"type":"file","file":"Assets/Risk Management Procedure.md","id":"775991c2719ef083","x":-302,"y":-1092,"width":400,"height":400},
+		{"type":"file","file":"Canvases/Clinical Process.canvas","id":"8b18388b9ed406df","x":240,"y":-1609,"width":400,"height":400},
+		{"type":"text","text":"# Processes and their interaction\n","id":"88fd2932aa470332","x":-365,"y":-1816,"width":527,"height":92},
+		{"type":"file","file":"Assets/Software Engineering Procedure.md","id":"2c27fa49c2d1b313","x":-919,"y":-1092,"width":400,"height":400},
+		{"type":"file","file":"Assets/Usability engineering Procedure.md","id":"eb7b0487ee686444","x":-919,"y":-583,"width":400,"height":400},
+		{"type":"file","file":"Assets/Post market surveillance Procedure.md","id":"cc9c99dfbf0a5bdb","x":240,"y":-1092,"width":400,"height":400}
+	],
+	"edges":[
+		{"id":"b1fe81a976dcd05e","fromNode":"75e1969c267081df","fromSide":"bottom","toNode":"2c27fa49c2d1b313","toSide":"top"},
+		{"id":"3be18acc1ece3a26","fromNode":"75e1969c267081df","fromSide":"right","toNode":"775991c2719ef083","toSide":"left"},
+		{"id":"f9de649a304adf28","fromNode":"eb7b0487ee686444","fromSide":"right","toNode":"775991c2719ef083","toSide":"left"},
+		{"id":"ade8379b1c9d57da","fromNode":"2c27fa49c2d1b313","fromSide":"right","toNode":"775991c2719ef083","toSide":"left"},
+		{"id":"af48d06de14a690b","fromNode":"75e1969c267081df","fromSide":"right","toNode":"8b18388b9ed406df","toSide":"left"},
+		{"id":"fb25a70ce6522916","fromNode":"775991c2719ef083","fromSide":"right","toNode":"8b18388b9ed406df","toSide":"left"},
+		{"id":"6f79f6302af8a73c","fromNode":"775991c2719ef083","fromSide":"right","toNode":"cc9c99dfbf0a5bdb","toSide":"left"},
+		{"id":"6e38396d62112126","fromNode":"eb7b0487ee686444","fromSide":"top","toNode":"2c27fa49c2d1b313","toSide":"bottom"}
+	]
+}
