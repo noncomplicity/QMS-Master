@@ -11,17 +11,45 @@
             "id": "c645f445e8a6329c",
             "type": "leaf",
             "state": {
+              "type": "canvas",
+              "state": {
+                "file": "Canvases/Clinical Process.canvas",
+                "viewState": {
+                  "x": -625.1267503781951,
+                  "y": -789.0866270838243,
+                  "zoom": -1.1566487217663612
+                }
+              },
+              "icon": "lucide-layout-dashboard",
+              "title": "Clinical Process"
+            }
+          },
+          {
+            "id": "0fe756fc1d2eaf27",
+            "type": "leaf",
+            "state": {
+              "type": "graph",
+              "state": {},
+              "icon": "lucide-git-fork",
+              "title": "Graph view"
+            }
+          },
+          {
+            "id": "6bf338ec736ce3d6",
+            "type": "leaf",
+            "state": {
               "type": "markdown",
               "state": {
-                "file": "Templates/Header-Specification.md",
+                "file": "Assets/Index - Markdown-QMS.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Header-Specification"
+              "title": "Index - Markdown-QMS"
             }
           }
-        ]
+        ],
+        "currentTab": 2
       }
     ],
     "direction": "vertical"
@@ -176,46 +204,48 @@
       "canvas:Create new canvas": false,
       "daily-notes:Open today's daily note": false,
       "templates:Insert template": false,
-      "command-palette:Open command palette": false
+      "command-palette:Open command palette": false,
+      "publish:Publish changes...": false
     }
   },
-  "active": "c645f445e8a6329c",
+  "active": "6bf338ec736ce3d6",
   "lastOpenFiles": [
-    "Templates/Header-WI.md",
+    "Templates/Header-Index.md",
+    "Assets/Index - Markdown-QMS.md",
     "Templates/Header-SOP.md",
-    "Templates/Header-Role.md",
+    "Assets/Quality Management.md",
+    "README.md",
     "Templates/Header-Requirement.md",
     "Templates/Header-Report.md",
     "Templates/Header-Plan.md",
-    "External",
-    "Templates/MOCTemplate.md",
-    "Assets/Clinical Evaluation Plans.md",
-    "Templates/MeetingMinutesTemplate.md",
-    "Assets/Clinical Development Plan.md",
-    "README.md",
     "Assets/Access Management.md",
-    "Assets/Bookkeeping.md",
     "Requirements/EN ISO 13485 5.3 Management representative.md",
-    "Requirements/MDCG 2020-1.md",
-    "Canvases/Usability Engineering Process.canvas",
-    "Canvases/Top Management Process.canvas",
+    "Media/Pasted image 20251014133636.png",
     "Canvases/Software Problem resolution process.canvas",
-    "Canvases/Technical Documentation.canvas",
     "Canvases/Risk Management Process.canvas",
     "Canvases/Product Development Process.canvas",
     "Canvases/Main Process.canvas",
     "Canvases/Clinical Process.canvas",
+    "Assets/Clinical Evaluation Procedure.md",
+    "Assets/Change Management Procedure.md",
+    "Assets/Clinical Development Plan.md",
+    "Templates/Header-Specification.md",
+    "Templates/Header-WI.md",
+    "Templates/Header-Role.md",
+    "External",
+    "Templates/MOCTemplate.md",
+    "Assets/Clinical Evaluation Plans.md",
+    "Templates/MeetingMinutesTemplate.md",
+    "Assets/Bookkeeping.md",
+    "Requirements/MDCG 2020-1.md",
+    "Canvases/Usability Engineering Process.canvas",
+    "Canvases/Top Management Process.canvas",
+    "Canvases/Technical Documentation.canvas",
     "Canvases/Busiiness Model Canvas.canvas",
     "Assets/Quality Policy for a Medical Device Software Company Specializing in Digital health solutions.md",
     "Assets/Cyber Security Report.md",
     "Assets/Clinical Evaluation Procedure 2.md",
     "Assets/Verification & Validation Reports.md",
-    "Assets/Verficiation & Validation plans.md",
-    "Assets/Clinical Evaluation Reports.md",
-    "Assets/User Interface Evaluation Plan.md",
-    "Assets/Product Management Objectives.md",
-    "Assets/Company Goals.md",
-    "Assets/User Interface Evaluation Report.md",
-    "Assets/User Interface Specification.md"
+    "Assets/Verficiation & Validation plans.md"
   ]
 }
