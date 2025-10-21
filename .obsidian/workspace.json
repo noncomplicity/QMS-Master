@@ -54,12 +54,50 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Assets/DocTrace Rdr - Navigation Requirements.md",
+                "file": "Requirements/EN 62304 5.2 Software requirements analysis.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "DocTrace Rdr - Navigation Requirements"
+              "title": "EN 62304 5.2 Software requirements analysis"
+            }
+          },
+          {
+            "id": "a7d698e114bdab2e",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Assets/Clinical Evaluation Reports.md",
+                "mode": "source",
+                "source": false,
+                "backlinks": true,
+                "backlinkOpts": {
+                  "collapseAll": false,
+                  "extraContext": false,
+                  "sortOrder": "alphabetical",
+                  "showSearch": false,
+                  "searchQuery": "",
+                  "backlinkCollapsed": false,
+                  "unlinkedCollapsed": true
+                }
+              },
+              "icon": "lucide-file",
+              "title": "Clinical Evaluation Reports"
+            }
+          },
+          {
+            "id": "90c723a38d60ec80",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Assets/Risk Management Framework for Medical Device Software.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Risk Management Framework for Medical Device Software"
             }
           },
           {
@@ -77,7 +115,7 @@
             }
           }
         ],
-        "currentTab": 3
+        "currentTab": 4
       }
     ],
     "direction": "vertical"
@@ -121,16 +159,6 @@
             }
           },
           {
-            "id": "4cd0e6993339c73f",
-            "type": "leaf",
-            "state": {
-              "type": "starred",
-              "state": {},
-              "icon": "lucide-ghost",
-              "title": "starred"
-            }
-          },
-          {
             "id": "d4a6eb5ac0ca7c1b",
             "type": "leaf",
             "state": {
@@ -140,7 +168,8 @@
               "title": "Bookmarks"
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "horizontal",
@@ -160,7 +189,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Assets/Quality Policy for a Medical Device Software Company Specializing in Digital health solutions.md",
+                "file": "Assets/Clinical Evaluation Reports.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -170,7 +199,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for Quality Policy for a Medical Device Software Company Specializing in Digital health solutions"
+              "title": "Backlinks for Clinical Evaluation Reports"
             }
           },
           {
@@ -179,12 +208,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Assets/Quality Policy for a Medical Device Software Company Specializing in Digital health solutions.md",
+                "file": "Assets/Clinical Evaluation Reports.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Outgoing links from Quality Policy for a Medical Device Software Company Specializing in Digital health solutions"
+              "title": "Outgoing links from Clinical Evaluation Reports"
             }
           },
           {
@@ -208,21 +237,33 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Assets/Quality Policy for a Medical Device Software Company Specializing in Digital health solutions.md",
+                "file": "Assets/Clinical Evaluation Reports.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of Quality Policy for a Medical Device Software Company Specializing in Digital health solutions"
+              "title": "Outline of Clinical Evaluation Reports"
+            }
+          },
+          {
+            "id": "8ae888561374e971",
+            "type": "leaf",
+            "state": {
+              "type": "footnotes",
+              "state": {
+                "file": "Assets/Clinical Evaluation Reports.md"
+              },
+              "icon": "lucide-file-signature",
+              "title": "Footnotes"
             }
           }
-        ]
+        ],
+        "currentTab": 3
       }
     ],
     "direction": "horizontal",
-    "width": 300,
-    "collapsed": true
+    "width": 300
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -236,44 +277,47 @@
       "publish:Publish changes...": false
     }
   },
-  "active": "b054142969f196d5",
+  "active": "b99ae911d164da76",
   "lastOpenFiles": [
-    "Requirements/EN 62366 5.6 Establish USER INTERFACE SPECIFICATION.md",
-    "Requirements/EN 62304 5.2 Software requirements analysis.md",
-    "Requirements/EN 62304_2006+A1_2015.md",
-    "Requirements/EN ISO 13485 5.3 Management representative.md",
-    "Assets/DocTrace Rdr - Navigation Requirements.md",
-    "Assets/Usability Engineering.md",
-    "Assets/DocTrace Rdr - System requirements.md",
-    "Assets/Doctrace Rdr.md",
-    "Assets/Requirements Management.md",
-    "Templates/Header-Specification.md",
-    "Templates/Header-SOP.md",
-    "Templates/Header-RegulatoryRequirement.md",
-    "Templates/Header-Role.md",
-    "Templates/Header-Report.md",
-    "Templates/Header-Plan.md",
-    "Templates/Header-Index.md",
-    "Assets/Index - Markdown-QMS.md",
-    "Assets/Quality Management.md",
+    "Assets/Quality Policy for a Medical Device Software Company Specializing in Digital health solutions.md",
+    "Assets/Regulatory strategy.md",
+    "Assets/Regulatory management.md",
+    "Assets/Regulatory Conformity Plans.md",
+    "Requirements/Index - Validation of Medical Device Software.md",
     "README.md",
-    "Assets/Access Management.md",
-    "Media/Pasted image 20251014133636.png",
-    "Canvases/Software Problem resolution process.canvas",
+    "Templates/Template - Regulatory Strategy.md",
+    "Canvases/Pre-Market Clinical Data for AI-Based Medical Device Software.canvas",
     "Canvases/Risk Management Process.canvas",
     "Canvases/Product Development Process.canvas",
     "Canvases/Main Process.canvas",
     "Canvases/Clinical Process.canvas",
-    "Assets/Clinical Evaluation Procedure.md",
-    "Assets/Change Management Procedure.md",
-    "Assets/Clinical Development Plan.md",
-    "Templates/Header-WI.md",
+    "Canvases/Busiiness Model Canvas.canvas",
+    "Assets/Verification & Validation Reports.md",
+    "Assets/Verification & Validation Procedure.md",
+    "Assets/Verficiation & Validation plans.md",
+    "Assets/Value Propositions.md",
+    "Assets/Users.md",
+    "Assets/User Interfaces.md",
+    "Assets/Usability engineering Procedure.md",
+    "Assets/Usability Engineering Files.md",
+    "Assets/Usability Engineering.md",
+    "Assets/Top management.md",
+    "Assets/Technical Support Procedure.md",
+    "Assets/Technical Documentations.md",
+    "Assets/System risks in AI-Based Medical Device Software.md",
+    "Assets/System Requriement Specifications.md",
+    "Assets/System Requirement Specification.md",
+    "Assets/System Release Reports.md",
+    "Assets/Support ticket.md",
+    "Assets/Summative Evaluation Report.md",
+    "Assets/Software Test Record.md",
+    "Canvases/test.canvas",
+    "Canvases/test.canvas~",
+    "EU MDR 2017",
+    "Media/Pasted image 20251014133636.png",
+    "Canvases/Software Problem resolution process.canvas",
     "External",
-    "Templates/MOCTemplate.md",
-    "Assets/Clinical Evaluation Plans.md",
     "Canvases/Usability Engineering Process.canvas",
-    "Canvases/Top Management Process.canvas",
-    "Canvases/Technical Documentation.canvas",
-    "Canvases/Busiiness Model Canvas.canvas"
+    "Canvases/Top Management Process.canvas"
   ]
 }

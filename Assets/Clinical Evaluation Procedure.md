@@ -12,6 +12,10 @@ Date: 2023-04-25
 
 # Identification of data
 
+Considerations for the identification of relevant clinical data:
+- [[Pre-Market Clinical Data for AI-Based Medical Device Software]]
+
+
 ## External Sources for Scientific Litterateur
 
 

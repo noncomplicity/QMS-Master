@@ -1,1 +1,1 @@
-[Value Proposition](Value%20Proposition.md)
+[Value Propositions](Value%20Propositions.md)

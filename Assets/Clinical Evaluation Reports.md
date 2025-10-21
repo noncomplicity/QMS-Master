@@ -50,7 +50,7 @@ The clinical evaluation procedure…
 ## Specific clinical concerns
 
 # Identification of pertinent data
-## Pre-clinical data generated and held by OneTwo Analytics
+## Pre-clinical data generated and held by the manufacturer
 ### Technical Performance following performance testing
 ### Usability evaluations
 ## Data form clinical investigations

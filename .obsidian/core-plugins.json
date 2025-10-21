@@ -25,10 +25,10 @@
   "workspaces": false,
   "file-recovery": true,
   "publish": true,
-  "sync": false,
+  "sync": true,
   "bookmarks": true,
   "properties": false,
   "webviewer": false,
-  "footnotes": false,
+  "footnotes": true,
   "bases": true
 }
