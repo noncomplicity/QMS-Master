@@ -257,9 +257,19 @@
               "icon": "lucide-file-signature",
               "title": "Footnotes"
             }
+          },
+          {
+            "id": "6fdfda6b6d163882",
+            "type": "leaf",
+            "state": {
+              "type": "git-view",
+              "state": {},
+              "icon": "git-pull-request",
+              "title": "Source Control"
+            }
           }
         ],
-        "currentTab": 3
+        "currentTab": 5
       }
     ],
     "direction": "horizontal",
@@ -274,10 +284,11 @@
       "daily-notes:Open today's daily note": false,
       "templates:Insert template": false,
       "command-palette:Open command palette": false,
-      "publish:Publish changes...": false
+      "publish:Publish changes...": false,
+      "obsidian-git:Open Git source control": false
     }
   },
-  "active": "b99ae911d164da76",
+  "active": "a7d698e114bdab2e",
   "lastOpenFiles": [
     "Assets/Quality Policy for a Medical Device Software Company Specializing in Digital health solutions.md",
     "Assets/Regulatory strategy.md",
