@@ -1,4 +1,4 @@
-Process: [[Clinical Process.canvas]]
+Process: [[Clinical Management Process.canvas]]
 Requirements: [[MDCG 2020-1]]
 Owner: [[R&D Management]]
 

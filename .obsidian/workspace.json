@@ -68,7 +68,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Assets/Clinical Evaluation Reports.md",
+                "file": "Assets/Pre-Market Clinical Data for AI-Based Medical Device Software.md",
                 "mode": "source",
                 "source": false,
                 "backlinks": true,
@@ -83,7 +83,7 @@
                 }
               },
               "icon": "lucide-file",
-              "title": "Clinical Evaluation Reports"
+              "title": "Pre-Market Clinical Data for AI-Based Medical Device Software"
             }
           },
           {
@@ -168,8 +168,7 @@
               "title": "Bookmarks"
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "horizontal",
@@ -189,7 +188,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Assets/Clinical Evaluation Reports.md",
+                "file": "Assets/Pre-Market Clinical Data for AI-Based Medical Device Software.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -199,7 +198,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for Clinical Evaluation Reports"
+              "title": "Backlinks for Pre-Market Clinical Data for AI-Based Medical Device Software"
             }
           },
           {
@@ -208,12 +207,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Assets/Clinical Evaluation Reports.md",
+                "file": "Assets/Pre-Market Clinical Data for AI-Based Medical Device Software.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Outgoing links from Clinical Evaluation Reports"
+              "title": "Outgoing links from Pre-Market Clinical Data for AI-Based Medical Device Software"
             }
           },
           {
@@ -237,13 +236,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Assets/Clinical Evaluation Reports.md",
+                "file": "Assets/Pre-Market Clinical Data for AI-Based Medical Device Software.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of Clinical Evaluation Reports"
+              "title": "Outline of Pre-Market Clinical Data for AI-Based Medical Device Software"
             }
           },
           {
@@ -252,7 +251,7 @@
             "state": {
               "type": "footnotes",
               "state": {
-                "file": "Assets/Clinical Evaluation Reports.md"
+                "file": "Assets/Pre-Market Clinical Data for AI-Based Medical Device Software.md"
               },
               "icon": "lucide-file-signature",
               "title": "Footnotes"
@@ -290,45 +289,44 @@
   },
   "active": "a7d698e114bdab2e",
   "lastOpenFiles": [
+    "Canvases/Clinical Management Process.canvas",
+    "Assets/Pre-Market Clinical Data for AI-Based Medical Device Software.md",
+    "Assets/Index - Validation of Medical Device Software.md",
+    "Canvases/Product Management Process.canvas",
+    "Canvases/Pre-Market Clinical Data for AI-Based Medical Device Software.canvas",
+    "Canvases/Main Process.canvas",
+    "Canvases/Usability Engineering Process.canvas",
+    "Canvases/Top Management Process.canvas",
+    "Canvases/Technical Documentation.canvas",
+    "Canvases/Software Problem resolution process.canvas",
+    "Canvases/Risk Management Process.canvas",
+    "Canvases/Regulatory Conformity Process.canvas",
+    "Templates/Header-Process.md",
+    "Templates/Header-SOP.md",
+    "Assets/Regulatory Conformity Plans.md",
+    "Assets/System risks in AI-Based Medical Device Software.md",
+    "Assets/System Risk Analyses.md",
+    "Assets/Risk Management Framework for Medical Device Software.md",
+    "Assets/Head of Risk Management.md",
+    "Assets/Intended Purpose and Context of Use for AI-Based Medical Device Software.md",
+    "Assets/Head of Clinical Management.md",
+    "Assets/Head of Quality Management.md",
+    "Templates/Header-Role.md",
+    "Assets/Index - Markdown-QMS.md",
+    "Templates/Header-Index.md",
+    "Templates/Header-Plan.md",
+    "Assets/Medical Devices AI Validation Requirements Overview.md",
+    "Assets/Regulatory Manager.md",
+    "Assets/Product Manager.md",
+    "Assets/Clinical Evaluation Reports.md",
     "Assets/Quality Policy for a Medical Device Software Company Specializing in Digital health solutions.md",
     "Assets/Regulatory strategy.md",
     "Assets/Regulatory management.md",
-    "Assets/Regulatory Conformity Plans.md",
-    "Requirements/Index - Validation of Medical Device Software.md",
     "README.md",
     "Templates/Template - Regulatory Strategy.md",
-    "Canvases/Pre-Market Clinical Data for AI-Based Medical Device Software.canvas",
-    "Canvases/Risk Management Process.canvas",
-    "Canvases/Product Development Process.canvas",
-    "Canvases/Main Process.canvas",
-    "Canvases/Clinical Process.canvas",
-    "Canvases/Busiiness Model Canvas.canvas",
-    "Assets/Verification & Validation Reports.md",
-    "Assets/Verification & Validation Procedure.md",
-    "Assets/Verficiation & Validation plans.md",
-    "Assets/Value Propositions.md",
-    "Assets/Users.md",
-    "Assets/User Interfaces.md",
-    "Assets/Usability engineering Procedure.md",
-    "Assets/Usability Engineering Files.md",
-    "Assets/Usability Engineering.md",
-    "Assets/Top management.md",
-    "Assets/Technical Support Procedure.md",
-    "Assets/Technical Documentations.md",
-    "Assets/System risks in AI-Based Medical Device Software.md",
-    "Assets/System Requriement Specifications.md",
-    "Assets/System Requirement Specification.md",
-    "Assets/System Release Reports.md",
-    "Assets/Support ticket.md",
-    "Assets/Summative Evaluation Report.md",
-    "Assets/Software Test Record.md",
-    "Canvases/test.canvas",
     "Canvases/test.canvas~",
     "EU MDR 2017",
     "Media/Pasted image 20251014133636.png",
-    "Canvases/Software Problem resolution process.canvas",
-    "External",
-    "Canvases/Usability Engineering Process.canvas",
-    "Canvases/Top Management Process.canvas"
+    "External"
   ]
 }

@@ -2,7 +2,7 @@
 	"nodes":[
 		{"type":"file","file":"Assets/Product Development Procedure.md","id":"75e1969c267081df","x":-919,"y":-1609,"width":400,"height":400},
 		{"type":"file","file":"Assets/Risk Management Procedure.md","id":"775991c2719ef083","x":-302,"y":-1092,"width":400,"height":400},
-		{"type":"file","file":"Canvases/Clinical Process.canvas","id":"8b18388b9ed406df","x":240,"y":-1609,"width":400,"height":400},
+		{"type":"file","file":"Canvases/Clinical Management Process.canvas","id":"8b18388b9ed406df","x":240,"y":-1609,"width":400,"height":400},
 		{"type":"text","text":"# Processes and their interaction\n","id":"88fd2932aa470332","x":-365,"y":-1816,"width":527,"height":92},
 		{"type":"file","file":"Assets/Software Engineering Procedure.md","id":"2c27fa49c2d1b313","x":-919,"y":-1092,"width":400,"height":400},
 		{"type":"file","file":"Assets/Usability engineering Procedure.md","id":"eb7b0487ee686444","x":-919,"y":-583,"width":400,"height":400},

@@ -1,4 +1,4 @@
-Process: [[Clinical Process.canvas]]
+Process: [[Clinical Management Process.canvas]]
 Requirements: [[]]
 Owner: [[R&D Management]]
 

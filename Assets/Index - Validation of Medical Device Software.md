@@ -1,3 +1,6 @@
+Requirements: [[EU MDR 2017_745 Article 61]] [[EU MDR 2017_745 Annex XIV Clinical evaluation]] [[EU MDR 2017_745 Annex I General Safety and Performance Requirements]]
+Owner: [[Head of Quality Management]]
+Type: #Index 
 
 This index provides the structural overview for the validation documentation set, enabling consistent navigation and ensuring traceability across all documents forming the Medical Device Software Validation Framework. It supports harmonisation across pre-market, post-market, clinical, and regulatory domains, serving as the main entry point for internal and external reviewers.
 

@@ -1,4 +1,4 @@
-Process: [[Product Development Process.canvas]]
+Process: [[Product Management Process.canvas]]
 Requirements: [[]]
 Owner [[Product Management]]
 

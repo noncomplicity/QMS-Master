@@ -1,3 +1,9 @@
+Process: [[Risk Management Process.canvas|Risk Management Process]]
+Requirements: [[]]
+Owner: [[Head of Risk Management]]
+Type: #StandardOperatingProcedure 
+
+
 ## Introduction
 
 This document describes a structured, two-level approach to risk management for standalone medical device software, aligned with the requirements and principles of **ISO 14971**, **IEC 62304**, and **IEC 82304-1**. The objective of this framework is to establish a cohesive methodology that links high-level safety and clinical risk analysis with detailed causal and design-level risk assessments, providing full traceability from system-level hazards to component-level contributing factors.

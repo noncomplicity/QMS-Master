@@ -1,3 +1,9 @@
+Process: [[Risk Management Process.canvas|Risk Management Process]]
+Requirements: [[ISO 14971 Risk management for medical devices]]
+Owner: [[Head of Risk Management]]
+Type: #StandardOperatingProcedure 
+
+
 ## 1. Purpose
 
 Determine medical device AI risk by classifying the device and defining the required level of clinical evidence. The classification depends on intended purpose, impact on healthcare decisions, and the health condition addressed. The outcome of the determination of the Medical Device AI Risk is a documented determination of the AI system’s inherent clinical risk level, its alignment with regulatory classification, and the corresponding clinical evaluation plan.
@@ -23,13 +29,9 @@ Identify hazards and hazardous situations within the **clinical workflow** where
 Examples include:
 
 - Misinterpretation or misuse of AI output in clinical decisions.
-    
-- Delay in intervention caused by overreliance on AI recommendations.
-    
+- Delay in intervention caused by over-reliance on AI recommendations.
 - Missed detection or inappropriate prioritization of patients.
-    
 - Use outside the intended user group or clinical environment.
-    
 
 Each identified hazard should be linked to a **hazardous situation** in the clinical use scenario and to potential **harms** affecting patients, users, or the healthcare process.
 
@@ -37,7 +39,7 @@ Each identified hazard should be linked to a **hazardous situation** in the clin
 
 Use the identified hazards and their potential clinical consequences to determine the **overall risk level** of the AI system in its intended use. The objective is to assess the **clinical relevance** of possible errors or misuse and determine whether the clinical performance must be supported by **prospective** or **retrospective** data.
 
-The output of this process provides the basis for **IMDRF SaMD risk categorization** and subsequent **EU MDR class alignment**. The results shall be documented in the [[System Risk Analysises]], ensuring that the identified AI-related clinical risks are integrated into the overall [[Risk Management Framework for Medical Device Software]].
+The output of this process provides the basis for **IMDRF SaMD risk categorization** and subsequent **EU MDR class alignment**. The results shall be documented in the [[System Risk Analyses]], ensuring that the identified AI-related clinical risks are integrated into the overall [[Risk Management Framework for Medical Device Software]].
 
 ---
 
