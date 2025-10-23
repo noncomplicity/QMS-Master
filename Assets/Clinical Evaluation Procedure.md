@@ -2,9 +2,7 @@ Process: [[Clinical Management Process.canvas]]
 Requirements: [[MDCG 2020-1]]
 Owner: [[R&D Management]]
 
-Status: #Draft 
 Type: #Procedure 
-Date: 2023-04-25
 
 
 

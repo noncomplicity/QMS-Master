@@ -79,7 +79,7 @@ Each of the following areas represents an **instructional reference** for method
 
 #### 6. Integrating Clinical Data into the Validation Framework
 
-The clinical data shall integrate in the the Validation Framework.
+The clinical data shall integrate in the Validation Framework.
 
 Clinical data generation should be part of the structured validation plan that aligns:
 
