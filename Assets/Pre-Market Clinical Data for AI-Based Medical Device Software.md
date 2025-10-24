@@ -88,3 +88,5 @@ Clinical data generation should be part of the structured validation plan that a
 - **Usability validation (interaction, safety, decision integration)** — Guided by IEC 62366-1 and ISO/TR 62366-2 for formative and summative evaluations, integrated with ISO 14971 for use-related risk management and clinical workflow safety.
 
 These elements collectively substantiate the [[Clinical Evaluation Reports]], ensuring the evidence package meets expectations for safety, performance, and usability.
+
+What about Valid clinical association, technical performance, clinical performance

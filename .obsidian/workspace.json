@@ -85,7 +85,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Assets/Pre-Market Clinical Data for AI-Based Medical Device Software.md",
+                "file": "Assets/Doctrace Rdr.md",
                 "mode": "source",
                 "source": false,
                 "backlinks": true,
@@ -100,7 +100,7 @@
                 }
               },
               "icon": "lucide-file",
-              "title": "Pre-Market Clinical Data for AI-Based Medical Device Software"
+              "title": "Doctrace Rdr"
             }
           },
           {
@@ -306,19 +306,23 @@
   },
   "active": "f0d0542d241f9a34",
   "lastOpenFiles": [
+    "Assets/Doctrace System Architecture.md",
+    "Assets/Doctrace Rdr.md",
+    "Assets/DocTrace Rdr - System requirements.md",
+    "Assets/DocTrace Rdr - Navigation Requirements.md",
+    "Assets/Pre-Market Clinical Data for AI-Based Medical Device Software.md",
+    "Canvases/Clinical Management Process.canvas",
+    "Assets/System risks in AI-Based Medical Device Software.md",
+    "Assets/Intended Purpose and Context of Use for AI-Based Medical Device Software.md",
     "Assets/Index - Validation of Medical Device Software.md",
     "Assets/Medical Devices AI Validation Requirements Overview.md",
     "Assets/Index - Markdown-QMS.md",
     "Templates/Header-Index.md",
     "Templates/Header-Canvas.md",
     "Assets/Access Management.md",
-    "Canvases/Clinical Management Process.canvas",
     "Canvases/Regulatory Conformity Process.canvas",
     "Canvases/Product Management Process.canvas",
     "Assets/Risk Management Framework for Medical Device Software.md",
-    "Assets/System risks in AI-Based Medical Device Software.md",
-    "Assets/Pre-Market Clinical Data for AI-Based Medical Device Software.md",
-    "Assets/Intended Purpose and Context of Use for AI-Based Medical Device Software.md",
     "Assets/Clinical Evaluation Procedure.md",
     "Assets/Verficiation & Validation plans.md",
     "Assets/Access process.md",
@@ -338,10 +342,6 @@
     "Assets/Head of Quality Management.md",
     "Templates/Header-Role.md",
     "Templates/Header-Plan.md",
-    "Assets/Regulatory Manager.md",
-    "Assets/Product Manager.md",
-    "Assets/Clinical Evaluation Reports.md",
-    "Assets/Quality Policy for a Medical Device Software Company Specializing in Digital health solutions.md",
     "Canvases/test.canvas~",
     "EU MDR 2017",
     "Media/Pasted image 20251014133636.png",
