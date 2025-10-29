@@ -8,134 +8,23 @@
         "type": "tabs",
         "children": [
           {
-            "id": "c645f445e8a6329c",
-            "type": "leaf",
-            "state": {
-              "type": "canvas",
-              "state": {
-                "file": "Canvases/Clinical Process.canvas",
-                "viewState": {
-                  "x": -625.1267503781951,
-                  "y": -789.0866270838243,
-                  "zoom": -1.1566487217663612
-                }
-              },
-              "icon": "lucide-layout-dashboard",
-              "title": "Clinical Process"
-            }
-          },
-          {
-            "id": "0fe756fc1d2eaf27",
-            "type": "leaf",
-            "state": {
-              "type": "graph",
-              "state": {},
-              "icon": "lucide-git-fork",
-              "title": "Graph view"
-            }
-          },
-          {
-            "id": "6bf338ec736ce3d6",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Templates/Header-Role.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "Header-Role"
-            }
-          },
-          {
-            "id": "b054142969f196d5",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Requirements/EN 62304 5.2 Software requirements analysis.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "EN 62304 5.2 Software requirements analysis"
-            }
-          },
-          {
-            "id": "a7d698e114bdab2e",
-            "type": "leaf",
-            "state": {
-              "type": "canvas",
-              "state": {
-                "file": "Canvases/Clinical Management Process.canvas",
-                "viewState": {
-                  "x": -858.5710721527666,
-                  "y": -1094.8667845996627,
-                  "zoom": -0.26380730651359224
-                }
-              },
-              "icon": "lucide-layout-dashboard",
-              "title": "Clinical Management Process"
-            }
-          },
-          {
-            "id": "f0d0542d241f9a34",
-            "type": "leaf",
-            "state": {
-              "type": "canvas",
-              "state": {
-                "file": "Canvases/Clinical Management Process.canvas",
-                "viewState": {
-                  "x": -898.5236241008225,
-                  "y": -1238.146761990746,
-                  "zoom": -1.4119547141330246
-                }
-              },
-              "icon": "lucide-layout-dashboard",
-              "title": "Clinical Management Process"
-            }
-          },
-          {
-            "id": "90c723a38d60ec80",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Assets/Risk Management Framework for Medical Device Software.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "Risk Management Framework for Medical Device Software"
-            }
-          },
-          {
             "id": "027e86432819b72b",
             "type": "leaf",
             "state": {
-              "type": "markdown",
+              "type": "canvas",
               "state": {
-                "file": "Assets/Doctrace Rdr.md",
-                "mode": "source",
-                "source": false,
-                "backlinks": true,
-                "backlinkOpts": {
-                  "collapseAll": false,
-                  "extraContext": false,
-                  "sortOrder": "alphabetical",
-                  "showSearch": false,
-                  "searchQuery": "",
-                  "backlinkCollapsed": false,
-                  "unlinkedCollapsed": true
+                "file": "Canvases/Document and Record Control.canvas",
+                "viewState": {
+                  "x": 165.5,
+                  "y": 267.0941300243335,
+                  "zoom": -0.8318210552113267
                 }
               },
-              "icon": "lucide-file",
-              "title": "Doctrace Rdr"
+              "icon": "lucide-layout-dashboard",
+              "title": "Document and Record Control"
             }
           }
-        ],
-        "currentTab": 7
+        ]
       }
     ],
     "direction": "vertical"
@@ -208,7 +97,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Assets/Pre-Market Clinical Data for AI-Based Medical Device Software.md",
+                "file": "Canvases/Document and Record Control.canvas",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -218,7 +107,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for Pre-Market Clinical Data for AI-Based Medical Device Software"
+              "title": "Backlinks for Document and Record Control"
             }
           },
           {
@@ -309,42 +198,41 @@
   },
   "active": "027e86432819b72b",
   "lastOpenFiles": [
-    "Assets/agent-os.md",
-    "Assets/Doctrace Rdr.md",
-    "Assets/Index - Markdown-QMS.md",
-    "Templates/Header-Report.md",
-    "Templates/Header-Plan.md",
-    "Templates/Header-Index.md",
-    "Templates/Header-Canvas.md",
-    "Assets/DocTrace Rdr - System requirements.md",
-    "Assets/DocTrace Rdr - Navigation Requirements.md",
-    "Assets/Doctrace System Architecture.md",
-    "Canvases/Clinical Management Process.canvas",
+    "Assets/QMS Git Work Instruction — Developer CLI.md",
+    "Canvases/Document and Record Control.canvas",
+    "Requirements/EU MDR 2017_745.md",
+    "Requirements/AI Act.md",
+    "Requirements/HSLF-FS 2022_42 NMI.md",
+    "Requirements/GDPR.md",
+    "Requirements/EU MDR_2017_745 - Annex IX.md",
+    "Requirements/EU MDR_2017_745 - Annex IX, Chapter I §2.1 and §2.2.md",
+    "Requirements/EU MDR_2017_745 - Annex IX, Chapter III §2.md",
+    "Requirements/EU MDR_2017_745 - Article 10.md",
+    "Requirements/ISO 13485_2016 - 4.1.4.md",
+    "Requirements/ISO 13485_2016 - 4.2.1.md",
+    "Requirements/ISO 13485_2016 - 4.2.3.md",
+    "Requirements/ISO 13485_2016 - 4.2.4.md",
+    "Requirements/ISO 13485_2016 - 4.2.5.md",
+    "Requirements/ISO 13485_2016 - 7.3.9.md",
+    "Requirements/ISO 13485_2016 - 7.5.3.2.2.md",
+    "Requirements/ISO 13485_2016 - 8.2.4.md",
+    "Requirements/ISO 13485_2016 - 8.5.6.md",
     "Assets/Pre-Market Clinical Data for AI-Based Medical Device Software.md",
-    "Canvases/Regulatory Conformity Process.canvas",
+    "Assets/QMS Change Control Procedure.md",
+    "Assets/QMS Git Work Instruction — GitHub Web Interface.md",
     "Assets/System risks in AI-Based Medical Device Software.md",
     "Assets/Intended Purpose and Context of Use for AI-Based Medical Device Software.md",
     "Assets/Index - Validation of Medical Device Software.md",
-    "Assets/Medical Devices AI Validation Requirements Overview.md",
-    "Assets/Access Management.md",
+    "Assets/Clinical Development Plans.md",
+    "Canvases/Clinical Management Process.canvas",
+    "Canvases/Regulatory Conformity Process.canvas",
     "Canvases/Product Management Process.canvas",
-    "Assets/Risk Management Framework for Medical Device Software.md",
-    "Assets/Clinical Evaluation Procedure.md",
-    "Assets/Verficiation & Validation plans.md",
-    "Assets/Access process.md",
-    "Assets/Regulatory strategy.md",
     "Canvases/Pre-Market Clinical Data for AI-Based Medical Device Software.canvas",
     "Canvases/Main Process.canvas",
     "Canvases/Usability Engineering Process.canvas",
     "Canvases/Top Management Process.canvas",
     "Canvases/Technical Documentation.canvas",
     "Canvases/Software Problem resolution process.canvas",
-    "Canvases/Risk Management Process.canvas",
-    "Templates/Header-SOP.md",
-    "Assets/Regulatory Conformity Plans.md",
-    "Assets/System Risk Analyses.md",
-    "Assets/Head of Risk Management.md",
-    "Assets/Head of Clinical Management.md",
     "Canvases/test.canvas~",
     "EU MDR 2017",
     "Media/Pasted image 20251014133636.png",

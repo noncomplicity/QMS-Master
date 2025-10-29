@@ -1,0 +1,7 @@
+{
+	"nodes":[
+		{"id":"a8e2cb24a063273c","type":"file","file":"Assets/QMS Change Control Procedure.md","x":-189,"y":-168,"width":1269,"height":1028},
+		{"id":"240c7340f08e5bc8","type":"text","text":"Process: [[Canvases/Document and Record Control.canvas|Document and Record Control]]\nRequirements: [[Requirements/ISO 13485_2016 - 4.2.1]] [[Requirements/ISO 13485_2016 - 4.2.3]] [[ISO 13485_2016 - 4.2.4]] [[Requirements/ISO 13485_2016 - 4.2.5]] [[Requirements/ISO 13485_2016 - 7.5.3.2.2]] [[Requirements/ISO 13485_2016 - 8.2.4]] [[ISO 13485_2016 - 8.5.6]] [[EU MDR_2017_745 - Article 10]] [[Requirements/EU MDR_2017_745 - Annex IX, Chapter I §2.1 and §2.2]] [[Requirements/EU MDR_2017_745 - Annex IX, Chapter III §2]]\nOwner: [[Assets/Head of Quality Management|Head of Quality Management]]\nType: #Process ","x":-189,"y":-500,"width":709,"height":260}
+	],
+	"edges":[]
+}

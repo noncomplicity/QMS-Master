@@ -59,10 +59,10 @@ The healthcare situation describes the **clinical condition** that the AI addres
 
 The combination of the **significance of information** and the **healthcare situation** defines the **IMDRF SaMD risk category** (I–IV), where:
 
-|Healthcare Situation / Significance of Information|Informing|Driving|Treating/Diagnosing|
-|---|---|---|---|
-|**Non-Serious**|I|II|II|
-|**Serious**|II|III|III|
-|**Critical**|III|III|IV|
+| Healthcare Situation / Significance of Information | Informing | Driving | Treating/Diagnosing |
+| -------------------------------------------------- | --------- | ------- | ------------------- |
+| **Non-Serious**                                    | I         | II      | II                  |
+| **Serious**                                        | II        | III     | III                 |
+| **Critical**                                       | III       | III     | IV                  |
 
 The assigned **SaMD risk category** shall be documented in the **[[Intended Purpose Statements]]** or its annex, ensuring that the classification rationale is traceable to the described clinical context.
