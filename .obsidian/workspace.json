@@ -11,10 +11,24 @@
             "id": "c6cb030976fc4cd1",
             "type": "leaf",
             "state": {
-              "type": "empty",
-              "state": {},
+              "type": "markdown",
+              "state": {
+                "file": "Requirements/ISO 13485_2016.md",
+                "mode": "source",
+                "source": false,
+                "backlinks": true,
+                "backlinkOpts": {
+                  "collapseAll": false,
+                  "extraContext": false,
+                  "sortOrder": "alphabetical",
+                  "showSearch": false,
+                  "searchQuery": "",
+                  "backlinkCollapsed": false,
+                  "unlinkedCollapsed": true
+                }
+              },
               "icon": "lucide-file",
-              "title": "New tab"
+              "title": "ISO 13485_2016"
             }
           }
         ]
@@ -189,8 +203,11 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "6fdfda6b6d163882",
+  "active": "c6cb030976fc4cd1",
   "lastOpenFiles": [
+    "Requirements/ISO 13485_2016 - 4.1.4.md",
+    "Requirements/ISO 13485_2016.md",
+    "README.md",
     "Canvases/Document and Record Control.canvas",
     "Assets/QMS Git Work Instruction — Developer CLI.md",
     "Requirements/EU MDR 2017_745.md",
@@ -201,7 +218,6 @@
     "Requirements/EU MDR_2017_745 - Annex IX, Chapter I §2.1 and §2.2.md",
     "Requirements/EU MDR_2017_745 - Annex IX, Chapter III §2.md",
     "Requirements/EU MDR_2017_745 - Article 10.md",
-    "Requirements/ISO 13485_2016 - 4.1.4.md",
     "Requirements/ISO 13485_2016 - 4.2.1.md",
     "Requirements/ISO 13485_2016 - 4.2.3.md",
     "Requirements/ISO 13485_2016 - 4.2.4.md",
@@ -216,7 +232,6 @@
     "Assets/System risks in AI-Based Medical Device Software.md",
     "Assets/Intended Purpose and Context of Use for AI-Based Medical Device Software.md",
     "Assets/Index - Validation of Medical Device Software.md",
-    "Assets/Clinical Development Plans.md",
     "Canvases/Clinical Management Process.canvas",
     "Canvases/Regulatory Conformity Process.canvas",
     "Canvases/Product Management Process.canvas",
