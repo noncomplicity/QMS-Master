@@ -4,24 +4,17 @@
     "type": "split",
     "children": [
       {
-        "id": "93c56e52375e1575",
+        "id": "3c2eb02f35e805fe",
         "type": "tabs",
         "children": [
           {
-            "id": "027e86432819b72b",
+            "id": "c6cb030976fc4cd1",
             "type": "leaf",
             "state": {
-              "type": "canvas",
-              "state": {
-                "file": "Canvases/Document and Record Control.canvas",
-                "viewState": {
-                  "x": 165.5,
-                  "y": 267.0941300243335,
-                  "zoom": -0.8318210552113267
-                }
-              },
-              "icon": "lucide-layout-dashboard",
-              "title": "Document and Record Control"
+              "type": "empty",
+              "state": {},
+              "icon": "lucide-file",
+              "title": "New tab"
             }
           }
         ]
@@ -97,7 +90,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Canvases/Document and Record Control.canvas",
+                "file": "README.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -107,7 +100,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for Document and Record Control"
+              "title": "Backlinks for README"
             }
           },
           {
@@ -196,10 +189,10 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "027e86432819b72b",
+  "active": "6fdfda6b6d163882",
   "lastOpenFiles": [
-    "Assets/QMS Git Work Instruction — Developer CLI.md",
     "Canvases/Document and Record Control.canvas",
+    "Assets/QMS Git Work Instruction — Developer CLI.md",
     "Requirements/EU MDR 2017_745.md",
     "Requirements/AI Act.md",
     "Requirements/HSLF-FS 2022_42 NMI.md",
