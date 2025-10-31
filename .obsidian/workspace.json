@@ -4,16 +4,16 @@
     "type": "split",
     "children": [
       {
-        "id": "3c2eb02f35e805fe",
+        "id": "82d4f611366bdc88",
         "type": "tabs",
         "children": [
           {
-            "id": "c6cb030976fc4cd1",
+            "id": "acd5194137985b9b",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Requirements/ISO 13485_2016.md",
+                "file": "Assets/Doctrace Rdr.md",
                 "mode": "source",
                 "source": false,
                 "backlinks": true,
@@ -28,7 +28,7 @@
                 }
               },
               "icon": "lucide-file",
-              "title": "ISO 13485_2016"
+              "title": "Doctrace Rdr"
             }
           }
         ]
@@ -203,12 +203,22 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "c6cb030976fc4cd1",
+  "active": "acd5194137985b9b",
   "lastOpenFiles": [
-    "Requirements/ISO 13485_2016 - 4.1.4.md",
-    "Requirements/ISO 13485_2016.md",
-    "README.md",
+    "Assets/Doctrace System Architecture.md",
+    "Assets/Document Management Procedure.md",
+    "Assets/DocTrace Rdr - System requirements.md",
+    "Assets/DocTrace Rdr - Navigation Requirements.md",
+    "Canvases/Main Process.canvas",
     "Canvases/Document and Record Control.canvas",
+    "Assets/QMS Change Control Procedure.md",
+    "Requirements/test.md",
+    "Assets/Users.md",
+    "Assets/Untitled.base",
+    "Assets/Untitled.md",
+    "Requirements/ISO 13485_2016.md",
+    "Requirements/ISO 13485_2016 - 4.1.4.md",
+    "README.md",
     "Assets/QMS Git Work Instruction — Developer CLI.md",
     "Requirements/EU MDR 2017_745.md",
     "Requirements/AI Act.md",
@@ -224,19 +234,10 @@
     "Requirements/ISO 13485_2016 - 4.2.5.md",
     "Requirements/ISO 13485_2016 - 7.3.9.md",
     "Requirements/ISO 13485_2016 - 7.5.3.2.2.md",
-    "Requirements/ISO 13485_2016 - 8.2.4.md",
-    "Requirements/ISO 13485_2016 - 8.5.6.md",
-    "Assets/Pre-Market Clinical Data for AI-Based Medical Device Software.md",
-    "Assets/QMS Change Control Procedure.md",
-    "Assets/QMS Git Work Instruction — GitHub Web Interface.md",
-    "Assets/System risks in AI-Based Medical Device Software.md",
-    "Assets/Intended Purpose and Context of Use for AI-Based Medical Device Software.md",
-    "Assets/Index - Validation of Medical Device Software.md",
     "Canvases/Clinical Management Process.canvas",
     "Canvases/Regulatory Conformity Process.canvas",
     "Canvases/Product Management Process.canvas",
     "Canvases/Pre-Market Clinical Data for AI-Based Medical Device Software.canvas",
-    "Canvases/Main Process.canvas",
     "Canvases/Usability Engineering Process.canvas",
     "Canvases/Top Management Process.canvas",
     "Canvases/Technical Documentation.canvas",
