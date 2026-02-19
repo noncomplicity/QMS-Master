@@ -11,9 +11,26 @@
             "id": "acd5194137985b9b",
             "type": "leaf",
             "state": {
+              "type": "canvas",
+              "state": {
+                "file": "Canvases/Top Management Process.canvas",
+                "viewState": {
+                  "x": 161.82765503965132,
+                  "y": 188.5695383534189,
+                  "zoom": -1.9604952374249915
+                }
+              },
+              "icon": "lucide-layout-dashboard",
+              "title": "Top Management Process"
+            }
+          },
+          {
+            "id": "15a5a0b7ac8ebd82",
+            "type": "leaf",
+            "state": {
               "type": "markdown",
               "state": {
-                "file": "Assets/Doctrace Rdr.md",
+                "file": "Assets/Technical Documentation.md",
                 "mode": "source",
                 "source": false,
                 "backlinks": true,
@@ -28,10 +45,76 @@
                 }
               },
               "icon": "lucide-file",
-              "title": "Doctrace Rdr"
+              "title": "Technical Documentation"
+            }
+          },
+          {
+            "id": "030b7b90a8a5b35f",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Assets/Determination of Intended Purpose and Context of Use for AI-Based Medical Device.md",
+                "mode": "preview",
+                "source": false,
+                "backlinks": true,
+                "backlinkOpts": {
+                  "collapseAll": false,
+                  "extraContext": false,
+                  "sortOrder": "alphabetical",
+                  "showSearch": false,
+                  "searchQuery": "",
+                  "backlinkCollapsed": false,
+                  "unlinkedCollapsed": true
+                }
+              },
+              "icon": "lucide-file",
+              "title": "Determination of Intended Purpose and Context of Use for AI-Based Medical Device"
+            }
+          },
+          {
+            "id": "059bde5868574210",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Templates/Metadata-scheema.md",
+                "mode": "source",
+                "source": false,
+                "backlinks": true,
+                "backlinkOpts": {
+                  "collapseAll": false,
+                  "extraContext": false,
+                  "sortOrder": "alphabetical",
+                  "showSearch": false,
+                  "searchQuery": "",
+                  "backlinkCollapsed": false,
+                  "unlinkedCollapsed": true
+                }
+              },
+              "icon": "lucide-file",
+              "title": "Metadata-scheema"
+            }
+          },
+          {
+            "id": "fade8c8566a560a2",
+            "type": "leaf",
+            "state": {
+              "type": "canvas",
+              "state": {
+                "file": "Canvases/Software.canvas",
+                "viewState": {
+                  "x": 390.2517877887453,
+                  "y": -583.9651353010826,
+                  "zoom": -1.2418736764023586
+                }
+              },
+              "icon": "lucide-layout-dashboard",
+              "title": "Software"
             }
           }
-        ]
+        ],
+        "currentTab": 4
       }
     ],
     "direction": "vertical"
@@ -203,45 +286,45 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "acd5194137985b9b",
+  "active": "ef25cacf69c5755f",
   "lastOpenFiles": [
+    "Assets/System Technical Documentaion.md",
+    "Assets/Module Delta.md",
+    "Assets/Module Technical Documentation.md",
+    "Assets/System Verification and Validation.md",
+    "Assets/Module Verification and Validation.md",
+    "Assets/System Requirements.md",
+    "Assets/Module Requirements.md",
+    "Assets/Module Requirement Deltas.md",
+    "Assets/Module Risk Delta.md",
+    "Assets/Module Risks.md",
+    "Assets/System Risk.md",
+    "Assets/Module Architecture delta.md",
+    "Assets/Module Architecture.md",
+    "Assets/Deploy code to environment.md",
+    "Assets/Merge repository branch.md",
+    "Assets/Change.md",
+    "Canvases/Software Problem resolution process.canvas",
+    "Canvases/Software.canvas",
+    "Assets/Technical Documentation Master Prompt Scheema.md",
+    "Assets/2025-11-01.md",
+    "Templates/Metadata-scheema.md",
+    "Canvases/Top Management Process.canvas",
+    "Assets/Technical Documentation.md",
+    "Assets/Determination of Intended Purpose and Context of Use for AI-Based Medical Device.md",
+    "Assets/Device Description Specification.md",
+    "Assets/Head of Quality Management.md",
+    "Assets/General Safety and Performance Requirements.md",
+    "Assets/External Sources for Scientific Litterature Plan.md",
     "Assets/Doctrace System Architecture.md",
-    "Assets/Document Management Procedure.md",
-    "Assets/DocTrace Rdr - System requirements.md",
-    "Assets/DocTrace Rdr - Navigation Requirements.md",
     "Canvases/Main Process.canvas",
-    "Canvases/Document and Record Control.canvas",
-    "Assets/QMS Change Control Procedure.md",
-    "Requirements/test.md",
-    "Assets/Users.md",
-    "Assets/Untitled.base",
-    "Assets/Untitled.md",
-    "Requirements/ISO 13485_2016.md",
-    "Requirements/ISO 13485_2016 - 4.1.4.md",
-    "README.md",
-    "Assets/QMS Git Work Instruction — Developer CLI.md",
-    "Requirements/EU MDR 2017_745.md",
-    "Requirements/AI Act.md",
-    "Requirements/HSLF-FS 2022_42 NMI.md",
-    "Requirements/GDPR.md",
-    "Requirements/EU MDR_2017_745 - Annex IX.md",
-    "Requirements/EU MDR_2017_745 - Annex IX, Chapter I §2.1 and §2.2.md",
-    "Requirements/EU MDR_2017_745 - Annex IX, Chapter III §2.md",
-    "Requirements/EU MDR_2017_745 - Article 10.md",
-    "Requirements/ISO 13485_2016 - 4.2.1.md",
-    "Requirements/ISO 13485_2016 - 4.2.3.md",
-    "Requirements/ISO 13485_2016 - 4.2.4.md",
-    "Requirements/ISO 13485_2016 - 4.2.5.md",
-    "Requirements/ISO 13485_2016 - 7.3.9.md",
-    "Requirements/ISO 13485_2016 - 7.5.3.2.2.md",
     "Canvases/Clinical Management Process.canvas",
+    "Canvases/Document and Record Control.canvas",
+    "Assets/Untitled.base",
     "Canvases/Regulatory Conformity Process.canvas",
     "Canvases/Product Management Process.canvas",
     "Canvases/Pre-Market Clinical Data for AI-Based Medical Device Software.canvas",
     "Canvases/Usability Engineering Process.canvas",
-    "Canvases/Top Management Process.canvas",
-    "Canvases/Technical Documentation.canvas",
-    "Canvases/Software Problem resolution process.canvas",
     "Canvases/test.canvas~",
     "EU MDR 2017",
     "Media/Pasted image 20251014133636.png",

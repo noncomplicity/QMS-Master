@@ -141,7 +141,7 @@ Git Repository Interface used to pull released documentation artifacts; Authenti
 
 **Triggers:** On push to the release branch (e.g., `main`) and on creation of a version tag (e.g., `vX.Y.Z`). Manual re-run allowed by Org Admins.
 
-**Build:** Static site build (e.g., MkDocs/Docusaurus) produces HTML and a searchable JSON index. Build captures commit SHA, branch, tag (if any), build timestamp, and pipeline ID.
+**Build:** Static site build produces HTML and a searchable JSON index. Build captures commit SHA, branch, tag (if any), build timestamp, and pipeline ID.
 
 **Versioning/Tagging:** If a tag exists, it becomes the display Version. Otherwise the short commit SHA is used. Pipelines may create a tag according to org rules.
 
@@ -173,9 +173,9 @@ Git Repository Interface used to pull released documentation artifacts; Authenti
 
 Frontmatter (YAML or JSON blocks at the top of each document) shall define the metadata fields for every controlled document, including Process, Owner, Type, and Object. This ensures consistent and machine-readable metadata extraction during builds.
 
-All controlled documents include the following metadata fields:
+All controlled documents include the following metadata fields: [[Metadata-scheema]]
 
-Document ID, Version, Status, Owner, Process, Type, and Date of Last Approval.
+
 
 ## 9. Future Extensions (Out of MVP Scope)
 

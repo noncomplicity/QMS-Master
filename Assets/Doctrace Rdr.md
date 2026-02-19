@@ -6,7 +6,7 @@ https://docs.google.com/spreadsheets/d/1fD5oTTWFSlV-1j5VkcRXqHn3DqEC51VjDDLDu0K_
 ## Requirements
 [[DocTrace Rdr - System requirements]]
 [[DocTrace Rdr - Navigation Requirements]]
-
+[[DocTrace Rdr Metadata Requriements]]
 ## Architecture
 [[Doctrace System Architecture]]
 
