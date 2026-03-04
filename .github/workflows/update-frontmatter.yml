@@ -26,108 +26,58 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Get changed files
-        id: changed-files
-        uses: tj-actions/changed-files@v44
-        with:
-          files: '**/*.md'
-
       - name: Update frontmatter metadata
-        if: steps.changed-files.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch'
+        if: github.event_name == 'workflow_dispatch' || github.event_name == 'push'
         run: |
-          # Process files based on trigger type
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            find . -name "*.md" -type f | grep -v node_modules | while IFS= read -r file; do
-              bash -c '
-                file="$1"
-                echo "Processing: $file"
+          process_file() {
+            local file="$1"
+            echo "Processing: $file"
 
-                # Skip files without frontmatter
-                if ! head -1 "$file" | grep -q "^---$"; then
-                  echo "  Skipping: No frontmatter found"
-                  exit 0
-                fi
+            # Skip files without frontmatter
+            if ! head -1 "$file" | grep -q "^---$"; then
+              echo "  Skipping: No frontmatter found"
+              return
+            fi
 
-                # Check for valid frontmatter structure
-                FRONTMATTER_END=$(awk "/^---$/{c++;if(c==2){print NR;exit}}" "$file")
-                if [ -z "$FRONTMATTER_END" ]; then
-                  echo "  Skipping: Invalid frontmatter structure"
-                  exit 0
-                fi
+            # Check for valid frontmatter structure
+            FRONTMATTER_END=$(awk '/^---$/{c++;if(c==2){print NR;exit}}' "$file")
+            if [ -z "$FRONTMATTER_END" ]; then
+              echo "  Skipping: Invalid frontmatter structure"
+              return
+            fi
 
-                # Get metadata from git
-                FIRST_COMMIT=$(git log --follow --diff-filter=A --format="%h" -- "$file" | tail -1)
-                COMMIT_COUNT=$(git log --first-parent --oneline -- "$file" | grep -v "chore: Update frontmatter metadata" | wc -l)
-                LAST_AUTHOR=$(git log --format="%an" -- "$file" | grep -v "github-actions\[bot\]" | head -1)
-                LAST_DATE=$(git log -1 --format="%cs" -- "$file")
+            # Get metadata from git
+            FIRST_COMMIT=$(git log --follow --diff-filter=A --format='%h' -- "$file" | tail -1)
+            COMMIT_COUNT=$(git log --first-parent --oneline -- "$file" | grep -v "chore: Update frontmatter metadata" | wc -l)
+            LAST_AUTHOR=$(git log --format='%an' -- "$file" | grep -v 'github-actions\[bot\]' | head -1)
+            LAST_DATE=$(git log -1 --format='%cs' -- "$file")
 
-                # Derive title from filename
-                BASENAME=$(basename "$file" .md)
-                TITLE=$(echo "$BASENAME" | sed "s/-/ /g")
+            # Derive title from filename
+            BASENAME=$(basename "$file" .md)
+            TITLE=$(echo "$BASENAME" | sed 's/-/ /g')
 
-                echo "  id: $FIRST_COMMIT"
-                echo "  title: $TITLE"
-                echo "  version: $COMMIT_COUNT"
-                echo "  author: $LAST_AUTHOR"
-                echo "  effective_date: $LAST_DATE"
+            echo "  id: $FIRST_COMMIT"
+            echo "  title: $TITLE"
+            echo "  version: $COMMIT_COUNT"
+            echo "  author: $LAST_AUTHOR"
+            echo "  effective_date: $LAST_DATE"
 
-                # Update id only if empty or missing
-                if grep -q "^id:$" "$file" || grep -q "^id: *$" "$file"; then
-                  sed -i "s/^id:.*$/id: $FIRST_COMMIT/" "$file"
-                fi
-                sed -i "s/^title:.*$/title: \"$TITLE\"/" "$file"
-                sed -i "s/^version:.*$/version: $COMMIT_COUNT/" "$file"
-                sed -i "s/^author:.*$/author: \"$LAST_AUTHOR\"/" "$file"
-                sed -i "s/^effective_date:.*$/effective_date: $LAST_DATE/" "$file"
-              ' _ "$file"
-            done
-          else
-            echo '${{ steps.changed-files.outputs.all_changed_files }}' | tr ',' '\n' | while IFS= read -r file; do
-              [ -z "$file" ] && continue
-              echo "Processing: $file"
+            # Update id only if empty
+            if grep -q "^id:$" "$file" || grep -q "^id: *$" "$file"; then
+              sed -i "s/^id:.*$/id: $FIRST_COMMIT/" "$file"
+            fi
+            sed -i "s/^title:.*$/title: \"$TITLE\"/" "$file"
+            sed -i "s/^version:.*$/version: $COMMIT_COUNT/" "$file"
+            sed -i "s/^author:.*$/author: \"$LAST_AUTHOR\"/" "$file"
+            sed -i "s/^effective_date:.*$/effective_date: $LAST_DATE/" "$file"
+          }
 
-              # Skip files without frontmatter
-              if ! head -1 "$file" | grep -q "^---$"; then
-                echo "  Skipping: No frontmatter found"
-                continue
-              fi
-
-              # Check for valid frontmatter structure
-              FRONTMATTER_END=$(awk '/^---$/{c++;if(c==2){print NR;exit}}' "$file")
-              if [ -z "$FRONTMATTER_END" ]; then
-                echo "  Skipping: Invalid frontmatter structure"
-                continue
-              fi
-
-              # Get metadata from git
-              FIRST_COMMIT=$(git log --follow --diff-filter=A --format='%h' -- "$file" | tail -1)
-              COMMIT_COUNT=$(git log --first-parent --oneline -- "$file" | grep -v "chore: Update frontmatter metadata" | wc -l)
-              LAST_AUTHOR=$(git log --format='%an' -- "$file" | grep -v 'github-actions\[bot\]' | head -1)
-              LAST_DATE=$(git log -1 --format='%cs' -- "$file")
-
-              # Derive title from filename
-              BASENAME=$(basename "$file" .md)
-              TITLE=$(echo "$BASENAME" | sed 's/-/ /g')
-
-              echo "  id: $FIRST_COMMIT"
-              echo "  title: $TITLE"
-              echo "  version: $COMMIT_COUNT"
-              echo "  author: $LAST_AUTHOR"
-              echo "  effective_date: $LAST_DATE"
-
-              # Update id only if empty
-              if grep -q "^id:$" "$file" || grep -q "^id: *$" "$file"; then
-                sed -i "s/^id:.*$/id: $FIRST_COMMIT/" "$file"
-              fi
-              sed -i "s/^title:.*$/title: \"$TITLE\"/" "$file"
-              sed -i "s/^version:.*$/version: $COMMIT_COUNT/" "$file"
-              sed -i "s/^author:.*$/author: \"$LAST_AUTHOR\"/" "$file"
-              sed -i "s/^effective_date:.*$/effective_date: $LAST_DATE/" "$file"
-            done
-          fi
+          # Always process all markdown files with frontmatter
+          find . -name "*.md" -type f ! -path "./.git/*" ! -path "./.trash/*" | while IFS= read -r file; do
+            process_file "$file"
+          done
 
       - name: Commit changes
-        if: steps.changed-files.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch'
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
