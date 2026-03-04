@@ -1,12 +1,12 @@
 ---
 id: QMS-P-001
-title: Change Control Procedure
-version: 1.3
+title: "Metadata scheema"
+version: 1
 status: Approved
-author: Jakob Dumky
+author: "Jakob"
 approver: Jane Smith
 approved_on: 2025-10-25
-effective_date: 2025-11-01
+effective_date: 2026-02-19
 change_control_record: CCR-2025-014
 type: Procedure
 Links:

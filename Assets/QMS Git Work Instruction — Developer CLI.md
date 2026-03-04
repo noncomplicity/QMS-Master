@@ -1,9 +1,9 @@
 ---
-id:
-title:
-version:
-author:
-effective_date:
+id: 5edb1fc
+title: "QMS Git Work Instruction — Developer CLI"
+version: 2
+author: "Jakob"
+effective_date: 2026-03-04
 type:
 process: "Document and Record Control"
 requirements: "ISO 13485_2016 - 4.2.4 ISO 13485_2016 - 4.2.5"

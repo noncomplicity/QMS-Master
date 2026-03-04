@@ -1,9 +1,9 @@
 ---
-id:
-title:
-version:
-author:
-effective_date:
+id: 4168666
+title: "Index   Validation of Medical Device Software"
+version: 2
+author: "Jakob"
+effective_date: 2026-03-04
 type: "Index"
 process:
 requirements: "EU MDR 2017_745 Article 61 EU MDR 2017_745 Annex XIV Clinical evaluation EU MDR 2017_745 Annex I General Safety and Performance Requirements"

@@ -1,9 +1,9 @@
 ---
-id:
-title:
-version:
-author:
-effective_date:
+id: 4168666
+title: "System risks in AI Based Medical Device Software"
+version: 3
+author: "Jakob"
+effective_date: 2026-03-04
 type: "StandardOperatingProcedure"
 process: "Risk Management Process"
 requirements: "ISO 14971 Risk management for medical devices"

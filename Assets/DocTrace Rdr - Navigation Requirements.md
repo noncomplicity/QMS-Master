@@ -1,9 +1,9 @@
 ---
-id:
-title:
-version:
-author:
-effective_date:
+id: 7972b7a
+title: "DocTrace Rdr   Navigation Requirements"
+version: 2
+author: "Jakob"
+effective_date: 2026-03-04
 type: "Specification"
 process: "Usability Engineering"
 requirements: "EN 62366 5.6 Establish USER INTERFACE SPECIFICATION"

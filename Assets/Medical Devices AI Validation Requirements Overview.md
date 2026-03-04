@@ -1,9 +1,9 @@
 ---
-id:
-title:
-version:
-author:
-effective_date:
+id: 4168666
+title: "Medical Devices AI Validation Requirements Overview"
+version: 3
+author: "Jakob"
+effective_date: 2026-03-04
 type: "Index"
 process:
 requirements:

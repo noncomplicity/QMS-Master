@@ -1,9 +1,9 @@
 ---
-id:
-title:
-version:
-author:
-effective_date:
+id: 7972b7a
+title: "DocTrace Rdr   System requirements"
+version: 3
+author: "Jakob"
+effective_date: 2026-03-04
 type: "Specification"
 process: "Requirements Management"
 requirements: "EN 62304 5.2 Software requirements analysis"

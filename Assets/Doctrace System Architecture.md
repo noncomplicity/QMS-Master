@@ -1,9 +1,9 @@
 ---
-id:
-title:
-version:
-author:
-effective_date:
+id: 5e72ea7
+title: "Doctrace System Architecture"
+version: 3
+author: "Jakob"
+effective_date: 2026-03-04
 type:
 process:
 requirements:

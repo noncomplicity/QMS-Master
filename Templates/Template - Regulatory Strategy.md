@@ -1,9 +1,9 @@
 ---
-id:
-title:
-version:
-author:
-effective_date:
+id: da5e728
+title: "Template   Regulatory Strategy"
+version: 2
+author: "Jakob"
+effective_date: 2026-03-04
 type:
 process:
 requirements:
