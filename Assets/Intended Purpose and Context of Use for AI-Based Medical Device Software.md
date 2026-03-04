@@ -1,9 +1,14 @@
-Process: [[Clinical Management Process.canvas|Clinical Management Process]]
-Requirements: [[]]
-Owner: [[Head of Clinical Management]]
-Type: #StandardOperatingProcedure 
-
-
+---
+id:
+title:
+version:
+author:
+effective_date:
+type: "StandardOperatingProcedure"
+process: "Clinical Management Process"
+requirements:
+owner: "Head of Clinical Management"
+---
 ## 1. Purpose
 
 The purpose of this procedure is to define a structured approach for determining the **intended purpose** and **context of use** of an AI-based medical device. This determination establishes the foundation for subsequent risk assessment and for defining the level and type of clinical evidence required to demonstrate safety, performance, and clinical validity.

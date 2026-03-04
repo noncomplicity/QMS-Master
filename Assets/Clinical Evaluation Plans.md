@@ -1,10 +1,14 @@
-Process: [[Clinical Evaluation Procedure]]
-Requirements: [[]]
-Owner: [[]]
- 
-Type: #Template 
-
-
+---
+id:
+title:
+version:
+author:
+effective_date:
+type: "Template"
+process: "Clinical Evaluation Procedure"
+requirements:
+owner:
+---
 # Scope
 
 # Responsibility

@@ -1,5 +1,14 @@
-Process: [[Top Management Process.canvas]]
-Requirements: [[]]
+---
+id:
+title:
+version:
+author:
+effective_date:
+type:
+process: "Top Management Process.canvas"
+requirements:
+owner:
+---
 Owner [[Top management]]
 
 Status: #Draft 

@@ -1,4 +1,11 @@
-Process: [[]]
-Requirements: [[]]
-Owner: [[]]
-Type: #Process 
+---
+id:
+title:
+version:
+author:
+effective_date:
+type: "Process"
+process:
+requirements:
+owner:
+---

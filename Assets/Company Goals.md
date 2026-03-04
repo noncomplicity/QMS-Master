@@ -1,8 +1,13 @@
-Process: [[Top Management Process.canvas]]
-Requirements: [[]]
-Owner: [[Top management]]
-
-Status: #Draft 
-Type: #Objective 
-Date: 2023-04-25
-
+---
+id:
+title:
+version:
+author:
+effective_date:
+type: "Objective"
+process: "Top Management Process.canvas"
+requirements:
+owner: "Top management"
+status: "Draft"
+date: "2023-04-25"
+---

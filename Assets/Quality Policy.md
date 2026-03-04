@@ -1,3 +1,14 @@
+---
+id:
+title:
+version:
+author:
+effective_date:
+type:
+process:
+requirements:
+owner:
+---
 In order to fulfill the [[Purpose of the organization]], the [[Organisation]] is commited to implement a quality management system that ensures:
 
 * Products that provides benefit for the [[Users]] in line with the [Purpose of the organization](Purpose%20of%20the%20organization.md)

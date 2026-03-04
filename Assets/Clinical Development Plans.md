@@ -1,4 +1,14 @@
-
+---
+id:
+title:
+version:
+author:
+effective_date:
+type:
+process:
+requirements:
+owner:
+---
 Intended Clinical Benefits - Dokument i Sharepoint
 
 Vilka är de lågt hängande frukterna?

@@ -1,7 +1,15 @@
-Process: [[Requirements Management]]
-Requirements: [[EN 62304 5.2 Software requirements analysis]]
-Type: #Specification 
-Object: [[Doctrace Rdr]]
+---
+id:
+title:
+version:
+author:
+effective_date:
+type: "Specification"
+process: "Requirements Management"
+requirements: "EN 62304 5.2 Software requirements analysis"
+owner:
+object: "Doctrace Rdr"
+---
 ## 1. Purpose
 
 The purpose of the QMS Frontend Web Portal is to provide a secure, user-friendly interface for interacting with the Quality Management System (QMS). The portal shall allow authenticated users to access organizational documentation in a controlled, read-only manner.

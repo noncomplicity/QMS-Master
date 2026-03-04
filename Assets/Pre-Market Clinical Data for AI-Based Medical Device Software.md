@@ -1,8 +1,14 @@
-Process: [[Clinical Management Process.canvas|Clinical Management Process]]
-Requirements: [[]]
-Owner: [[Head of Clinical Management]]
-Type: #StandardOperatingProcedure 
-
+---
+id:
+title:
+version:
+author:
+effective_date:
+type: "StandardOperatingProcedure"
+process: "Clinical Management Process"
+requirements:
+owner: "Head of Clinical Management"
+---
 #### 1. Purpose
 
 The purpose of this document is to provide guidance on the generation of pre-market clinical data for medical device AI. It reflects current progress as it reflects Medical Device AI in local and global best practices, helping stakeholders understand the foundational regulatory landscape, identify applicable standards, determine what clinical data are appropriate, apply suitable methods for generating that data, and integrate the resulting evidence into a coherent validation framework that demonstrates safety, performance, and usability prior to market access.

@@ -1,5 +1,14 @@
-Process: [[Canvases/Document and Record Control.canvas|Document and Record Control]]
-Requirements: [[ISO 13485_2016 - 4.2.4]] [[ISO 13485_2016 - 4.2.5|ISO 13485_2016 - 4.2.5]]
+---
+id:
+title:
+version:
+author:
+effective_date:
+type:
+process: "Document and Record Control"
+requirements: "ISO 13485_2016 - 4.2.4 ISO 13485_2016 - 4.2.5"
+owner:
+---
 Owner [[Head of Quality Management|Head of Quality Management]]
 Type: #WorkInstruction
 

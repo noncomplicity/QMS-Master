@@ -1,7 +1,13 @@
-Process: [[]]
-Requirements: [[]]
-Owner: [[]]
-Type: #StandardOperatingProcedure 
-
+---
+id:
+title:
+version:
+author:
+effective_date:
+type: "StandardOperatingProcedure"
+process:
+requirements:
+owner:
+---
 # Heading 1
 

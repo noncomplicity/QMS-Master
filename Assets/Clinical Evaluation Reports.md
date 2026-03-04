@@ -1,11 +1,16 @@
-Process: [[Clinical Evaluation Procedure]]
-Requirements: [[]]
-Owner: [[]]
-
-Status: #Template 
-Type: #Report 
-Date: 2023-05-09
-
+---
+id:
+title:
+version:
+author:
+effective_date:
+type: "Report"
+process: "Clinical Evaluation Procedure"
+requirements:
+owner:
+status: "Template"
+date: "2023-05-09"
+---
 # Purpose
 
 # Scope

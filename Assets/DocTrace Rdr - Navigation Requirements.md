@@ -1,7 +1,15 @@
-Process: [[Usability Engineering]]
-Requirements: [[EN 62366 5.6 Establish USER INTERFACE SPECIFICATION]]
-Type: #Specification 
-Object: [[Doctrace Rdr]]
+---
+id:
+title:
+version:
+author:
+effective_date:
+type: "Specification"
+process: "Usability Engineering"
+requirements: "EN 62366 5.6 Establish USER INTERFACE SPECIFICATION"
+owner:
+object: "Doctrace Rdr"
+---
 ## 1. Context & Scope
 
 The primary user is the reader. The frontend is read‑only and exposes published documentation only. All documents include the following metadata: **Process**, **Requirement**, **Owner**, **Type**, and **Object**. Navigation must focus on helping readers find, understand, and contextualize information quickly without needing to know the repository structure.

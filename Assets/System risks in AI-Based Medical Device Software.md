@@ -1,9 +1,14 @@
-Process: [[Risk Management Process.canvas|Risk Management Process]]
-Requirements: [[ISO 14971 Risk management for medical devices]]
-Owner: [[Head of Risk Management]]
-Type: #StandardOperatingProcedure 
-
-
+---
+id:
+title:
+version:
+author:
+effective_date:
+type: "StandardOperatingProcedure"
+process: "Risk Management Process"
+requirements: "ISO 14971 Risk management for medical devices"
+owner: "Head of Risk Management"
+---
 ## 1. Purpose
 
 Determine medical device AI risk by classifying the device and defining the required level of clinical evidence. The classification depends on intended purpose, impact on healthcare decisions, and the health condition addressed. The outcome of the determination of the Medical Device AI Risk is a documented determination of the AI system’s inherent clinical risk level, its alignment with regulatory classification, and the corresponding clinical evaluation plan.

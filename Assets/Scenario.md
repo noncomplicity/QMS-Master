@@ -1,3 +1,14 @@
+---
+id:
+title:
+version:
+author:
+effective_date:
+type:
+process:
+requirements:
+owner:
+---
 A startup company is developing a medical device software intended to be placed on the european and u.s. markets. 
 
 The patient uses a third party device that gathers biomarkers. The patient uses the product through a smartphone app available on android and iphone. The smartphone app communicates with a server backed hosted in a secure cloud where a patient account holds the data.

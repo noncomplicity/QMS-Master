@@ -1,5 +1,14 @@
-Process: [[Product Management Process.canvas]]
-Requirements: [[]]
+---
+id:
+title:
+version:
+author:
+effective_date:
+type:
+process: "Product Management Process.canvas"
+requirements:
+owner:
+---
 Owner [[Product Management]]
 
 Status: #Draft 

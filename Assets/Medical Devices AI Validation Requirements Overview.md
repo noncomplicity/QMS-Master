@@ -1,6 +1,14 @@
-Owner: [[Regulatory Manager]]
-Type: #Index 
-
+---
+id:
+title:
+version:
+author:
+effective_date:
+type: "Index"
+process:
+requirements:
+owner: "Regulatory Manager"
+---
 _This is a matrix that maps major laws, standards, MDCG guidance, and international frameworks to the types of evidence typically expected for ****safety****, ****performance****, and ****usability**** across the lifecycle. All sections are maintained in full for completeness and ongoing reference._
 
 **Legend**  

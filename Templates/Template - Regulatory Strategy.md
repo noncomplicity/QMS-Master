@@ -1,3 +1,14 @@
+---
+id:
+title:
+version:
+author:
+effective_date:
+type:
+process:
+requirements:
+owner:
+---
 **Regulatory Strategy for [Product Name]**
 
 ### 1. Purpose and Scope

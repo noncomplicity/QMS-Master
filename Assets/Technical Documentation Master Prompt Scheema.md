@@ -1,3 +1,14 @@
+---
+id:
+title:
+version:
+author:
+effective_date:
+type:
+process:
+requirements:
+owner:
+---
 ## Deliverables Overview and Prompt Canvas
 
 The table below defines all identified technical and regulatory deliverables represented in the module documentation dependency diagram. Each deliverable constitutes an independent documentation artefact with defined upstream and downstream dependencies. The table also defines ownership, authoritative sources, lifecycle state, and the controlled AI prompt associated with each deliverable.

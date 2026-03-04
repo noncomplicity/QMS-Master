@@ -1,3 +1,14 @@
+---
+id:
+title:
+version:
+author:
+effective_date:
+type:
+process:
+requirements:
+owner:
+---
 **Cybersecurity Report for Medical Device Software (MDSW)**  
 *In compliance with MDR and MDCG 2019-16*
 

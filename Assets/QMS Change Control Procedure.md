@@ -1,8 +1,14 @@
-Process: [[Canvases/Document and Record Control.canvas|Document and Record Control]]
-Requirements: [[Requirements/ISO 13485_2016 - 4.1.4]] [[Requirements/ISO 13485_2016 - 4.2.4]] [[Requirements/ISO 13485_2016 - 7.3.9]] [[Requirements/ISO 13485_2016 - 8.5.6]] [[Requirements/EU MDR_2017_745 - Article 10]] [[Requirements/EU MDR_2017_745 - Annex IX]]
-Owner: [[Head of Quality Management]]
-Type: #StandardOperatingProcedure 
-
+---
+id:
+title:
+version:
+author:
+effective_date:
+type: "StandardOperatingProcedure"
+process: "Document and Record Control"
+requirements: "Requirements/ISO 13485_2016 - 4.1.4 Requirements/ISO 13485_2016 - 4.2.4 Requirements/ISO 13485_2016 - 7.3.9 Requirements/ISO 13485_2016 - 8.5.6 Requirements/EU MDR_2017_745 - Article 10 Requirements/EU MDR_2017_745 - Annex IX"
+owner: "Head of Quality Management"
+---
 ### 1. Purpose
 
 The purpose of this procedure is to ensure that all changes affecting the quality management system (QMS) documentation or technical documentation are identified, evaluated, approved, implemented, and verified in a controlled manner in accordance with ISO 13485:2016 and EU MDR 2017/745 requirements.

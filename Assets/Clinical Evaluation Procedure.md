@@ -1,11 +1,14 @@
-Process: [[Clinical Management Process.canvas]]
-Requirements: [[MDCG 2020-1]]
-Owner: [[R&D Management]]
-
-Type: #Procedure 
-
-
-
+---
+id:
+title:
+version:
+author:
+effective_date:
+type: "Procedure"
+process: "Clinical Management Process.canvas"
+requirements: "MDCG 2020-1"
+owner: "R&D Management"
+---
 # Planning
 
 # Identification of data

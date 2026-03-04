@@ -1,5 +1,12 @@
-Assignee:[[]]
-Process: [[Clinical Management Process.canvas|Clinical Management Process]]
-Requirements: [[]]
-Type: #Role 
-
+---
+id:
+title:
+version:
+author:
+effective_date:
+type: "Role"
+process: "Clinical Management Process"
+requirements:
+owner:
+assignee:
+---
