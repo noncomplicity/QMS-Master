@@ -146,7 +146,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "",
+                "query": "AI",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -167,7 +167,8 @@
               "title": "Bookmarks"
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "horizontal",
@@ -286,7 +287,7 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "ef25cacf69c5755f",
+  "active": "b99ae911d164da76",
   "lastOpenFiles": [
     "Assets/System Technical Documentaion.md",
     "Assets/Module Delta.md",
