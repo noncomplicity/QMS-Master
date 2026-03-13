@@ -6,7 +6,7 @@ status: Approved
 author: "Jakob"
 approver: Jane Smith
 approved_on: 2025-10-25
-effective_date: 2026-02-19
+effective_date: 2026-03-04
 change_control_record: CCR-2025-014
 type: Procedure
 Links:

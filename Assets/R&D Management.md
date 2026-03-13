@@ -1,6 +1,6 @@
 ---
 id: 313586c
-title: "Rtitle:D Management"
+title: "Rtitle: "Rtitle:D Management"D Management"
 version: 2
 author: "Jakob"
 effective_date: 2026-03-04
