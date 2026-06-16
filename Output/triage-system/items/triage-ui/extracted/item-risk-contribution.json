@@ -1,0 +1,847 @@
+{
+  "extraction_metadata": {
+    "repository": "git@gitlab-p24:doktor24/frontends/triage-ui.git",
+    "commit": "e0a52982985108e7249a2e985ea8f50593f476f3",
+    "extracted_at": "2026-03-06T20:00:30+01:00",
+    "extractor_version": "3.0",
+    "standard": "IEC 62304:2006+AMD1:2015 / ISO 14971:2019",
+    "hierarchy": {
+      "level": "item",
+      "item_id": "triage-ui",
+      "item_name": "Triage UI",
+      "parent_module": "user-interfaces",
+      "parent_system": "triage-system"
+    }
+  },
+
+  "software_item": {
+    "id": "ITEM-TRIAGE-UI",
+    "name": "triage-ui",
+    "description": "React/TypeScript frontend microfrontend providing the patient-facing interview UI for symptom triage. Presents questions to patients, collects symptom data through various input types, and submits answers to the interviewer backend.",
+    "safety_class": "B",
+    "safety_class_rationale": "Software that can contribute to hazardous situations. This UI collects critical patient symptom data that influences clinical decision-making. Incorrect data entry or display could lead to wrong triage recommendations, but the UI itself does not make autonomous clinical decisions - it only collects and displays data. Human factors failures in this UI could contribute to patient harm.",
+    "version": "1.0.0",
+    "repository_url": "git@gitlab-p24:doktor24/frontends/triage-ui.git",
+    "technology_stack": [
+      "TypeScript",
+      "React 17",
+      "styled-components",
+      "axios",
+      "react-intl"
+    ],
+    "deployment_type": "microfrontend"
+  },
+
+  "item_risk_contribution": {
+    "item_id": "triage-ui",
+
+    "hazard_contributions": [
+      {
+        "id": "ITEM-TRIAGE-UI-HAZ-001",
+        "description": "Patient enters incorrect symptom data due to confusing UI",
+        "cause": "Question text or input controls unclear, leading to patient misunderstanding what data is being requested",
+        "potential_harm": "Incorrect triage recommendation based on wrong symptom data, potentially delaying appropriate care",
+        "severity_contribution": "serious",
+        "affected_functions": [
+          "QuestionSingleChoice",
+          "QuestionMultipleChoice",
+          "QuestionYesNo",
+          "QuestionNumber"
+        ],
+        "source": {
+          "files": [
+            "src/components/Question/Question.tsx:1-133",
+            "src/components/QuestionSingleChoice/QuestionSingleChoice.tsx:1-54",
+            "src/components/QuestionMultipleChoice/QuestionMultipleChoice.tsx:1-60"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-TRIAGE-UI-HAZ-002",
+        "description": "Patient skips critical question without realizing importance",
+        "cause": "No validation preventing skipping of critical questions, skippable flag controlled by backend but not validated in UI",
+        "potential_harm": "Incomplete symptom data leading to inadequate triage assessment",
+        "severity_contribution": "serious",
+        "affected_functions": [
+          "QuestionsProvider.handleNext",
+          "QuestionsProvider.isReadyToProceed"
+        ],
+        "source": {
+          "files": [
+            "src/context/QuestionsProvider.tsx:52-57",
+            "src/context/QuestionsProvider.tsx:108-176"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-TRIAGE-UI-HAZ-003",
+        "description": "Numeric input validation error not displayed clearly to patient",
+        "cause": "Error messages for number inputs may not be sufficiently visible or understandable, min/max validation occurs but error display relies on user noticing error text",
+        "potential_harm": "Patient enters out-of-range values (e.g., impossible blood pressure, temperature) leading to incorrect clinical data",
+        "severity_contribution": "minor",
+        "affected_functions": [
+          "QuestionNumber.handleChange",
+          "InputNumber"
+        ],
+        "source": {
+          "files": [
+            "src/components/QuestionNumber/QuestionNumber.tsx:45-68",
+            "src/components/InputNumber/InputNumber.tsx:93-102"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-TRIAGE-UI-HAZ-004",
+        "description": "Patient accidentally navigates away losing all entered symptom data",
+        "cause": "Browser back button or close attempt shows cancellation modal, but if user confirms, all unanswered questions are lost with no recovery mechanism",
+        "potential_harm": "Patient frustration leading to abandonment of triage, delayed care, or restarting with potentially different/inconsistent answers",
+        "severity_contribution": "minor",
+        "affected_functions": [
+          "Triage.historyBlocker",
+          "CancellationModal"
+        ],
+        "source": {
+          "files": [
+            "src/components/Triage/Triage.tsx:25-63",
+            "src/components/Triage/Triage.tsx:78-81"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-TRIAGE-UI-HAZ-005",
+        "description": "File upload exceeds size limit but error not clearly communicated",
+        "cause": "MAX_FILE_SIZE limit enforced (11MB) with error reported to host, but user may not see clear actionable error message",
+        "potential_harm": "Patient cannot upload required medical images (skin lesions, wounds), leading to incomplete assessment",
+        "severity_contribution": "minor",
+        "affected_functions": [
+          "QuestionFile.onChangeHandler"
+        ],
+        "source": {
+          "files": [
+            "src/components/QuestionFile/QuestionFile.tsx:83-98",
+            "src/components/QuestionFile/QuestionFile.tsx:27"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-TRIAGE-UI-HAZ-006",
+        "description": "Free text input truncated silently without warning",
+        "cause": "MAX_INPUT_LENGTH of 500 characters enforced on textarea, but no indication of character limit or warning when approaching limit",
+        "potential_harm": "Patient's symptom description cut off mid-sentence, losing critical context for clinician assessment",
+        "severity_contribution": "minor",
+        "affected_functions": [
+          "InputText",
+          "QuestionFreeText"
+        ],
+        "source": {
+          "files": [
+            "src/components/InputText/InputText.tsx:44-80",
+            "src/components/QuestionFreeText/QuestionFreeText.tsx:42-46",
+            "src/constants/components.ts:2"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-TRIAGE-UI-HAZ-007",
+        "description": "Network error during answer submission causes data loss",
+        "cause": "handleNext submits answer but if network fails, error is logged but current answer may be lost, no automatic retry mechanism visible in QuestionsProvider",
+        "potential_harm": "Patient must re-enter answer, potential for different answer on retry, or interview abandonment",
+        "severity_contribution": "minor",
+        "affected_functions": [
+          "QuestionsProvider.handleNext"
+        ],
+        "source": {
+          "files": [
+            "src/context/QuestionsProvider.tsx:128-176"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-TRIAGE-UI-HAZ-008",
+        "description": "UI crash/error leaves patient unable to complete interview",
+        "cause": "ErrorHandlerProvider catches errors but throws them to host application, potentially unmounting entire UI without recovery",
+        "potential_harm": "Patient cannot complete triage, forced to restart or seek alternative care pathway",
+        "severity_contribution": "serious",
+        "affected_functions": [
+          "ErrorHandlerProvider.componentDidCatch"
+        ],
+        "source": {
+          "files": [
+            "src/context/ErrorHandlerProvider.tsx:256-261"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-TRIAGE-UI-HAZ-009",
+        "description": "Image file uploaded without EXIF orientation correction",
+        "cause": "Image transformation uses fitImage but EXIF orientation handling unclear, could lead to upside-down or rotated images",
+        "potential_harm": "Clinician views rotated medical image (e.g., skin lesion), potentially misinterpreting visual symptoms",
+        "severity_contribution": "minor",
+        "affected_functions": [
+          "QuestionFile.onChangeHandler"
+        ],
+        "source": {
+          "files": [
+            "src/components/QuestionFile/QuestionFile.tsx:100-107"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-TRIAGE-UI-HAZ-010",
+        "description": "Multiple choice 'None' option not mutually exclusive with other selections",
+        "cause": "handleNone utility processes 'None' option but logic in QuestionMultipleChoice may not clearly prevent selecting 'None' with other options",
+        "potential_harm": "Contradictory symptom data (e.g., 'no symptoms' and 'severe pain' both selected) leading to assessment confusion",
+        "severity_contribution": "minor",
+        "affected_functions": [
+          "QuestionMultipleChoice.handleChange"
+        ],
+        "source": {
+          "files": [
+            "src/components/QuestionMultipleChoice/QuestionMultipleChoice.tsx:29-33"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-TRIAGE-UI-HAZ-011",
+        "description": "Origin config fetch failure prevents interview from loading",
+        "cause": "fetchOriginConfig failure in TriageUIProviders causes error but may not provide clear recovery path for patient",
+        "potential_harm": "Patient cannot start interview, forced to use alternative access method or abandon triage attempt",
+        "severity_contribution": "serious",
+        "affected_functions": [
+          "TriageUIProviders loader function"
+        ],
+        "source": {
+          "files": [
+            "src/containers/TriageUI.tsx:134-162"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-TRIAGE-UI-HAZ-012",
+        "description": "Text validation only checks trim() but not content quality",
+        "cause": "questionProcessOut only validates text has content after trimming, but allows whitespace-only or nonsensical input",
+        "potential_harm": "Patient submits empty or meaningless text, clinician receives no useful symptom description",
+        "severity_contribution": "minor",
+        "affected_functions": [
+          "textAnswerValueProcessor"
+        ],
+        "source": {
+          "files": [
+            "src/utils/questionProcessOut.ts:68-70"
+          ]
+        }
+      }
+    ],
+
+    "risk_controls_implemented": [
+      {
+        "id": "ITEM-TRIAGE-UI-RC-001",
+        "description": "Numeric input validation with min/max constraints",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-TRIAGE-UI-HAZ-003"],
+        "implementation": "InputNumber enforces min/max attributes and validates on input, displays error messages for out-of-range values",
+        "verification_status": "partial",
+        "verification_evidence": {
+          "test_file": "src/components/QuestionNumber/__tests__/QuestionNumber.test.tsx",
+          "test_function": "validation tests exist"
+        },
+        "source": {
+          "files": [
+            "src/components/QuestionNumber/QuestionNumber.tsx:45-68",
+            "src/components/InputNumber/InputNumber.tsx:137-139"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-TRIAGE-UI-RC-002",
+        "description": "File size limit enforcement",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-TRIAGE-UI-HAZ-005"],
+        "implementation": "MAX_FILE_SIZE constant (11MB) enforced in QuestionFile before upload, rejects oversized files",
+        "verification_status": "verified",
+        "verification_evidence": {
+          "test_file": "src/components/QuestionFile/__tests__/QuestionFile.test.tsx",
+          "test_function": "file size validation tests"
+        },
+        "source": {
+          "files": [
+            "src/components/QuestionFile/QuestionFile.tsx:27",
+            "src/components/QuestionFile/QuestionFile.tsx:88-97"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-TRIAGE-UI-RC-003",
+        "description": "Text input max length enforcement",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-TRIAGE-UI-HAZ-006"],
+        "implementation": "MAX_INPUT_LENGTH (500 chars) enforced via textarea maxLength attribute",
+        "verification_status": "verified",
+        "verification_evidence": {
+          "test_file": "unknown",
+          "test_function": "HTML maxLength attribute provides browser-level enforcement"
+        },
+        "source": {
+          "files": [
+            "src/components/InputText/InputText.tsx:76",
+            "src/constants/components.ts:2"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-TRIAGE-UI-RC-004",
+        "description": "Exit warning modal to prevent accidental data loss",
+        "control_type": "information_for_safety",
+        "mitigates": ["ITEM-TRIAGE-UI-HAZ-004"],
+        "implementation": "Browser history blocker triggers CancellationModal on back button or close attempt",
+        "verification_status": "verified",
+        "verification_evidence": {
+          "test_file": "src/components/Triage/__tests__/Triage.test.tsx",
+          "test_function": "cancellation modal tests"
+        },
+        "source": {
+          "files": [
+            "src/components/Triage/Triage.tsx:42-55",
+            "src/components/CancellationModal/CancellationModal.tsx"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-TRIAGE-UI-RC-005",
+        "description": "Error logging and reporting to host application",
+        "control_type": "information_for_safety",
+        "mitigates": ["ITEM-TRIAGE-UI-HAZ-008"],
+        "implementation": "ErrorHandlerProvider intercepts axios errors and React errors, logs to analytics and reports to host via reportErrorToHost callback",
+        "verification_status": "verified",
+        "verification_evidence": {
+          "test_file": "unknown",
+          "test_function": "error interceptor configured"
+        },
+        "source": {
+          "files": [
+            "src/context/ErrorHandlerProvider.tsx:172-230",
+            "src/context/ErrorHandlerProvider.tsx:256-261"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-TRIAGE-UI-RC-006",
+        "description": "Image resizing to prevent upload failures",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-TRIAGE-UI-HAZ-005"],
+        "implementation": "fitImage transforms images to max 2000px before upload, reducing file size",
+        "verification_status": "partial",
+        "verification_evidence": {
+          "test_file": "unknown",
+          "test_function": "image transformation implemented"
+        },
+        "source": {
+          "files": [
+            "src/components/QuestionFile/QuestionFile.tsx:100-107"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-TRIAGE-UI-RC-007",
+        "description": "Answer status tracking prevents premature progression",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-TRIAGE-UI-HAZ-002"],
+        "implementation": "isReadyToProceed checks if current question is answered or skippable before allowing Next button",
+        "verification_status": "verified",
+        "verification_evidence": {
+          "test_file": "unknown",
+          "test_function": "navigation logic tested"
+        },
+        "source": {
+          "files": [
+            "src/context/QuestionsProvider.tsx:52-57"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-TRIAGE-UI-RC-008",
+        "description": "Keyboard input sanitization for number fields",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-TRIAGE-UI-HAZ-003"],
+        "implementation": "handleKeyDown prevents entry of exponential notation (e) and plus sign in numeric inputs",
+        "verification_status": "partial",
+        "verification_evidence": {
+          "test_file": "src/components/InputNumber/__tests__/InputNumber.test.tsx",
+          "test_function": "input validation tests"
+        },
+        "source": {
+          "files": [
+            "src/components/InputNumber/InputNumber.tsx:114-119"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-TRIAGE-UI-RC-009",
+        "description": "Loading state prevents duplicate answer submissions",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-TRIAGE-UI-HAZ-007"],
+        "implementation": "setIsLoading flag prevents multiple simultaneous handleNext calls during answer submission",
+        "verification_status": "verified",
+        "verification_evidence": {
+          "test_file": "unknown",
+          "test_function": "loading state management"
+        },
+        "source": {
+          "files": [
+            "src/context/QuestionsProvider.tsx:129",
+            "src/context/QuestionsProvider.tsx:174"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-TRIAGE-UI-RC-010",
+        "description": "ARIA attributes for accessibility and error indication",
+        "control_type": "information_for_safety",
+        "mitigates": ["ITEM-TRIAGE-UI-HAZ-001", "ITEM-TRIAGE-UI-HAZ-003"],
+        "implementation": "aria-invalid, aria-describedby attributes on inputs provide screen reader feedback for errors",
+        "verification_status": "partial",
+        "verification_evidence": {
+          "test_file": "unknown",
+          "test_function": "accessibility attributes present in code"
+        },
+        "source": {
+          "files": [
+            "src/components/InputNumber/InputNumber.tsx:142-145"
+          ]
+        }
+      }
+    ],
+
+    "risk_controls_required_upstream": [
+      {
+        "id": "ITEM-TRIAGE-UI-RC-UP-001",
+        "description": "Patient training and clear instructions before starting triage",
+        "rationale": "UI cannot force patient to read instructions or understand medical terminology - requires system-level patient education",
+        "recommended_level": "system",
+        "control_type": "information_for_safety",
+        "mitigates": ["ITEM-TRIAGE-UI-HAZ-001"]
+      },
+      {
+        "id": "ITEM-TRIAGE-UI-RC-UP-002",
+        "description": "Clinician review process to catch incomplete or suspicious symptom data",
+        "rationale": "UI cannot validate quality or truthfulness of patient-entered data - requires human clinical review",
+        "recommended_level": "system",
+        "control_type": "protective_measure",
+        "mitigates": [
+          "ITEM-TRIAGE-UI-HAZ-001",
+          "ITEM-TRIAGE-UI-HAZ-002",
+          "ITEM-TRIAGE-UI-HAZ-010",
+          "ITEM-TRIAGE-UI-HAZ-012"
+        ]
+      },
+      {
+        "id": "ITEM-TRIAGE-UI-RC-UP-003",
+        "description": "Network infrastructure monitoring and redundancy",
+        "rationale": "UI cannot control network availability or implement retry strategies beyond basic error handling",
+        "recommended_level": "system",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-TRIAGE-UI-HAZ-007", "ITEM-TRIAGE-UI-HAZ-011"]
+      },
+      {
+        "id": "ITEM-TRIAGE-UI-RC-UP-004",
+        "description": "Session persistence and interview recovery mechanism",
+        "rationale": "UI displays data from backend but does not implement persistent storage - requires backend interview state management",
+        "recommended_level": "module",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-TRIAGE-UI-HAZ-004", "ITEM-TRIAGE-UI-HAZ-007"]
+      },
+      {
+        "id": "ITEM-TRIAGE-UI-RC-UP-005",
+        "description": "Question design review and usability testing",
+        "rationale": "UI renders questions provided by backend - question clarity and medical appropriateness must be validated at content level",
+        "recommended_level": "system",
+        "control_type": "inherent_safety",
+        "mitigates": ["ITEM-TRIAGE-UI-HAZ-001"]
+      }
+    ],
+
+    "failure_modes": [
+      {
+        "id": "ITEM-TRIAGE-UI-FM-001",
+        "name": "Patient selects wrong answer option",
+        "category": "user_error",
+        "component": "QuestionSingleChoice / QuestionMultipleChoice",
+        "effect_on_software_item": "Wrong answer stored in questionsStorage, submitted to backend on Next",
+        "effect_on_system": "Triage engine receives incorrect symptom data, may produce inappropriate triage recommendation",
+        "detection_mechanism": "No automatic detection - relies on patient reviewing answer overview or clinician review",
+        "recovery_mechanism": "Patient can navigate back to change answer, or clinician can override during review",
+        "related_hazards": ["ITEM-TRIAGE-UI-HAZ-001"],
+        "source": {
+          "files": [
+            "src/components/QuestionSingleChoice/QuestionSingleChoice.tsx:20-53",
+            "src/components/QuestionMultipleChoice/QuestionMultipleChoice.tsx:21-59"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-TRIAGE-UI-FM-002",
+        "name": "Input field unclear or confusing to patient",
+        "category": "usability_issue",
+        "component": "Question components",
+        "effect_on_software_item": "Patient hesitates, enters incorrect data, or abandons interview",
+        "effect_on_system": "Incomplete triage, patient seeks alternative care pathway, or receives wrong recommendation",
+        "detection_mechanism": "Analytics may show high abandonment rates, but no real-time detection",
+        "recovery_mechanism": "Patient can close interview and restart, or contact support",
+        "related_hazards": ["ITEM-TRIAGE-UI-HAZ-001"],
+        "source": {
+          "files": [
+            "src/components/Question/Question.tsx:28-132"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-TRIAGE-UI-FM-003",
+        "name": "React component throws unhandled exception",
+        "category": "software_crash",
+        "component": "Any React component",
+        "effect_on_software_item": "ErrorHandlerProvider.componentDidCatch invoked, error logged and re-thrown",
+        "effect_on_system": "UI unmounts, patient sees error screen from host application, interview lost",
+        "detection_mechanism": "Error boundary catches error, logs to analytics",
+        "recovery_mechanism": "Patient must restart interview from beginning",
+        "related_hazards": ["ITEM-TRIAGE-UI-HAZ-008"],
+        "source": {
+          "files": [
+            "src/context/ErrorHandlerProvider.tsx:256-261"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-TRIAGE-UI-FM-004",
+        "name": "Network request timeout during answer submission",
+        "category": "communication_failure",
+        "component": "QuestionsProvider.handleNext",
+        "effect_on_software_item": "Axios timeout error caught in try-catch, error reported to host, loading state cleared",
+        "effect_on_system": "Answer not saved to backend, patient may not realize submission failed, interview state inconsistent",
+        "detection_mechanism": "Axios interceptor logs timeout errors, error analytics captured",
+        "recovery_mechanism": "Patient must re-submit answer, but UI does not automatically prompt retry",
+        "related_hazards": ["ITEM-TRIAGE-UI-HAZ-007"],
+        "source": {
+          "files": [
+            "src/context/QuestionsProvider.tsx:167-175",
+            "src/context/ErrorHandlerProvider.tsx:189-230"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-TRIAGE-UI-FM-005",
+        "name": "Image file exceeds maximum size",
+        "category": "data_integrity",
+        "component": "QuestionFile",
+        "effect_on_software_item": "File rejected, error message sent to reportErrorToHost, file value set to null",
+        "effect_on_system": "Patient cannot upload required medical image, may abandon triage or proceed without image",
+        "detection_mechanism": "File size check before upload",
+        "recovery_mechanism": "Patient must resize image externally and re-upload, or skip image upload",
+        "related_hazards": ["ITEM-TRIAGE-UI-HAZ-005"],
+        "source": {
+          "files": [
+            "src/components/QuestionFile/QuestionFile.tsx:88-97"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-TRIAGE-UI-FM-006",
+        "name": "Origin configuration fetch fails on startup",
+        "category": "external_dependency",
+        "component": "TriageUIProviders loader",
+        "effect_on_software_item": "fetchOriginConfig throws error, origin state remains undefined, UI renders null",
+        "effect_on_system": "Interview cannot start, patient blocked from completing triage",
+        "detection_mechanism": "Error logged to analytics, error reported to host",
+        "recovery_mechanism": "Patient must refresh page and retry, no automatic retry mechanism",
+        "related_hazards": ["ITEM-TRIAGE-UI-HAZ-011"],
+        "source": {
+          "files": [
+            "src/containers/TriageUI.tsx:134-162",
+            "src/containers/TriageUI.tsx:167-169"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-TRIAGE-UI-FM-007",
+        "name": "Patient enters non-numeric characters in number field",
+        "category": "user_error",
+        "component": "InputNumber",
+        "effect_on_software_item": "HTML5 number input prevents most non-numeric input, but parseFloat returns NaN which becomes undefined",
+        "effect_on_system": "Question marked as unanswered, patient cannot proceed until valid number entered",
+        "detection_mechanism": "Input validation detects empty/invalid value",
+        "recovery_mechanism": "Patient must enter valid numeric value, error message displayed",
+        "related_hazards": ["ITEM-TRIAGE-UI-HAZ-003"],
+        "source": {
+          "files": [
+            "src/components/InputNumber/InputNumber.tsx:93-102",
+            "src/components/InputNumber/InputNumber.tsx:114-119"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-TRIAGE-UI-FM-008",
+        "name": "Patient accidentally navigates back during interview",
+        "category": "user_error",
+        "component": "Triage history blocker",
+        "effect_on_software_item": "History blocker detects POP action, displays CancellationModal",
+        "effect_on_system": "Interview paused, patient can cancel or confirm exit, potential data loss if confirmed",
+        "detection_mechanism": "Browser history API detects navigation attempt",
+        "recovery_mechanism": "Modal allows patient to cancel navigation and continue interview",
+        "related_hazards": ["ITEM-TRIAGE-UI-HAZ-004"],
+        "source": {
+          "files": [
+            "src/components/Triage/Triage.tsx:42-55"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-TRIAGE-UI-FM-009",
+        "name": "Free text input exceeds character limit",
+        "category": "data_integrity",
+        "component": "InputText",
+        "effect_on_software_item": "Textarea maxLength attribute prevents input beyond 500 characters",
+        "effect_on_system": "Patient symptom description truncated, potentially losing important clinical context",
+        "detection_mechanism": "HTML maxLength prevents excess characters",
+        "recovery_mechanism": "Patient must condense description, no overflow indication or guidance provided",
+        "related_hazards": ["ITEM-TRIAGE-UI-HAZ-006"],
+        "source": {
+          "files": [
+            "src/components/InputText/InputText.tsx:76"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-TRIAGE-UI-FM-010",
+        "name": "Multiple incompatible symptoms selected together",
+        "category": "user_error",
+        "component": "QuestionMultipleChoice",
+        "effect_on_software_item": "All selected values stored in array, handleNone processes 'None' option but may not prevent conflicts",
+        "effect_on_system": "Contradictory symptom data sent to triage engine, may confuse clinical assessment",
+        "detection_mechanism": "No validation for incompatible selection combinations",
+        "recovery_mechanism": "Backend or clinician review must catch contradictions, patient can edit via back navigation",
+        "related_hazards": ["ITEM-TRIAGE-UI-HAZ-010"],
+        "source": {
+          "files": [
+            "src/components/QuestionMultipleChoice/QuestionMultipleChoice.tsx:29-33"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-TRIAGE-UI-FM-011",
+        "name": "Image uploaded with wrong orientation",
+        "category": "data_integrity",
+        "component": "QuestionFile image transformation",
+        "effect_on_software_item": "fitImage resizes image but EXIF orientation handling unclear",
+        "effect_on_system": "Clinician views rotated medical image, potential misinterpretation of visual symptoms",
+        "detection_mechanism": "No automated detection of orientation issues",
+        "recovery_mechanism": "Clinician must mentally rotate image or request re-upload, patient may not realize issue",
+        "related_hazards": ["ITEM-TRIAGE-UI-HAZ-009"],
+        "source": {
+          "files": [
+            "src/components/QuestionFile/QuestionFile.tsx:100-107"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-TRIAGE-UI-FM-012",
+        "name": "Blank text answer submitted",
+        "category": "data_integrity",
+        "component": "textAnswerValueProcessor",
+        "effect_on_software_item": "Validation checks value.trim() but may accept whitespace-only strings",
+        "effect_on_system": "Clinician receives empty symptom description, missing critical patient context",
+        "detection_mechanism": "Backend validation required, UI only checks for non-empty trimmed string",
+        "recovery_mechanism": "Clinician must contact patient for clarification, or patient can edit via back navigation",
+        "related_hazards": ["ITEM-TRIAGE-UI-HAZ-012"],
+        "source": {
+          "files": [
+            "src/utils/questionProcessOut.ts:68-70"
+          ]
+        }
+      }
+    ],
+
+    "interfaces_with_safety_impact": [
+      {
+        "id": "ITEM-TRIAGE-UI-IF-001",
+        "interface": "Interviewer V3 API - Submit Answer",
+        "type": "REST",
+        "direction": "outbound",
+        "safety_impact": "If submission fails, patient answer is lost unless retry mechanism exists. Network failures could result in incomplete symptom data reaching triage engine.",
+        "failure_handling": "Error caught in QuestionsProvider try-catch, logged to analytics, error reported to host. No automatic retry. Loading state cleared allowing patient to manually retry.",
+        "timeout": "Axios default timeout",
+        "retry_policy": "No automatic retry implemented in UI",
+        "source": {
+          "files": [
+            "src/context/QuestionsProvider.tsx:141-146"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-TRIAGE-UI-IF-002",
+        "interface": "Interviewer V3 API - Load Interview",
+        "type": "REST",
+        "direction": "inbound",
+        "safety_impact": "If interview data fetch fails or returns stale data, patient may see incorrect questions or lose progress. Critical for interview state synchronization.",
+        "failure_handling": "loadInterview called after answer submission. Failure would be caught by QuestionsProvider error handling. Initial load failure handled in InterviewProvider.",
+        "timeout": "Axios default timeout",
+        "retry_policy": "No automatic retry",
+        "source": {
+          "files": [
+            "src/context/QuestionsProvider.tsx:147",
+            "src/api/dataProviders.ts:6-18"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-TRIAGE-UI-IF-003",
+        "interface": "Front Door API - Origin Config",
+        "type": "REST",
+        "direction": "inbound",
+        "safety_impact": "If config fetch fails, entire UI cannot initialize. Patient blocked from starting interview. Config includes translations, theme, and customizations that affect usability.",
+        "failure_handling": "Error caught in TriageUIProviders loader, logged to analytics, error reported to host. UI renders null if origin undefined.",
+        "timeout": "Axios default timeout",
+        "retry_policy": "No automatic retry, patient must refresh page",
+        "source": {
+          "files": [
+            "src/containers/TriageUI.tsx:136",
+            "src/containers/TriageUI.tsx:167-169",
+            "src/api/dataProviders.ts:20-26"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-TRIAGE-UI-IF-004",
+        "interface": "Interviewer V3 API - File Upload",
+        "type": "REST",
+        "direction": "outbound",
+        "safety_impact": "If file upload fails, medical images (skin lesions, wounds, etc.) not available for clinical assessment. May delay diagnosis or require patient re-upload.",
+        "failure_handling": "saveQuestionAttachmentFile called from questionProcessOut. Failure would bubble up to QuestionsProvider handleNext error handler.",
+        "timeout": "Axios default timeout - may be too short for large images on slow connections",
+        "retry_policy": "No automatic retry",
+        "source": {
+          "files": [
+            "src/api/file.ts:4-21",
+            "src/utils/questionProcessOut.ts:40-44"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-TRIAGE-UI-IF-005",
+        "interface": "Host Application Error Reporter",
+        "type": "other",
+        "direction": "outbound",
+        "safety_impact": "If error reporting callback fails or is not properly implemented by host, errors may go undetected. Patient could experience failures without support team awareness.",
+        "failure_handling": "reportErrorToHost is callback provided by host application. No fallback if callback fails or is undefined (uses defaultErrorReporter).",
+        "source": {
+          "files": [
+            "src/containers/TriageUI.tsx:104-106",
+            "src/context/ErrorHandlerProvider.tsx:264"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-TRIAGE-UI-IF-006",
+        "interface": "Event Analytics Service",
+        "type": "REST",
+        "direction": "outbound",
+        "safety_impact": "Analytics failures do not directly impact patient safety, but loss of error tracking reduces ability to detect and fix safety issues.",
+        "failure_handling": "Axios interceptor explicitly filters out analytics request errors to prevent infinite error loops. Analytics failures do not propagate to patient.",
+        "timeout": "Axios default timeout",
+        "retry_policy": "Unknown - handled by @platform24/analytics library",
+        "source": {
+          "files": [
+            "src/context/ErrorHandlerProvider.tsx:198"
+          ]
+        }
+      }
+    ],
+
+    "verification_gaps": [
+      {
+        "id": "ITEM-TRIAGE-UI-GAP-001",
+        "type": "untested_control",
+        "description": "No visible unit tests for text input character limit enforcement",
+        "affected_items": ["ITEM-TRIAGE-UI-RC-003"],
+        "priority": "medium",
+        "recommendation": "Add unit tests verifying InputText respects maxLength and handles truncation gracefully"
+      },
+      {
+        "id": "ITEM-TRIAGE-UI-GAP-002",
+        "type": "unverified_interface",
+        "description": "Network retry behavior not tested, timeout handling unclear",
+        "affected_items": ["ITEM-TRIAGE-UI-IF-001", "ITEM-TRIAGE-UI-IF-002", "ITEM-TRIAGE-UI-IF-004"],
+        "priority": "high",
+        "recommendation": "Add integration tests simulating network failures and timeouts, verify error messages reach patient"
+      },
+      {
+        "id": "ITEM-TRIAGE-UI-GAP-003",
+        "type": "missing_failure_test",
+        "description": "Image orientation handling not verified, EXIF processing unclear",
+        "affected_items": ["ITEM-TRIAGE-UI-RC-006"],
+        "priority": "high",
+        "recommendation": "Test fitImage function with images of various EXIF orientations, verify correct display"
+      },
+      {
+        "id": "ITEM-TRIAGE-UI-GAP-004",
+        "type": "untested_control",
+        "description": "Multiple choice 'None' mutual exclusivity not explicitly tested",
+        "affected_items": ["ITEM-TRIAGE-UI-RC-007"],
+        "priority": "medium",
+        "recommendation": "Add unit tests for handleNone utility, verify 'None' deselects other options and vice versa"
+      },
+      {
+        "id": "ITEM-TRIAGE-UI-GAP-005",
+        "type": "unverified_interface",
+        "description": "Origin config fetch failure recovery not tested",
+        "affected_items": ["ITEM-TRIAGE-UI-IF-003"],
+        "priority": "high",
+        "recommendation": "Add integration test for config fetch failure, verify patient sees clear error and guidance"
+      },
+      {
+        "id": "ITEM-TRIAGE-UI-GAP-006",
+        "type": "missing_failure_test",
+        "description": "File upload size limit error messaging not verified from patient perspective",
+        "affected_items": ["ITEM-TRIAGE-UI-RC-002"],
+        "priority": "medium",
+        "recommendation": "Add UI test verifying patient sees clear, actionable error when file exceeds 11MB limit"
+      },
+      {
+        "id": "ITEM-TRIAGE-UI-GAP-007",
+        "type": "untested_control",
+        "description": "Numeric validation error message clarity not tested with actual patients",
+        "affected_items": ["ITEM-TRIAGE-UI-RC-001"],
+        "priority": "medium",
+        "recommendation": "Conduct usability testing with patients to verify error messages for min/max/step violations are understandable"
+      },
+      {
+        "id": "ITEM-TRIAGE-UI-GAP-008",
+        "type": "missing_failure_test",
+        "description": "Answer submission failure does not prompt patient to retry",
+        "affected_items": ["ITEM-TRIAGE-UI-RC-009"],
+        "priority": "high",
+        "recommendation": "Implement and test explicit retry UI when answer submission fails, verify patient understands they must click Next again"
+      }
+    ]
+  },
+
+  "aggregation_hints": {
+    "cross_item_interfaces": [
+      "Interviewer V3 API (shared with interviewer4 backend)",
+      "Front Door API (shared with other UIs)",
+      "Event Analytics Service (shared system-wide)",
+      "Host Application callbacks (patient-ui or triage-clinic-ui)"
+    ],
+    "shared_hazards": [
+      "Network communication failures affect all services",
+      "User error in data entry is risk across all user-facing components",
+      "Session loss/timeout affects patient-ui and triage-clinic-ui similarly"
+    ],
+    "system_level_controls_needed": [
+      "Backup communication channels for critical errors",
+      "Clinician review workflow to catch data quality issues",
+      "Patient education materials explaining interview process",
+      "Network monitoring and redundancy",
+      "Interview state persistence across sessions",
+      "Medical content review process for question clarity"
+    ]
+  }
+}

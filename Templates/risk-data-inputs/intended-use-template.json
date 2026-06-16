@@ -1,0 +1,125 @@
+{
+  "_template_instructions": {
+    "purpose": "Define the USE perspective: intended uses, user intents, and their mapping to core functionalities",
+    "when_to_fill": "After item/module extraction, before system aggregation",
+    "how_to_use": "1. Copy to Output/<system>/system/defined/intended-use.json, 2. Fill in values, 3. Remove _template_instructions",
+    "references": [
+      "ISO 14971:2019 clause 5.2 - Intended use",
+      "IEC 62366-1:2015 clause 5.1 - Use specification"
+    ]
+  },
+
+  "product_context": {
+    "system_id": "<FILL: system identifier, e.g., platform24>",
+    "system_name": "<FILL: human-readable name>",
+    "product_description": "<FILL: one paragraph describing what this product does>",
+    "medical_device_class": "<FILL: Class I, IIa, IIb, or III per MDR>",
+    "software_safety_class": "<FILL: A, B, or C per IEC 62304>"
+  },
+
+  "intended_use_and_context": {
+    "purpose": "<FILL: The clinical/healthcare purpose this device serves>",
+    "intended_users": [
+      {
+        "user_type": "<FILL: e.g., Healthcare practitioner>",
+        "role": "<FILL: e.g., General practitioner, Nurse, Administrator>",
+        "required_training": "<FILL: What training is required to use this safely>"
+      },
+      {
+        "user_type": "<FILL: e.g., Patient>",
+        "role": "<FILL: e.g., Adult patient seeking care>",
+        "required_training": "<FILL: e.g., Basic smartphone literacy>"
+      }
+    ],
+    "intended_environment": "<FILL: Where is this used? e.g., Primary care clinics, Home environment>",
+    "intended_patient_population": "<FILL: Who are the patients? e.g., Adults seeking primary care>",
+    "contraindications": [
+      "<FILL: Conditions where this product should NOT be used>",
+      "<FILL: e.g., Emergency situations requiring immediate in-person care>"
+    ],
+    "limitations": [
+      "<FILL: Known limitations of the device>",
+      "<FILL: e.g., Not intended for diagnostic decisions>"
+    ]
+  },
+
+  "intended_uses": [
+    {
+      "id": "IU-001",
+      "name": "<FILL: Short name, e.g., Clinical Appointment Management>",
+      "description": "<FILL: What clinical need does this address? e.g., Enable healthcare providers and patients to schedule, manage, and track clinical appointments>",
+      "clinical_benefit": "<FILL: What patient benefit results? e.g., Timely access to care, reduced administrative burden>",
+      "user_intents": ["UI-001", "UI-002", "UI-003"]
+    },
+    {
+      "id": "IU-002",
+      "name": "<FILL: e.g., Care Coordination>",
+      "description": "<FILL: e.g., Facilitate handover, referral, and escalation of patient care between practitioners>",
+      "clinical_benefit": "<FILL: e.g., Continuity of care, appropriate escalation of urgent cases>",
+      "user_intents": ["UI-004", "UI-005"]
+    }
+  ],
+
+  "user_intents": [
+    {
+      "id": "UI-001",
+      "name": "<FILL: e.g., Book Appointment>",
+      "description": "<FILL: e.g., Patient or practitioner schedules a new appointment>",
+      "intended_use_id": "IU-001",
+      "user_types": ["<FILL: which user types perform this>"],
+      "core_functionalities": ["CF-001", "CF-002"],
+      "_notes": "Link to core functionalities identified in module extraction"
+    },
+    {
+      "id": "UI-002",
+      "name": "<FILL: e.g., Receive Appointment Reminder>",
+      "description": "<FILL: e.g., Patient receives notification about upcoming appointment>",
+      "intended_use_id": "IU-001",
+      "user_types": ["Patient"],
+      "core_functionalities": ["CF-003"]
+    },
+    {
+      "id": "UI-003",
+      "name": "<FILL: e.g., View Appointment Details>",
+      "description": "<FILL: e.g., User views appointment information including time, practitioner, and notes>",
+      "intended_use_id": "IU-001",
+      "user_types": ["Patient", "Healthcare practitioner"],
+      "core_functionalities": ["CF-004"]
+    },
+    {
+      "id": "UI-004",
+      "name": "<FILL: e.g., Handover Patient>",
+      "description": "<FILL: e.g., Practitioner transfers patient care to another practitioner>",
+      "intended_use_id": "IU-002",
+      "user_types": ["Healthcare practitioner"],
+      "core_functionalities": ["CF-005"]
+    },
+    {
+      "id": "UI-005",
+      "name": "<FILL: e.g., Escalate Critical Case>",
+      "description": "<FILL: e.g., System or practitioner escalates urgent patient situation>",
+      "intended_use_id": "IU-002",
+      "user_types": ["Healthcare practitioner", "System (automated)"],
+      "core_functionalities": ["CF-006"],
+      "_notes": "This is safety-critical - links to essential performance"
+    }
+  ],
+
+  "core_functionality_mapping": {
+    "_instructions": "Map core functionalities from module extraction to user intents above",
+    "mappings": [
+      {
+        "core_functionality_id": "CF-001",
+        "core_functionality_name": "<FILL: from module-risk.json>",
+        "user_intent_id": "UI-001",
+        "rationale": "<FILL: Why this functionality enables this intent>"
+      }
+    ],
+    "unmapped_functionalities": [
+      {
+        "core_functionality_id": "<FILL: Any CF without a user intent>",
+        "reason": "<FILL: Why no user intent? Internal infrastructure? Should be removed?>"
+      }
+    ]
+  }
+}

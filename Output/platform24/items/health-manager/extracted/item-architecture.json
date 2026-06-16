@@ -1,0 +1,669 @@
+{
+  "extraction_metadata": {
+    "repository": "https://gitlab.com/doktor24/services/health-manager.git",
+    "commit": "16e0273739eda65f73af5410323e1caf53362f16",
+    "extracted_at": "2026-03-06T15:00:00Z",
+    "extractor_version": "2.0",
+    "standard": "IEC 62304:2006+AMD1:2015",
+    "hierarchy": {
+      "level": "item",
+      "item_id": "health-manager",
+      "item_name": "Health Manager Service",
+      "parent_module": "smart-care-plans",
+      "parent_system": "platform24"
+    }
+  },
+
+  "item_architecture": {
+    "item_id": "health-manager",
+    "item_name": "Health Manager Service",
+    "description": "Core appointment and clinical workflow management service for Platform24 healthcare platform",
+    "safety_class": "B",
+    "primary_technology": "Java 21 / Spring Boot",
+    "architectural_style": "layered",
+
+    "entry_points": [
+      {
+        "name": "Spring Boot Application",
+        "type": "http_server",
+        "path": "svc/src/main/java/se/alerisx/mhp/manager/Application.java",
+        "description": "Main HTTP REST API server"
+      },
+      {
+        "name": "JMS Message Listeners",
+        "type": "message_listener",
+        "path": "svc/src/main/java/se/alerisx/mhp/manager/listener/",
+        "description": "Artemis JMS message consumers for async events"
+      },
+      {
+        "name": "Scheduled Jobs",
+        "type": "scheduled_job",
+        "path": "svc/src/main/java/se/alerisx/mhp/manager/service/impl/FollowUpMessageNotificationScheduler.java",
+        "description": "ShedLock-based scheduled tasks"
+      }
+    ],
+
+    "components": [
+      {
+        "id": "ITEM-HM-COMP-001",
+        "name": "REST API Controllers",
+        "type": "layer",
+        "path": "svc/src/main/java/se/alerisx/mhp/manager/controller/",
+        "description": "HTTP REST endpoints for appointment, practitioner, patient, clinic, and system operations",
+        "safety_class": "B",
+        "internal_dependencies": [
+          {
+            "component_id": "ITEM-HM-COMP-002",
+            "dependency_type": "function_call",
+            "coupling": "loose",
+            "description": "Controllers delegate to service layer"
+          }
+        ],
+        "soup_dependencies": ["ITEM-HM-SOUP-001", "ITEM-HM-SOUP-002"],
+        "source_files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/controller/v1/AppointmentController.java",
+          "svc/src/main/java/se/alerisx/mhp/manager/controller/v1/PractitionerController.java",
+          "svc/src/main/java/se/alerisx/mhp/manager/controller/v1/clinic/ClinicAppointmentController.java",
+          "svc/src/main/java/se/alerisx/mhp/manager/controller/v1/patient/PatientAppointmentController.java"
+        ]
+      },
+      {
+        "id": "ITEM-HM-COMP-002",
+        "name": "Business Services",
+        "type": "layer",
+        "path": "svc/src/main/java/se/alerisx/mhp/manager/service/",
+        "description": "Core business logic for appointments, handovers, follow-ups, referrals, billing, and escalation",
+        "safety_class": "B",
+        "internal_dependencies": [
+          {
+            "component_id": "ITEM-HM-COMP-003",
+            "dependency_type": "function_call",
+            "coupling": "loose",
+            "description": "Services use repositories for data access"
+          },
+          {
+            "component_id": "ITEM-HM-COMP-004",
+            "dependency_type": "data",
+            "coupling": "tight",
+            "description": "Services manipulate domain entities"
+          }
+        ],
+        "soup_dependencies": ["ITEM-HM-SOUP-001", "ITEM-HM-SOUP-004"],
+        "source_files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/service/UpdateAppointmentService.java",
+          "svc/src/main/java/se/alerisx/mhp/manager/service/AppointmentHandoverService.java",
+          "svc/src/main/java/se/alerisx/mhp/manager/service/FollowUpService.java",
+          "svc/src/main/java/se/alerisx/mhp/manager/service/ReferralService.java",
+          "svc/src/main/java/se/alerisx/mhp/manager/service/impl/EscalationService.java"
+        ]
+      },
+      {
+        "id": "ITEM-HM-COMP-003",
+        "name": "Data Repositories",
+        "type": "layer",
+        "path": "svc/src/main/java/se/alerisx/mhp/manager/repository/",
+        "description": "Spring Data JPA repositories for database access using QueryDSL and Blaze Persistence",
+        "safety_class": "B",
+        "internal_dependencies": [
+          {
+            "component_id": "ITEM-HM-COMP-004",
+            "dependency_type": "data",
+            "coupling": "tight",
+            "description": "Repositories persist domain entities"
+          }
+        ],
+        "soup_dependencies": ["ITEM-HM-SOUP-003", "ITEM-HM-SOUP-005", "ITEM-HM-SOUP-006"],
+        "source_files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/repository/QueryableAppointmentRepository.java",
+          "svc/src/main/java/se/alerisx/mhp/manager/repository/AppointmentHandoverEventRepository.java",
+          "svc/src/main/java/se/alerisx/mhp/manager/appointments/notes/repository/NoteRepository.java"
+        ]
+      },
+      {
+        "id": "ITEM-HM-COMP-004",
+        "name": "Domain Model",
+        "type": "module",
+        "path": "svc/src/main/java/se/alerisx/mhp/manager/domain/",
+        "description": "JPA entities representing appointments, episodes, handovers, flags, notes, and booking data",
+        "safety_class": "B",
+        "internal_dependencies": [],
+        "soup_dependencies": ["ITEM-HM-SOUP-003", "ITEM-HM-SOUP-007"],
+        "source_files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/domain/Appointment.java",
+          "svc/src/main/java/se/alerisx/mhp/manager/domain/EpisodeOfCare.java",
+          "svc/src/main/java/se/alerisx/mhp/manager/domain/FollowUp.java",
+          "svc/src/main/java/se/alerisx/mhp/manager/domain/flag/v2/Flag.java"
+        ]
+      },
+      {
+        "id": "ITEM-HM-COMP-005",
+        "name": "DTO Layer",
+        "type": "module",
+        "path": "dto/src/main/java/se/alerisx/mhp/manager/dto/",
+        "description": "Data Transfer Objects for API request/response and inter-service communication",
+        "safety_class": "A",
+        "internal_dependencies": [],
+        "soup_dependencies": ["ITEM-HM-SOUP-007", "ITEM-HM-SOUP-008"],
+        "source_files": [
+          "dto/src/main/java/se/alerisx/mhp/manager/dto/AppointmentDTO.java",
+          "dto/src/main/java/se/alerisx/mhp/manager/dto/HandoverMessageDTO.java",
+          "dto/src/main/java/se/alerisx/mhp/manager/dto/UpdateAppointmentDTO.java"
+        ]
+      },
+      {
+        "id": "ITEM-HM-COMP-006",
+        "name": "JMS Event Listeners",
+        "type": "module",
+        "path": "svc/src/main/java/se/alerisx/mhp/manager/listener/",
+        "description": "Artemis JMS message consumers for synchronized bookings, patient events, and message events",
+        "safety_class": "B",
+        "internal_dependencies": [
+          {
+            "component_id": "ITEM-HM-COMP-002",
+            "dependency_type": "function_call",
+            "coupling": "loose",
+            "description": "Listeners delegate to services"
+          }
+        ],
+        "soup_dependencies": ["ITEM-HM-SOUP-009"],
+        "source_files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/listener/SynchronizedBookingListener.java",
+          "svc/src/main/java/se/alerisx/mhp/manager/listener/MessageEventListener.java",
+          "svc/src/main/java/se/alerisx/mhp/manager/listener/PatientChildCanSeekCareListener.java"
+        ]
+      },
+      {
+        "id": "ITEM-HM-COMP-007",
+        "name": "Escalator Module",
+        "type": "subsystem",
+        "path": "modules/escalator/",
+        "description": "Appointment escalation rules engine using easy-rules for clinical priority management",
+        "safety_class": "B",
+        "internal_dependencies": [],
+        "soup_dependencies": ["ITEM-HM-SOUP-010"],
+        "source_files": [
+          "modules/escalator/src/main/java/"
+        ]
+      },
+      {
+        "id": "ITEM-HM-COMP-008",
+        "name": "External Integrations",
+        "type": "module",
+        "path": "svc/src/main/java/se/alerisx/mhp/manager/takecare/",
+        "description": "Integration with external systems: TakeCare EHR, Alfa e-Recept, Klarna payments, Freepass",
+        "safety_class": "B",
+        "internal_dependencies": [
+          {
+            "component_id": "ITEM-HM-COMP-002",
+            "dependency_type": "function_call",
+            "coupling": "loose",
+            "description": "Integrations called by services"
+          }
+        ],
+        "soup_dependencies": ["ITEM-HM-SOUP-011", "ITEM-HM-SOUP-012", "ITEM-HM-SOUP-013"],
+        "source_files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/takecare/TakeCareNoteService.java",
+          "svc/src/main/java/se/alerisx/mhp/manager/order/klarna/"
+        ]
+      },
+      {
+        "id": "ITEM-HM-COMP-009",
+        "name": "Clinic Listing Pages",
+        "type": "module",
+        "path": "svc/src/main/java/se/alerisx/mhp/manager/service/clinicpages/",
+        "description": "Complex query builders for clinic appointment lists, billing, and consultation views",
+        "safety_class": "A",
+        "internal_dependencies": [
+          {
+            "component_id": "ITEM-HM-COMP-003",
+            "dependency_type": "function_call",
+            "coupling": "tight",
+            "description": "Uses repositories with QueryDSL"
+          }
+        ],
+        "soup_dependencies": ["ITEM-HM-SOUP-005", "ITEM-HM-SOUP-006"],
+        "source_files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/service/clinicpages/ConsultationListService.java",
+          "svc/src/main/java/se/alerisx/mhp/manager/service/clinicpages/BillingListService.java"
+        ]
+      },
+      {
+        "id": "ITEM-HM-COMP-010",
+        "name": "Audit Logging",
+        "type": "module",
+        "path": "svc/src/main/java/se/alerisx/mhp/manager/service/audit/",
+        "description": "Clinical audit trail logging using Platform24 audit SDK",
+        "safety_class": "B",
+        "internal_dependencies": [
+          {
+            "component_id": "ITEM-HM-COMP-002",
+            "dependency_type": "function_call",
+            "coupling": "loose",
+            "description": "Services invoke audit logging"
+          }
+        ],
+        "soup_dependencies": ["ITEM-HM-SOUP-014"],
+        "source_files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/service/audit/AuditLoggingService.java"
+        ]
+      }
+    ],
+
+    "provided_interfaces": [
+      {
+        "id": "ITEM-HM-INT-001",
+        "name": "Appointment Management API",
+        "type": "rest_api",
+        "direction": "provided",
+        "protocol": "HTTP",
+        "description": "REST API for appointment CRUD, status updates, and lifecycle management",
+        "contract": {
+          "endpoint": "/v1/appointments/*",
+          "method": "GET, POST, PUT, PATCH",
+          "request_schema": "UpdateAppointmentDTO, RequestAppointmentV3DTO",
+          "response_schema": "AppointmentDTO",
+          "error_codes": ["400: Invalid request", "403: Forbidden", "404: Appointment not found"]
+        },
+        "provided_by_component": "ITEM-HM-COMP-001",
+        "consumers": "clinic-web, patient-app, booking-service",
+        "source": {
+          "files": ["svc/src/main/java/se/alerisx/mhp/manager/controller/v1/AppointmentController.java"]
+        }
+      },
+      {
+        "id": "ITEM-HM-INT-002",
+        "name": "Clinic Appointment API",
+        "type": "rest_api",
+        "direction": "provided",
+        "protocol": "HTTP",
+        "description": "Clinic-specific appointment views and actions",
+        "contract": {
+          "endpoint": "/v1/clinic/appointments/*",
+          "method": "GET, POST, PUT",
+          "request_schema": "Various clinic DTOs",
+          "response_schema": "ClinicAppointmentDTO",
+          "error_codes": ["400: Invalid request", "403: Not authorized for care unit"]
+        },
+        "provided_by_component": "ITEM-HM-COMP-001",
+        "consumers": "clinic-web",
+        "source": {
+          "files": ["svc/src/main/java/se/alerisx/mhp/manager/controller/v1/clinic/ClinicAppointmentController.java"]
+        }
+      },
+      {
+        "id": "ITEM-HM-INT-003",
+        "name": "Handover Events",
+        "type": "jms_topic",
+        "direction": "provided",
+        "protocol": "JMS",
+        "description": "JMS events for appointment handover status changes",
+        "contract": {
+          "endpoint": "AppointmentHandoverStatusEvent",
+          "request_schema": "N/A",
+          "response_schema": "AppointmentHandoverStatusEvent"
+        },
+        "provided_by_component": "ITEM-HM-COMP-002",
+        "consumers": "notification-service, clinic-web",
+        "source": {
+          "files": ["svc/src/main/java/se/alerisx/mhp/manager/service/impl/AppointmentHandoverServiceImpl.java"]
+        }
+      },
+      {
+        "id": "ITEM-HM-INT-004",
+        "name": "Follow-Up API",
+        "type": "rest_api",
+        "direction": "provided",
+        "protocol": "HTTP",
+        "description": "API for managing clinical follow-ups",
+        "contract": {
+          "endpoint": "/v1/follow-ups/*",
+          "method": "GET, POST, PUT",
+          "request_schema": "FollowUpDTO",
+          "response_schema": "FollowUpDTO",
+          "error_codes": ["400: Invalid follow-up state", "404: Follow-up not found"]
+        },
+        "provided_by_component": "ITEM-HM-COMP-001",
+        "consumers": "clinic-web, patient-app",
+        "source": {
+          "files": ["svc/src/main/java/se/alerisx/mhp/manager/controller/v1/FollowUpController.java"]
+        }
+      },
+      {
+        "id": "ITEM-HM-INT-005",
+        "name": "Referral API",
+        "type": "rest_api",
+        "direction": "provided",
+        "protocol": "HTTP",
+        "description": "API for creating and managing clinical referrals",
+        "contract": {
+          "endpoint": "/v1/referrals/*",
+          "method": "GET, POST",
+          "request_schema": "ReferralRequestDTO",
+          "response_schema": "ReferralDTO",
+          "error_codes": ["400: Invalid referral", "403: Not authorized"]
+        },
+        "provided_by_component": "ITEM-HM-COMP-001",
+        "consumers": "clinic-web",
+        "source": {
+          "files": ["svc/src/main/java/se/alerisx/mhp/manager/controller/v1/ReferralController.java"]
+        }
+      }
+    ],
+
+    "consumed_interfaces": [
+      {
+        "id": "ITEM-HM-EXT-001",
+        "name": "Bookings Service",
+        "type": "rest_api",
+        "direction": "consumed",
+        "protocol": "HTTP",
+        "description": "Platform24 bookings service for slot availability and booking creation",
+        "external_system": "bookings-service",
+        "contract": {
+          "endpoint": "Internal service discovery",
+          "expected_schema": "BookingDTO"
+        },
+        "consumed_by_component": "ITEM-HM-COMP-002",
+        "failure_handling": "Retry with exponential backoff, circuit breaker",
+        "source": {
+          "files": ["pom.xml:bookings.version"]
+        }
+      },
+      {
+        "id": "ITEM-HM-EXT-002",
+        "name": "Directory2 Service",
+        "type": "rest_api",
+        "direction": "consumed",
+        "protocol": "HTTP",
+        "description": "Care unit and practitioner directory lookup",
+        "external_system": "directory2-service",
+        "contract": {
+          "endpoint": "Internal service discovery",
+          "expected_schema": "CareUnitDTO, PractitionerDTO"
+        },
+        "consumed_by_component": "ITEM-HM-COMP-002",
+        "failure_handling": "Cache with fallback",
+        "source": {
+          "files": ["pom.xml:directory2.version"]
+        }
+      },
+      {
+        "id": "ITEM-HM-EXT-003",
+        "name": "Meetingplace Service",
+        "type": "rest_api",
+        "direction": "consumed",
+        "protocol": "HTTP",
+        "description": "Video consultation and messaging platform",
+        "external_system": "meetingplace-service",
+        "contract": {
+          "endpoint": "Internal service discovery",
+          "expected_schema": "Meeting, Message"
+        },
+        "consumed_by_component": "ITEM-HM-COMP-002",
+        "failure_handling": "Async retry",
+        "source": {
+          "files": ["pom.xml:meetingplace.version"]
+        }
+      },
+      {
+        "id": "ITEM-HM-EXT-004",
+        "name": "TakeCare EHR",
+        "type": "rest_api",
+        "direction": "consumed",
+        "protocol": "HTTP/SOAP",
+        "description": "Integration with TakeCare electronic health record system",
+        "external_system": "TakeCare (external)",
+        "contract": {
+          "endpoint": "External EHR endpoint",
+          "expected_schema": "TakeCare XML schemas"
+        },
+        "consumed_by_component": "ITEM-HM-COMP-008",
+        "failure_handling": "Log and continue, retry scheduled jobs",
+        "source": {
+          "files": ["svc/src/main/java/se/alerisx/mhp/manager/takecare/"]
+        }
+      },
+      {
+        "id": "ITEM-HM-EXT-005",
+        "name": "Klarna Payment Gateway",
+        "type": "rest_api",
+        "direction": "consumed",
+        "protocol": "HTTP",
+        "description": "Payment processing for patient appointments",
+        "external_system": "Klarna (external)",
+        "contract": {
+          "endpoint": "Klarna Checkout API v2/v3",
+          "expected_schema": "Klarna order schemas"
+        },
+        "consumed_by_component": "ITEM-HM-COMP-008",
+        "failure_handling": "Payment failure handling, refund support",
+        "source": {
+          "files": ["svc/src/main/java/se/alerisx/mhp/manager/order/klarna/"]
+        }
+      },
+      {
+        "id": "ITEM-HM-EXT-006",
+        "name": "Synchronized Booking Events",
+        "type": "jms_topic",
+        "direction": "consumed",
+        "protocol": "JMS",
+        "description": "Booking sync events from bookings service",
+        "external_system": "bookings-service",
+        "contract": {
+          "endpoint": "SynchronizedBookingEvent topic",
+          "expected_schema": "SynchronizedBookingEvent"
+        },
+        "consumed_by_component": "ITEM-HM-COMP-006",
+        "failure_handling": "Dead letter queue, manual intervention",
+        "source": {
+          "files": ["svc/src/main/java/se/alerisx/mhp/manager/listener/SynchronizedBookingListener.java"]
+        }
+      },
+      {
+        "id": "ITEM-HM-EXT-007",
+        "name": "MariaDB Database",
+        "type": "database",
+        "direction": "consumed",
+        "protocol": "JDBC",
+        "description": "Primary relational database for appointment and clinical data",
+        "external_system": "MariaDB cluster",
+        "contract": {
+          "endpoint": "JDBC connection",
+          "expected_schema": "Health Manager schema"
+        },
+        "consumed_by_component": "ITEM-HM-COMP-003",
+        "failure_handling": "Connection pooling, retry, failover to replica",
+        "source": {
+          "files": ["pom.xml:mariadb-java-client"]
+        }
+      }
+    ],
+
+    "soup_dependencies": [
+      {
+        "id": "ITEM-HM-SOUP-001",
+        "name": "spring-boot-starter-web",
+        "version": "inherited from parent",
+        "source": "maven",
+        "purpose": "REST API framework",
+        "functionality_used": ["REST controllers", "JSON serialization", "HTTP server"],
+        "used_by_components": ["ITEM-HM-COMP-001", "ITEM-HM-COMP-002"],
+        "safety_relevant": false,
+        "known_anomalies": [],
+        "license": "Apache-2.0"
+      },
+      {
+        "id": "ITEM-HM-SOUP-003",
+        "name": "hibernate-core",
+        "version": "inherited from parent",
+        "source": "maven",
+        "purpose": "JPA ORM implementation",
+        "functionality_used": ["Entity mapping", "Transaction management", "Query execution"],
+        "used_by_components": ["ITEM-HM-COMP-003", "ITEM-HM-COMP-004"],
+        "safety_relevant": true,
+        "known_anomalies": [],
+        "license": "LGPL-2.1"
+      },
+      {
+        "id": "ITEM-HM-SOUP-005",
+        "name": "querydsl-jpa",
+        "version": "inherited from parent",
+        "source": "maven",
+        "purpose": "Type-safe JPA queries",
+        "functionality_used": ["Query DSL", "Dynamic queries"],
+        "used_by_components": ["ITEM-HM-COMP-003", "ITEM-HM-COMP-009"],
+        "safety_relevant": false,
+        "known_anomalies": [],
+        "license": "Apache-2.0"
+      },
+      {
+        "id": "ITEM-HM-SOUP-006",
+        "name": "blaze-persistence",
+        "version": "1.6.11",
+        "source": "maven",
+        "purpose": "Enhanced QueryDSL with pagination and performance",
+        "functionality_used": ["Pagination", "Optimized queries"],
+        "used_by_components": ["ITEM-HM-COMP-003", "ITEM-HM-COMP-009"],
+        "safety_relevant": false,
+        "known_anomalies": [],
+        "license": "Apache-2.0"
+      },
+      {
+        "id": "ITEM-HM-SOUP-007",
+        "name": "lombok",
+        "version": "1.18.30",
+        "source": "maven",
+        "purpose": "Boilerplate code reduction",
+        "functionality_used": ["@Data", "@Builder", "@Slf4j"],
+        "used_by_components": ["ITEM-HM-COMP-004", "ITEM-HM-COMP-005"],
+        "safety_relevant": false,
+        "known_anomalies": [],
+        "license": "MIT"
+      },
+      {
+        "id": "ITEM-HM-SOUP-009",
+        "name": "spring-boot-starter-artemis",
+        "version": "inherited from parent",
+        "source": "maven",
+        "purpose": "JMS messaging with ActiveMQ Artemis",
+        "functionality_used": ["JMS listeners", "Message publishing"],
+        "used_by_components": ["ITEM-HM-COMP-006"],
+        "safety_relevant": true,
+        "known_anomalies": [],
+        "license": "Apache-2.0"
+      },
+      {
+        "id": "ITEM-HM-SOUP-010",
+        "name": "easy-rules-core",
+        "version": "3.4.0",
+        "source": "maven",
+        "purpose": "Rules engine for appointment escalation",
+        "functionality_used": ["Rule definition", "Rule execution"],
+        "used_by_components": ["ITEM-HM-COMP-007"],
+        "safety_relevant": true,
+        "known_anomalies": [],
+        "license": "MIT"
+      },
+      {
+        "id": "ITEM-HM-SOUP-011",
+        "name": "kco-rest",
+        "version": "4.0.3",
+        "source": "maven",
+        "purpose": "Klarna Checkout v3 SDK",
+        "functionality_used": ["Payment creation", "Order management"],
+        "used_by_components": ["ITEM-HM-COMP-008"],
+        "safety_relevant": false,
+        "known_anomalies": [],
+        "license": "Apache-2.0"
+      },
+      {
+        "id": "ITEM-HM-SOUP-014",
+        "name": "alerisx-audit-logging-sdk",
+        "version": "2.84.0",
+        "source": "maven (internal)",
+        "purpose": "Clinical audit trail logging",
+        "functionality_used": ["Audit event creation", "Log persistence"],
+        "used_by_components": ["ITEM-HM-COMP-010"],
+        "safety_relevant": true,
+        "known_anomalies": [],
+        "license": "Proprietary"
+      }
+    ],
+
+    "safety_segregation": {
+      "applicable": true,
+      "mechanisms": [
+        {
+          "type": "module_boundary",
+          "description": "Layered architecture separates concerns: controllers, services, repositories, domain",
+          "protected_components": ["ITEM-HM-COMP-002", "ITEM-HM-COMP-003"],
+          "verification": "Code review, dependency analysis"
+        },
+        {
+          "type": "process_isolation",
+          "description": "External integrations (TakeCare, Klarna) are isolated in dedicated components",
+          "protected_components": ["ITEM-HM-COMP-008"],
+          "verification": "Integration tests with mocks"
+        }
+      ],
+      "failure_propagation_controls": [
+        "Circuit breaker pattern for external service calls",
+        "Transaction boundaries prevent partial data commits",
+        "Dead letter queue for JMS message processing failures",
+        "Retry with exponential backoff for transient failures"
+      ]
+    },
+
+    "data_flows": [
+      {
+        "id": "ITEM-HM-FLOW-001",
+        "name": "Appointment Update Flow",
+        "description": "Patient/practitioner appointment status changes through the system",
+        "path": ["ITEM-HM-COMP-001", "ITEM-HM-COMP-002", "ITEM-HM-COMP-003", "ITEM-HM-COMP-004"],
+        "data_type": "Appointment status and clinical data",
+        "safety_relevant": true
+      },
+      {
+        "id": "ITEM-HM-FLOW-002",
+        "name": "Handover Flow",
+        "description": "Appointment handover between practitioners",
+        "path": ["ITEM-HM-COMP-001", "ITEM-HM-COMP-002", "ITEM-HM-COMP-003", "ITEM-HM-COMP-006"],
+        "data_type": "Handover status and practitioner assignments",
+        "safety_relevant": true
+      },
+      {
+        "id": "ITEM-HM-FLOW-003",
+        "name": "JMS Event Processing",
+        "description": "Incoming booking sync events from external services",
+        "path": ["ITEM-HM-COMP-006", "ITEM-HM-COMP-002", "ITEM-HM-COMP-003"],
+        "data_type": "Booking synchronization events",
+        "safety_relevant": true
+      }
+    ]
+  },
+
+  "traceability": {
+    "to_parent_requirements": [],
+    "to_item_requirements": [
+      {
+        "component_id": "ITEM-HM-COMP-002",
+        "item_requirement_ids": ["ITEM-HM-REQ-FUNC-001", "ITEM-HM-REQ-FUNC-002", "ITEM-HM-REQ-FUNC-003"]
+      },
+      {
+        "component_id": "ITEM-HM-COMP-006",
+        "item_requirement_ids": ["ITEM-HM-REQ-INT-001", "ITEM-HM-REQ-INT-002"]
+      }
+    ]
+  },
+
+  "gaps": [
+    {
+      "id": "ITEM-HM-ARCH-GAP-001",
+      "type": "undocumented_component",
+      "description": "Plugin service integrations not fully documented",
+      "affected_components": ["ITEM-HM-COMP-008"],
+      "recommendation": "Document plugin-service-client integration patterns",
+      "priority": "low"
+    }
+  ]
+}

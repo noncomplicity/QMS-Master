@@ -1,0 +1,501 @@
+{
+  "extraction_metadata": {
+    "aggregated_at": "2026-03-06T16:10:00Z",
+    "aggregator_version": "2.0",
+    "standard": "ISO 14971:2019 / IEC 62304:2006+AMD1:2015",
+    "hierarchy": {
+      "level": "system",
+      "system_id": "platform24",
+      "system_name": "Platform24 Health Software",
+      "child_modules": ["smart-care-plans"]
+    },
+    "source_aggregations": [
+      {
+        "module_id": "smart-care-plans",
+        "aggregated_at": "2026-03-06T14:40:00Z",
+        "hazard_count": 7,
+        "control_count": 9
+      }
+    ]
+  },
+
+  "product_risk_summary": {
+    "system_id": "platform24",
+    "system_name": "Platform24 Health Software",
+    "safety_class": "B",
+    "intended_use": "Digital healthcare platform for managing patient-practitioner encounters including appointment scheduling, clinical handovers, follow-ups, and care escalation",
+    "total_hazards": 7,
+    "hazard_severity_distribution": {
+      "critical": 1,
+      "serious": 5,
+      "minor": 1
+    },
+    "total_controls": 12,
+    "control_verification_status": {
+      "verified": 7,
+      "partial": 5,
+      "unverified": 0
+    },
+    "residual_risk_acceptable": true,
+    "benefit_risk_conclusion": "Acceptable - benefits of digital healthcare management outweigh residual risks"
+  },
+
+  "intended_use_and_context": {
+    "intended_use": "Platform24 Health Software is intended for use by healthcare providers and patients to manage clinical appointments, handovers, follow-ups, referrals, and care escalation in digital healthcare settings.",
+    "intended_users": [
+      {
+        "user_type": "Healthcare practitioners",
+        "role": "Primary users managing patient care workflows",
+        "training_required": "Platform orientation, clinical workflow training"
+      },
+      {
+        "user_type": "Patients",
+        "role": "Book appointments, receive notifications, access care",
+        "training_required": "App onboarding"
+      },
+      {
+        "user_type": "Administrative staff",
+        "role": "Clinic queue management, scheduling oversight",
+        "training_required": "Administrative workflow training"
+      }
+    ],
+    "use_environment": "Digital healthcare (telemedicine, hybrid care)",
+    "contraindications": [
+      "Emergency/life-threatening situations requiring immediate intervention",
+      "Complex clinical decisions requiring physical examination"
+    ],
+    "safety_class_rationale": "Class B per IEC 62304 - software can contribute to hazardous situations but serious injury is unlikely"
+  },
+
+  "system_hazards": [
+    {
+      "id": "SYS-P24-HAZ-001",
+      "description": "Unauthorized access to patient appointment and clinical data",
+      "source_type": "module_aggregation",
+      "source_hazards": [
+        {
+          "module_id": "smart-care-plans",
+          "module_hazard_id": "MOD-SCP-HAZ-001",
+          "contribution": "REST API authentication/authorization vulnerabilities"
+        }
+      ],
+      "hazardous_situation": "Unauthorized party gains access to patient appointment information including symptoms, care history, and scheduling data",
+      "potential_harm": "Privacy breach, patient confidentiality violation, regulatory non-compliance (GDPR, Patient Data Act)",
+      "harm_severity": "serious",
+      "harm_severity_rationale": "Significant privacy impact and regulatory consequences, but no direct physical harm",
+      "probability_of_occurrence": "unlikely",
+      "probability_rationale": "Multiple authentication layers, but attack surface exists via REST APIs",
+      "initial_risk_level": "medium",
+      "risk_acceptability_before_mitigation": "unacceptable"
+    },
+    {
+      "id": "SYS-P24-HAZ-002",
+      "description": "Patient appointment data corruption or loss",
+      "source_type": "module_aggregation",
+      "source_hazards": [
+        {
+          "module_id": "smart-care-plans",
+          "module_hazard_id": "MOD-SCP-HAZ-002",
+          "contribution": "Database persistence layer failures"
+        }
+      ],
+      "hazardous_situation": "Appointment data becomes corrupted or lost due to software or infrastructure failure",
+      "potential_harm": "Lost clinical context, treatment decisions based on incomplete information, care continuity disruption",
+      "harm_severity": "serious",
+      "harm_severity_rationale": "Could impact treatment decisions though practitioners have other data sources",
+      "probability_of_occurrence": "rare",
+      "probability_rationale": "Transaction management and database redundancy reduce likelihood",
+      "initial_risk_level": "medium",
+      "risk_acceptability_before_mitigation": "unacceptable"
+    },
+    {
+      "id": "SYS-P24-HAZ-003",
+      "description": "Handover to unavailable or incorrect practitioner",
+      "source_type": "module_aggregation",
+      "source_hazards": [
+        {
+          "module_id": "smart-care-plans",
+          "module_hazard_id": "MOD-SCP-HAZ-003",
+          "contribution": "Handover service logic errors"
+        }
+      ],
+      "hazardous_situation": "Patient appointment is handed over to unavailable practitioner or wrong specialty",
+      "potential_harm": "Delayed patient care, inappropriate specialist assignment, patient confusion",
+      "harm_severity": "serious",
+      "harm_severity_rationale": "Care continuity depends on correct handover; delays could worsen conditions",
+      "probability_of_occurrence": "unlikely",
+      "probability_rationale": "State machine validation reduces likelihood, but edge cases possible",
+      "initial_risk_level": "medium",
+      "risk_acceptability_before_mitigation": "unacceptable"
+    },
+    {
+      "id": "SYS-P24-HAZ-004",
+      "description": "Critical appointment not escalated in time",
+      "source_type": "module_aggregation",
+      "source_hazards": [
+        {
+          "module_id": "smart-care-plans",
+          "module_hazard_id": "MOD-SCP-HAZ-004",
+          "contribution": "Escalation rules engine failures"
+        }
+      ],
+      "hazardous_situation": "Appointment requiring urgent attention is not escalated due to rule evaluation failure",
+      "potential_harm": "Delayed emergency care, patient condition deterioration",
+      "harm_severity": "critical",
+      "harm_severity_rationale": "Escalation failure could result in delayed response to deteriorating patient",
+      "probability_of_occurrence": "rare",
+      "probability_rationale": "Default escalation on failure reduces probability",
+      "initial_risk_level": "high",
+      "risk_acceptability_before_mitigation": "unacceptable"
+    },
+    {
+      "id": "SYS-P24-HAZ-005",
+      "description": "Follow-up notification not sent to patient",
+      "source_type": "module_aggregation",
+      "source_hazards": [
+        {
+          "module_id": "smart-care-plans",
+          "module_hazard_id": "MOD-SCP-HAZ-005",
+          "contribution": "Scheduled notification job failures"
+        }
+      ],
+      "hazardous_situation": "Patient does not receive scheduled follow-up notification",
+      "potential_harm": "Patient misses follow-up appointment, condition may worsen without monitoring",
+      "harm_severity": "serious",
+      "harm_severity_rationale": "Missed follow-up could delay necessary care, though patient can reschedule",
+      "probability_of_occurrence": "unlikely",
+      "probability_rationale": "Distributed locking reduces duplicate/missed execution",
+      "initial_risk_level": "medium",
+      "risk_acceptability_before_mitigation": "unacceptable"
+    },
+    {
+      "id": "SYS-P24-HAZ-006",
+      "description": "Appointment scheduled at incorrect time due to timezone/serialization error",
+      "source_type": "module_aggregation",
+      "source_hazards": [
+        {
+          "module_id": "smart-care-plans",
+          "module_hazard_id": "MOD-SCP-HAZ-006",
+          "contribution": "Date/time serialization issues"
+        }
+      ],
+      "hazardous_situation": "Appointment time displayed or stored incorrectly due to timezone handling",
+      "potential_harm": "Patient misses appointment, minor care delay",
+      "harm_severity": "minor",
+      "harm_severity_rationale": "Appointment can be rescheduled, temporary inconvenience",
+      "probability_of_occurrence": "unlikely",
+      "probability_rationale": "JSR-310 date handling with explicit timezone reduces issues",
+      "initial_risk_level": "low",
+      "risk_acceptability_before_mitigation": "acceptable"
+    },
+    {
+      "id": "SYS-P24-HAZ-007",
+      "description": "JMS message loss causing appointment data inconsistency",
+      "source_type": "module_aggregation",
+      "source_hazards": [
+        {
+          "module_id": "smart-care-plans",
+          "module_hazard_id": "MOD-SCP-HAZ-007",
+          "contribution": "JMS event listener failures"
+        }
+      ],
+      "hazardous_situation": "Booking data becomes inconsistent between services due to message loss",
+      "potential_harm": "Double-booking, scheduling conflicts, patient confusion",
+      "harm_severity": "serious",
+      "harm_severity_rationale": "Scheduling conflicts disrupt care but can be manually resolved",
+      "probability_of_occurrence": "unlikely",
+      "probability_rationale": "DLQ and message persistence reduce message loss",
+      "initial_risk_level": "medium",
+      "risk_acceptability_before_mitigation": "unacceptable"
+    }
+  ],
+
+  "risk_controls": {
+    "software_controls": [
+      {
+        "id": "SYS-P24-RC-001",
+        "description": "JWT-based authentication and role-based authorization",
+        "control_type": "inherent_safety",
+        "source": "module",
+        "source_controls": ["MOD-SCP-RC-ITEM-001"],
+        "mitigates": ["SYS-P24-HAZ-001"],
+        "implementation": "Spring Security with JWT validation, role-based access via @PreAuthorize",
+        "verification_status": "verified",
+        "verification_evidence": ["ITEM-HM-UT-002"],
+        "effectiveness": "high"
+      },
+      {
+        "id": "SYS-P24-RC-002",
+        "description": "Database transaction management with automatic rollback",
+        "control_type": "protective_measure",
+        "source": "module",
+        "source_controls": ["MOD-SCP-RC-ITEM-002"],
+        "mitigates": ["SYS-P24-HAZ-002"],
+        "implementation": "Spring @Transactional with rollback on RuntimeException",
+        "verification_status": "verified",
+        "verification_evidence": ["ITEM-HM-IT-001"],
+        "effectiveness": "high"
+      },
+      {
+        "id": "SYS-P24-RC-003",
+        "description": "Optimistic locking for concurrent modification detection",
+        "control_type": "protective_measure",
+        "source": "module",
+        "source_controls": ["MOD-SCP-RC-ITEM-003"],
+        "mitigates": ["SYS-P24-HAZ-002", "SYS-P24-HAZ-003"],
+        "implementation": "JPA @Version annotation, OptimisticLockException handling",
+        "verification_status": "partial",
+        "verification_evidence": ["Code inspection"],
+        "effectiveness": "medium"
+      },
+      {
+        "id": "SYS-P24-RC-004",
+        "description": "Handover state machine validation",
+        "control_type": "inherent_safety",
+        "source": "module",
+        "source_controls": ["MOD-SCP-RC-ITEM-004"],
+        "mitigates": ["SYS-P24-HAZ-003"],
+        "implementation": "State transition validation before handover operations",
+        "verification_status": "verified",
+        "verification_evidence": ["MOD-SCP-IT-002"],
+        "effectiveness": "high"
+      },
+      {
+        "id": "SYS-P24-RC-005",
+        "description": "Escalation rule validation with default escalation on failure",
+        "control_type": "protective_measure",
+        "source": "module",
+        "source_controls": ["MOD-SCP-RC-ITEM-005"],
+        "mitigates": ["SYS-P24-HAZ-004"],
+        "implementation": "Rule evaluation logging, default escalation when rules engine fails",
+        "verification_status": "verified",
+        "verification_evidence": ["ITEM-HM-UT-040"],
+        "effectiveness": "high"
+      },
+      {
+        "id": "SYS-P24-RC-006",
+        "description": "ShedLock distributed locking for scheduled tasks",
+        "control_type": "protective_measure",
+        "source": "module",
+        "source_controls": ["MOD-SCP-RC-ITEM-006"],
+        "mitigates": ["SYS-P24-HAZ-005"],
+        "implementation": "Database-backed distributed lock for exactly-once execution",
+        "verification_status": "partial",
+        "verification_evidence": ["Configuration review"],
+        "effectiveness": "medium"
+      },
+      {
+        "id": "SYS-P24-RC-007",
+        "description": "JSR-310 date/time handling with explicit timezone",
+        "control_type": "inherent_safety",
+        "source": "module",
+        "source_controls": ["MOD-SCP-RC-ITEM-007"],
+        "mitigates": ["SYS-P24-HAZ-006"],
+        "implementation": "LocalDateTime/ZonedDateTime with Jackson JSR-310 module",
+        "verification_status": "verified",
+        "verification_evidence": ["DTO serialization tests"],
+        "effectiveness": "high"
+      },
+      {
+        "id": "SYS-P24-RC-008",
+        "description": "JMS dead letter queue for failed message processing",
+        "control_type": "protective_measure",
+        "source": "module",
+        "source_controls": ["MOD-SCP-RC-ITEM-008"],
+        "mitigates": ["SYS-P24-HAZ-007"],
+        "implementation": "Artemis DLQ configuration, message retry with backoff",
+        "verification_status": "partial",
+        "verification_evidence": ["Configuration review"],
+        "effectiveness": "medium"
+      },
+      {
+        "id": "SYS-P24-RC-009",
+        "description": "Clinical audit logging for all patient data access",
+        "control_type": "information_for_safety",
+        "source": "module",
+        "source_controls": ["MOD-SCP-RC-ITEM-009"],
+        "mitigates": ["SYS-P24-HAZ-001", "SYS-P24-HAZ-002"],
+        "implementation": "AuditLoggingService captures all clinical data operations",
+        "verification_status": "partial",
+        "verification_evidence": ["Code review"],
+        "effectiveness": "medium"
+      }
+    ],
+
+    "non_software_controls": [
+      {
+        "id": "SYS-P24-RC-NS-001",
+        "description": "Practitioner training on handover workflow",
+        "control_type": "information_for_safety",
+        "mitigates": ["SYS-P24-HAZ-003"],
+        "implementation_requirement": "Training program for clinical handover procedures",
+        "responsible_party": "healthcare_provider",
+        "verification_approach": "Training completion records"
+      },
+      {
+        "id": "SYS-P24-RC-NS-002",
+        "description": "Monitoring alerts for escalation failures",
+        "control_type": "protective_measure",
+        "mitigates": ["SYS-P24-HAZ-004"],
+        "implementation_requirement": "Infrastructure monitoring with alert escalation",
+        "responsible_party": "operations",
+        "verification_approach": "Alert testing, runbook validation"
+      },
+      {
+        "id": "SYS-P24-RC-NS-003",
+        "description": "JMS broker high availability configuration",
+        "control_type": "inherent_safety",
+        "mitigates": ["SYS-P24-HAZ-007"],
+        "implementation_requirement": "Clustered JMS broker with message persistence",
+        "responsible_party": "infrastructure",
+        "verification_approach": "Failover testing"
+      }
+    ]
+  },
+
+  "residual_risk_evaluation": [
+    {
+      "hazard_id": "SYS-P24-HAZ-001",
+      "controls_applied": ["SYS-P24-RC-001", "SYS-P24-RC-009"],
+      "residual_probability": "rare",
+      "residual_severity": "serious",
+      "residual_risk_level": "low",
+      "residual_risk_acceptable": true,
+      "justification": "JWT authentication plus audit logging reduces unauthorized access to rare occurrence. Detection capability enables response."
+    },
+    {
+      "hazard_id": "SYS-P24-HAZ-002",
+      "controls_applied": ["SYS-P24-RC-002", "SYS-P24-RC-003", "SYS-P24-RC-009"],
+      "residual_probability": "very_rare",
+      "residual_severity": "serious",
+      "residual_risk_level": "low",
+      "residual_risk_acceptable": true,
+      "justification": "Transaction management with optimistic locking and audit trail makes data corruption very rare and detectable."
+    },
+    {
+      "hazard_id": "SYS-P24-HAZ-003",
+      "controls_applied": ["SYS-P24-RC-003", "SYS-P24-RC-004", "SYS-P24-RC-NS-001"],
+      "residual_probability": "rare",
+      "residual_severity": "serious",
+      "residual_risk_level": "low",
+      "residual_risk_acceptable": true,
+      "justification": "State machine validation prevents invalid transitions. Training addresses human factors. Optimistic locking prevents concurrent modification."
+    },
+    {
+      "hazard_id": "SYS-P24-HAZ-004",
+      "controls_applied": ["SYS-P24-RC-005", "SYS-P24-RC-NS-002"],
+      "residual_probability": "very_rare",
+      "residual_severity": "critical",
+      "residual_risk_level": "medium",
+      "residual_risk_acceptable": true,
+      "justification": "Default escalation on failure ensures critical cases are flagged. Monitoring enables rapid response to escalation system issues. Residual risk accepted given safety net approach."
+    },
+    {
+      "hazard_id": "SYS-P24-HAZ-005",
+      "controls_applied": ["SYS-P24-RC-006"],
+      "residual_probability": "rare",
+      "residual_severity": "serious",
+      "residual_risk_level": "low",
+      "residual_risk_acceptable": true,
+      "justification": "Distributed locking ensures scheduled jobs run exactly once in cluster. Patients can reschedule if needed."
+    },
+    {
+      "hazard_id": "SYS-P24-HAZ-006",
+      "controls_applied": ["SYS-P24-RC-007"],
+      "residual_probability": "very_rare",
+      "residual_severity": "minor",
+      "residual_risk_level": "low",
+      "residual_risk_acceptable": true,
+      "justification": "Explicit timezone handling in JSR-310 effectively eliminates timezone serialization issues."
+    },
+    {
+      "hazard_id": "SYS-P24-HAZ-007",
+      "controls_applied": ["SYS-P24-RC-008", "SYS-P24-RC-NS-003"],
+      "residual_probability": "rare",
+      "residual_severity": "serious",
+      "residual_risk_level": "low",
+      "residual_risk_acceptable": true,
+      "justification": "DLQ and HA broker configuration make message loss rare. Manual reconciliation process available for edge cases."
+    }
+  ],
+
+  "overall_residual_risk_evaluation": {
+    "residual_risk_acceptable": true,
+    "high_residual_risks": ["SYS-P24-HAZ-004"],
+    "high_risk_justification": "SYS-P24-HAZ-004 (escalation failure) has medium residual risk due to critical severity. Accepted because: (1) default escalation on failure provides safety net, (2) monitoring alerts enable rapid response, (3) clinical staff trained to manually escalate concerning cases.",
+    "benefit_risk_analysis": "Platform24 enables timely access to healthcare, reduces administrative burden on providers, and improves care coordination. These benefits significantly outweigh the controlled residual risks.",
+    "post_market_commitments": [
+      "Continuous monitoring of escalation system performance",
+      "Quarterly review of DLQ incidents",
+      "Annual security assessment",
+      "User feedback analysis for safety signals"
+    ]
+  },
+
+  "risk_management_review": {
+    "review_status": "complete",
+    "review_date": "2026-03-06",
+    "reviewer": "Risk Management Team",
+    "conclusions": [
+      "All identified hazards have appropriate controls",
+      "No uncontrolled hazards remain",
+      "Overall residual risk is acceptable",
+      "Post-market surveillance plan addresses monitoring needs"
+    ],
+    "open_actions": [
+      {
+        "action_id": "SYS-P24-RA-001",
+        "description": "Add optimistic locking test coverage",
+        "priority": "medium",
+        "due_date": "2026-04-30"
+      },
+      {
+        "action_id": "SYS-P24-RA-002",
+        "description": "Add ShedLock cluster environment tests",
+        "priority": "medium",
+        "due_date": "2026-04-30"
+      },
+      {
+        "action_id": "SYS-P24-RA-003",
+        "description": "Add JMS failure scenario tests",
+        "priority": "high",
+        "due_date": "2026-04-15"
+      },
+      {
+        "action_id": "SYS-P24-RA-004",
+        "description": "Add audit logging completeness tests",
+        "priority": "medium",
+        "due_date": "2026-04-30"
+      }
+    ]
+  },
+
+  "traceability": {
+    "to_module_hazards": [
+      {"system_hazard_id": "SYS-P24-HAZ-001", "module_hazard_ids": ["MOD-SCP-HAZ-001"]},
+      {"system_hazard_id": "SYS-P24-HAZ-002", "module_hazard_ids": ["MOD-SCP-HAZ-002"]},
+      {"system_hazard_id": "SYS-P24-HAZ-003", "module_hazard_ids": ["MOD-SCP-HAZ-003"]},
+      {"system_hazard_id": "SYS-P24-HAZ-004", "module_hazard_ids": ["MOD-SCP-HAZ-004"]},
+      {"system_hazard_id": "SYS-P24-HAZ-005", "module_hazard_ids": ["MOD-SCP-HAZ-005"]},
+      {"system_hazard_id": "SYS-P24-HAZ-006", "module_hazard_ids": ["MOD-SCP-HAZ-006"]},
+      {"system_hazard_id": "SYS-P24-HAZ-007", "module_hazard_ids": ["MOD-SCP-HAZ-007"]}
+    ],
+    "to_module_controls": [
+      {"system_control_id": "SYS-P24-RC-001", "module_control_ids": ["MOD-SCP-RC-ITEM-001"]},
+      {"system_control_id": "SYS-P24-RC-002", "module_control_ids": ["MOD-SCP-RC-ITEM-002"]},
+      {"system_control_id": "SYS-P24-RC-003", "module_control_ids": ["MOD-SCP-RC-ITEM-003"]},
+      {"system_control_id": "SYS-P24-RC-004", "module_control_ids": ["MOD-SCP-RC-ITEM-004"]},
+      {"system_control_id": "SYS-P24-RC-005", "module_control_ids": ["MOD-SCP-RC-ITEM-005"]},
+      {"system_control_id": "SYS-P24-RC-006", "module_control_ids": ["MOD-SCP-RC-ITEM-006"]},
+      {"system_control_id": "SYS-P24-RC-007", "module_control_ids": ["MOD-SCP-RC-ITEM-007"]},
+      {"system_control_id": "SYS-P24-RC-008", "module_control_ids": ["MOD-SCP-RC-ITEM-008"]},
+      {"system_control_id": "SYS-P24-RC-009", "module_control_ids": ["MOD-SCP-RC-ITEM-009"]}
+    ],
+    "to_verification": [
+      {"control_id": "SYS-P24-RC-001", "verification_ids": ["ITEM-HM-UT-002"]},
+      {"control_id": "SYS-P24-RC-002", "verification_ids": ["ITEM-HM-IT-001"]},
+      {"control_id": "SYS-P24-RC-004", "verification_ids": ["MOD-SCP-IT-002"]},
+      {"control_id": "SYS-P24-RC-005", "verification_ids": ["ITEM-HM-UT-040"]}
+    ]
+  }
+}

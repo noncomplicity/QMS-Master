@@ -9,7 +9,7 @@ process: "Clinical Management Process.canvas"
 requirements:
 owner:
 ---
-Owner [[R&D Management]]
+Owner [R&D Management](R&D%20Management.md)
 
 Status: #Draft 
 Type: #Procedure 

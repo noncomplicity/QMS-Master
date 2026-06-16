@@ -1,0 +1,1063 @@
+{
+  "extraction_metadata": {
+    "repository": "git@gitlab-p24:doktor24/services/actions.git",
+    "commit": "ea09256b377bc77fd2efa9ec88b0fafb37fc8dfb",
+    "extracted_at": "2026-03-06T18:53:34Z",
+    "extractor_version": "3.0",
+    "standard": "IEC 62304:2006+AMD1:2015 / ISO 14971:2019",
+    "hierarchy": {
+      "level": "item",
+      "item_id": "actions",
+      "item_name": "actions",
+      "parent_module": "actions-module",
+      "parent_system": "triage-system"
+    }
+  },
+
+  "software_item": {
+    "id": "ITEM-ACTIONS",
+    "name": "actions",
+    "description": "Patient action management service that creates and executes clinical workflow actions including bookings, appointments, referrals, and triage escalations",
+    "safety_class": "B",
+    "safety_class_rationale": "Software that can contribute to hazardous situations through incorrect action execution (wrong appointments, failed referrals, missed escalations) but is not the sole cause of harm. Clinical decisions originate from triage/interviewer services; actions service executes those decisions.",
+    "version": "1.0.0-SNAPSHOT",
+    "repository_url": "git@gitlab-p24:doktor24/services/actions.git",
+    "technology_stack": [
+      "Java 21",
+      "Quarkus 3.13.2",
+      "MariaDB",
+      "JMS/Artemis",
+      "REST",
+      "Maven"
+    ],
+    "deployment_type": "microservice"
+  },
+
+  "item_risk_contribution": {
+    "item_id": "actions",
+
+    "hazard_contributions": [
+      {
+        "id": "ITEM-ACTIONS-HAZ-001",
+        "description": "Action executed when already executed/cancelled/expired causing duplicate clinical interventions",
+        "cause": "Race condition or state validation bypass allowing multiple executions of same action",
+        "potential_harm": "Duplicate appointments, multiple referrals, redundant escalations leading to patient confusion, wasted resources, or conflicting care plans",
+        "severity_contribution": "minor",
+        "affected_functions": [
+          "ActionExecutionManager.execute",
+          "Action.assertActive",
+          "Action.getStatus"
+        ],
+        "source": {
+          "files": [
+            "svc/src/main/java/se/platform24/actions/executor/ActionExecutionManager.java:84-104",
+            "svc/src/main/java/se/platform24/actions/domain/Action.java:457-494"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-ACTIONS-HAZ-002",
+        "description": "Appointment created without required patient or condition ID",
+        "cause": "Validation logic in accept() method bypassed or misconfigured action template",
+        "potential_harm": "Appointment created for wrong patient or without clinical context, leading to inappropriate care delivery",
+        "severity_contribution": "serious",
+        "affected_functions": [
+          "CreateAppointmentActionExecutorImpl.accept",
+          "CreateAppointmentActionExecutorImpl.execute"
+        ],
+        "source": {
+          "files": [
+            "svc/src/main/java/se/platform24/actions/executor/impl/CreateAppointmentActionExecutorImpl.java:191-204",
+            "svc/src/main/java/se/platform24/actions/executor/impl/CreateAppointmentActionExecutorImpl.java:67-115"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-ACTIONS-HAZ-003",
+        "description": "Booking created with invalid or unavailable timeslot",
+        "cause": "Timeslot availability not re-validated before booking creation, or timeslot already taken by another patient",
+        "potential_harm": "Double-booked appointments causing patient unable to access care at expected time, delayed treatment",
+        "severity_contribution": "minor",
+        "affected_functions": [
+          "CreateBookingActionExecutorImpl.execute",
+          "CreateBookingActionExecutorImpl.createBookingAndReturnExecutedReference"
+        ],
+        "source": {
+          "files": [
+            "svc/src/main/java/se/platform24/actions/executor/impl/CreateBookingActionExecutorImpl.java:73-143",
+            "svc/src/main/java/se/platform24/actions/executor/impl/CreateBookingActionExecutorImpl.java:170-204"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-ACTIONS-HAZ-004",
+        "description": "Referral created without triage interview ID",
+        "cause": "Missing validation or incorrect reference ID extraction from action",
+        "potential_harm": "Referral lacks clinical context, practitioner cannot understand patient needs, inappropriate care delivered",
+        "severity_contribution": "serious",
+        "affected_functions": [
+          "CreateReferralActionExecutorImpl.accept",
+          "CreateReferralActionExecutorImpl.execute"
+        ],
+        "source": {
+          "files": [
+            "svc/src/main/java/se/platform24/actions/executor/impl/CreateReferralActionExecutorImpl.java:121-131",
+            "svc/src/main/java/se/platform24/actions/executor/impl/CreateReferralActionExecutorImpl.java:52-72"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-ACTIONS-HAZ-005",
+        "description": "Action execution partially succeeds then fails, leaving system in inconsistent state",
+        "cause": "Rollback mechanism fails to clean up successfully executed sub-actions (booking created but appointment creation fails)",
+        "potential_harm": "Patient has booking but no appointment, or vice versa, leading to administrative errors and missed care",
+        "severity_contribution": "minor",
+        "affected_functions": [
+          "ActionExecutionManager.execute",
+          "CreateBookingActionExecutorImpl.rollback",
+          "CreateAppointmentActionExecutorImpl.rollback"
+        ],
+        "source": {
+          "files": [
+            "svc/src/main/java/se/platform24/actions/executor/ActionExecutionManager.java:112-162",
+            "svc/src/main/java/se/platform24/actions/executor/impl/CreateBookingActionExecutorImpl.java:294-337",
+            "svc/src/main/java/se/platform24/actions/executor/impl/CreateAppointmentActionExecutorImpl.java:249-271"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-ACTIONS-HAZ-006",
+        "description": "Action executed with wrong care unit assignment",
+        "cause": "Care unit ID resolution logic selects incorrect care unit from multiple sources (action, option, state parameters)",
+        "potential_harm": "Patient referred to wrong care provider, delayed or inappropriate care delivery",
+        "severity_contribution": "serious",
+        "affected_functions": [
+          "CreateAppointmentActionExecutorImpl.execute",
+          "CreateBookingActionExecutorImpl.execute"
+        ],
+        "source": {
+          "files": [
+            "svc/src/main/java/se/platform24/actions/executor/impl/CreateAppointmentActionExecutorImpl.java:74-79",
+            "svc/src/main/java/se/platform24/actions/executor/impl/CreateBookingActionExecutorImpl.java:131"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-ACTIONS-HAZ-007",
+        "description": "Action expires before patient can execute, blocking urgent care access",
+        "cause": "TTL (time-to-live) misconfigured or validation logic prevents action modification when needed",
+        "potential_harm": "Patient unable to book urgent appointment, delayed care for acute conditions",
+        "severity_contribution": "serious",
+        "affected_functions": [
+          "Action.fromActionProperties",
+          "Action.assertActive",
+          "ActionValidator.validateExpiresAtNotNull"
+        ],
+        "source": {
+          "files": [
+            "svc/src/main/java/se/platform24/actions/domain/Action.java:259-281",
+            "svc/src/main/java/se/platform24/actions/domain/Action.java:457-462",
+            "svc/src/main/java/se/platform24/actions/ActionValidator.java:69-79"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-ACTIONS-HAZ-008",
+        "description": "Wrong patient executes action due to patient ID mismatch",
+        "cause": "Patient verification bypassed or actor role incorrectly mapped to patient ID",
+        "potential_harm": "Patient accesses another patient's care plan, confidentiality breach, wrong treatment delivered",
+        "severity_contribution": "critical",
+        "affected_functions": [
+          "Action.verifyPatient",
+          "Action.cancel"
+        ],
+        "source": {
+          "files": [
+            "svc/src/main/java/se/platform24/actions/domain/Action.java:440-450",
+            "svc/src/main/java/se/platform24/actions/domain/Action.java:426-433"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-ACTIONS-HAZ-009",
+        "description": "Action validation fails silently allowing misconfigured actions to be created",
+        "cause": "Exception handling suppresses validation errors or logging insufficient to detect configuration issues",
+        "potential_harm": "Actions created with invalid configuration execute incorrectly, leading to various downstream failures",
+        "severity_contribution": "minor",
+        "affected_functions": [
+          "ActionValidator.validateAction",
+          "ActionValidator.validateTriageOutcome"
+        ],
+        "source": {
+          "files": [
+            "svc/src/main/java/se/platform24/actions/ActionValidator.java:45-59",
+            "svc/src/main/java/se/platform24/actions/ActionValidator.java:115-188"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-ACTIONS-HAZ-010",
+        "description": "Upstream service failure (health-manager, bookings, interviewer) causes action execution to fail without proper error communication",
+        "cause": "Exception mapping incomplete or error messages not propagated to user",
+        "potential_harm": "Patient believes action succeeded when it failed, or receives unclear error, leading to missed appointments or delayed care",
+        "severity_contribution": "minor",
+        "affected_functions": [
+          "ActionExecutionManager.execute",
+          "CreateAppointmentActionExecutorImpl.execute",
+          "CreateBookingActionExecutorImpl.createBookingAndReturnExecutedReference"
+        ],
+        "source": {
+          "files": [
+            "svc/src/main/java/se/platform24/actions/executor/ActionExecutionManager.java:118-130",
+            "svc/src/main/java/se/platform24/actions/executor/impl/CreateAppointmentActionExecutorImpl.java:98-104",
+            "svc/src/main/java/se/platform24/actions/executor/impl/CreateBookingActionExecutorImpl.java:187-203"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-ACTIONS-HAZ-011",
+        "description": "Action autoSelect flag incorrectly set causing automatic execution without user confirmation",
+        "cause": "Action template configuration error or validation logic failure",
+        "potential_harm": "Patient automatically assigned to appointment or care pathway without explicit consent, inappropriate care delivery",
+        "severity_contribution": "minor",
+        "affected_functions": [
+          "Action.shouldAutoSelect",
+          "ActionValidator.validateOnlyOneOptionIfAutoSelect"
+        ],
+        "source": {
+          "files": [
+            "svc/src/main/java/se/platform24/actions/domain/Action.java:283-288",
+            "svc/src/main/java/se/platform24/actions/ActionValidator.java:84-106"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-ACTIONS-HAZ-012",
+        "description": "Database transaction failure leaves action in inconsistent state",
+        "cause": "Version conflict during concurrent action updates or database connection loss",
+        "potential_harm": "Action state (executed, cancelled) not properly persisted, patient may re-execute or lose access to care",
+        "severity_contribution": "minor",
+        "affected_functions": [
+          "ActionExecutionManager.execute",
+          "Action.successfulExecution",
+          "Action.failedExecution"
+        ],
+        "source": {
+          "files": [
+            "svc/src/main/java/se/platform24/actions/executor/ActionExecutionManager.java:153",
+            "svc/src/main/java/se/platform24/actions/domain/Action.java:406-424"
+          ]
+        }
+      }
+    ],
+
+    "risk_controls_implemented": [
+      {
+        "id": "ITEM-ACTIONS-RC-001",
+        "description": "Action state validation before execution",
+        "control_type": "protective_measure",
+        "mitigates": [
+          "ITEM-ACTIONS-HAZ-001"
+        ],
+        "implementation": "Action.assertActive() checks status against executedAt, cancelledAt, validFrom, expiresAt before allowing execution",
+        "verification_status": "partial",
+        "verification_evidence": {
+          "test_file": null,
+          "test_function": null
+        },
+        "source": {
+          "files": [
+            "svc/src/main/java/se/platform24/actions/domain/Action.java:457-476",
+            "svc/src/main/java/se/platform24/actions/executor/ActionExecutionManager.java:103"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-ACTIONS-RC-002",
+        "description": "Idempotent execution check",
+        "control_type": "protective_measure",
+        "mitigates": [
+          "ITEM-ACTIONS-HAZ-001"
+        ],
+        "implementation": "ActionExecutionManager checks if action status is DONE and returns existing result if same option executed",
+        "verification_status": "verified",
+        "verification_evidence": {
+          "test_file": null,
+          "test_function": null
+        },
+        "source": {
+          "files": [
+            "svc/src/main/java/se/platform24/actions/executor/ActionExecutionManager.java:94-102"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-ACTIONS-RC-003",
+        "description": "Patient ID and condition ID validation before appointment creation",
+        "control_type": "protective_measure",
+        "mitigates": [
+          "ITEM-ACTIONS-HAZ-002"
+        ],
+        "implementation": "CreateAppointmentActionExecutorImpl.accept() throws exception if patientId or conditionId is null",
+        "verification_status": "verified",
+        "verification_evidence": {
+          "test_file": null,
+          "test_function": null
+        },
+        "source": {
+          "files": [
+            "svc/src/main/java/se/platform24/actions/executor/impl/CreateAppointmentActionExecutorImpl.java:191-204"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-ACTIONS-RC-004",
+        "description": "Patient verification before action execution or cancellation",
+        "control_type": "protective_measure",
+        "mitigates": [
+          "ITEM-ACTIONS-HAZ-008"
+        ],
+        "implementation": "Action.verifyPatient() validates that the patient executing/cancelling matches the action's patientId",
+        "verification_status": "verified",
+        "verification_evidence": {
+          "test_file": null,
+          "test_function": null
+        },
+        "source": {
+          "files": [
+            "svc/src/main/java/se/platform24/actions/domain/Action.java:440-450",
+            "svc/src/main/java/se/platform24/actions/domain/Action.java:427-429"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-ACTIONS-RC-005",
+        "description": "Rollback mechanism for failed action execution",
+        "control_type": "protective_measure",
+        "mitigates": [
+          "ITEM-ACTIONS-HAZ-005"
+        ],
+        "implementation": "Each executor implements rollback() to undo changes (cancel booking, cancel appointment) when execution chain fails",
+        "verification_status": "partial",
+        "verification_evidence": {
+          "test_file": null,
+          "test_function": null
+        },
+        "source": {
+          "files": [
+            "svc/src/main/java/se/platform24/actions/executor/ActionExecutionManager.java:155-161",
+            "svc/src/main/java/se/platform24/actions/executor/impl/CreateBookingActionExecutorImpl.java:294-337",
+            "svc/src/main/java/se/platform24/actions/executor/impl/CreateAppointmentActionExecutorImpl.java:249-271"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-ACTIONS-RC-006",
+        "description": "Care unit ID validation before booking creation",
+        "control_type": "protective_measure",
+        "mitigates": [
+          "ITEM-ACTIONS-HAZ-006"
+        ],
+        "implementation": "CreateBookingActionExecutorImpl.accept() throws exception if careUnitId is blank",
+        "verification_status": "verified",
+        "verification_evidence": {
+          "test_file": null,
+          "test_function": null
+        },
+        "source": {
+          "files": [
+            "svc/src/main/java/se/platform24/actions/executor/impl/CreateBookingActionExecutorImpl.java:266-280"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-ACTIONS-RC-007",
+        "description": "Triage interview ID validation before referral creation",
+        "control_type": "protective_measure",
+        "mitigates": [
+          "ITEM-ACTIONS-HAZ-004"
+        ],
+        "implementation": "CreateReferralActionExecutorImpl.accept() throws exception if triageInterviewId is empty",
+        "verification_status": "verified",
+        "verification_evidence": {
+          "test_file": null,
+          "test_function": null
+        },
+        "source": {
+          "files": [
+            "svc/src/main/java/se/platform24/actions/executor/impl/CreateReferralActionExecutorImpl.java:121-131"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-ACTIONS-RC-008",
+        "description": "Action configuration validation at creation time",
+        "control_type": "protective_measure",
+        "mitigates": [
+          "ITEM-ACTIONS-HAZ-009",
+          "ITEM-ACTIONS-HAZ-011"
+        ],
+        "implementation": "ActionValidator validates action type, options, autoSelect flag, expiration time, and triage outcome configuration",
+        "verification_status": "partial",
+        "verification_evidence": {
+          "test_file": null,
+          "test_function": null
+        },
+        "source": {
+          "files": [
+            "svc/src/main/java/se/platform24/actions/ActionValidator.java:45-317"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-ACTIONS-RC-009",
+        "description": "Exception mapping for upstream service failures",
+        "control_type": "information_for_safety",
+        "mitigates": [
+          "ITEM-ACTIONS-HAZ-010"
+        ],
+        "implementation": "Service-specific exception mappers (HealthManagerExecutionExceptionMapper, BookingsExecutionExceptionMapper) convert upstream errors to user-facing messages",
+        "verification_status": "partial",
+        "verification_evidence": {
+          "test_file": null,
+          "test_function": null
+        },
+        "source": {
+          "files": [
+            "svc/src/main/java/se/platform24/actions/exception/mappers/execution/HealthManagerExecutionExceptionMapper.java",
+            "svc/src/main/java/se/platform24/actions/exception/mappers/execution/BookingsExecutionExceptionMapper.java"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-ACTIONS-RC-010",
+        "description": "Logging of action lifecycle events",
+        "control_type": "information_for_safety",
+        "mitigates": [
+          "ITEM-ACTIONS-HAZ-001",
+          "ITEM-ACTIONS-HAZ-005",
+          "ITEM-ACTIONS-HAZ-009",
+          "ITEM-ACTIONS-HAZ-010"
+        ],
+        "implementation": "Extensive logging at debug/warn levels for action execution, executor acceptance, failures, and rollbacks",
+        "verification_status": "verified",
+        "verification_evidence": {
+          "test_file": null,
+          "test_function": null
+        },
+        "source": {
+          "files": [
+            "svc/src/main/java/se/platform24/actions/executor/ActionExecutionManager.java:108-123",
+            "svc/src/main/java/se/platform24/actions/executor/ActionExecutionManager.java:156"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-ACTIONS-RC-011",
+        "description": "Metrics and monitoring for action execution",
+        "control_type": "information_for_safety",
+        "mitigates": [
+          "ITEM-ACTIONS-HAZ-005",
+          "ITEM-ACTIONS-HAZ-010"
+        ],
+        "implementation": "Micrometer timers and counters track action execution, executor results, rollback failures",
+        "verification_status": "verified",
+        "verification_evidence": {
+          "test_file": null,
+          "test_function": null
+        },
+        "source": {
+          "files": [
+            "svc/src/main/java/se/platform24/actions/executor/ActionExecutionManager.java:85-177",
+            "svc/src/main/java/se/platform24/actions/config/metrics/ActionsMeterRegistry.java"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-ACTIONS-RC-012",
+        "description": "Optimistic locking with version field",
+        "control_type": "protective_measure",
+        "mitigates": [
+          "ITEM-ACTIONS-HAZ-001",
+          "ITEM-ACTIONS-HAZ-012"
+        ],
+        "implementation": "Action entity has @Version field to detect concurrent modifications and prevent lost updates",
+        "verification_status": "verified",
+        "verification_evidence": {
+          "test_file": null,
+          "test_function": null
+        },
+        "source": {
+          "files": [
+            "svc/src/main/java/se/platform24/actions/domain/Action.java:190-191"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-ACTIONS-RC-013",
+        "description": "Error state persistence and retry indication",
+        "control_type": "information_for_safety",
+        "mitigates": [
+          "ITEM-ACTIONS-HAZ-003",
+          "ITEM-ACTIONS-HAZ-010"
+        ],
+        "implementation": "ExecutionError includes isRefreshAction flag to indicate if user should retry. Failed execution state persisted to failedExecutionAt field.",
+        "verification_status": "verified",
+        "verification_evidence": {
+          "test_file": null,
+          "test_function": null
+        },
+        "source": {
+          "files": [
+            "svc/src/main/java/se/platform24/actions/executor/ActionExecutionManager.java:164-166",
+            "svc/src/main/java/se/platform24/actions/executor/impl/CreateBookingActionExecutorImpl.java:240-263",
+            "svc/src/main/java/se/platform24/actions/domain/Action.java:412-415"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-ACTIONS-RC-014",
+        "description": "Action event notification for status changes",
+        "control_type": "information_for_safety",
+        "mitigates": [
+          "ITEM-ACTIONS-HAZ-001",
+          "ITEM-ACTIONS-HAZ-010"
+        ],
+        "implementation": "ActionNotifier publishes events when action status changes to DONE or FAILED, enabling downstream monitoring",
+        "verification_status": "partial",
+        "verification_evidence": {
+          "test_file": null,
+          "test_function": null
+        },
+        "source": {
+          "files": [
+            "svc/src/main/java/se/platform24/actions/executor/ActionExecutionManager.java:168",
+            "svc/src/main/java/se/platform24/actions/executor/ActionExecutionManager.java:180-184"
+          ]
+        }
+      }
+    ],
+
+    "risk_controls_required_upstream": [
+      {
+        "id": "ITEM-ACTIONS-RC-UP-001",
+        "description": "User training on action expiration and time sensitivity",
+        "rationale": "Software cannot force users to execute actions before expiration; requires operational awareness",
+        "recommended_level": "system",
+        "control_type": "information_for_safety",
+        "mitigates": [
+          "ITEM-ACTIONS-HAZ-007"
+        ]
+      },
+      {
+        "id": "ITEM-ACTIONS-RC-UP-002",
+        "description": "Monitoring and alerting for high rollback rates",
+        "rationale": "Individual rollback failures are logged but system-level patterns require centralized monitoring",
+        "recommended_level": "system",
+        "control_type": "information_for_safety",
+        "mitigates": [
+          "ITEM-ACTIONS-HAZ-005"
+        ]
+      },
+      {
+        "id": "ITEM-ACTIONS-RC-UP-003",
+        "description": "Action template review and approval process",
+        "rationale": "Software validates structure but cannot assess clinical appropriateness of action templates",
+        "recommended_level": "system",
+        "control_type": "protective_measure",
+        "mitigates": [
+          "ITEM-ACTIONS-HAZ-009",
+          "ITEM-ACTIONS-HAZ-011"
+        ]
+      },
+      {
+        "id": "ITEM-ACTIONS-RC-UP-004",
+        "description": "SLA monitoring for upstream service dependencies",
+        "rationale": "Actions service depends on health-manager, bookings, interviewer availability; requires infrastructure-level monitoring",
+        "recommended_level": "system",
+        "control_type": "protective_measure",
+        "mitigates": [
+          "ITEM-ACTIONS-HAZ-010"
+        ]
+      },
+      {
+        "id": "ITEM-ACTIONS-RC-UP-005",
+        "description": "Database backup and recovery procedures",
+        "rationale": "Action state persistence relies on database availability; requires infrastructure-level controls",
+        "recommended_level": "system",
+        "control_type": "protective_measure",
+        "mitigates": [
+          "ITEM-ACTIONS-HAZ-012"
+        ]
+      }
+    ],
+
+    "failure_modes": [
+      {
+        "id": "ITEM-ACTIONS-FM-001",
+        "name": "Service crashes during action execution",
+        "category": "software_crash",
+        "component": "ActionExecutionManager",
+        "effect_on_software_item": "Unhandled exception in executor causes service crash, transaction rollback",
+        "effect_on_system": "Action remains in ACTIVE state, patient may retry and potentially succeed, or action expires",
+        "detection_mechanism": "Exception logging, service health checks, restart metrics",
+        "recovery_mechanism": "Service auto-restart via Kubernetes, patient retries action or requests new one",
+        "related_hazards": [
+          "ITEM-ACTIONS-HAZ-001",
+          "ITEM-ACTIONS-HAZ-010"
+        ],
+        "source": {
+          "files": [
+            "svc/src/main/java/se/platform24/actions/executor/ActionExecutionManager.java:118-130"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-ACTIONS-FM-002",
+        "name": "Database connection lost during action save",
+        "category": "infrastructure_failure",
+        "component": "ActionRepository",
+        "effect_on_software_item": "Action execution succeeds but state not persisted, appears still ACTIVE",
+        "effect_on_system": "Downstream services may have created booking/appointment but actions service doesn't record it; patient sees stale state",
+        "detection_mechanism": "Database connection error logs, persistence layer exceptions",
+        "recovery_mechanism": "Manual intervention to reconcile action state with downstream services, or patient re-executes",
+        "related_hazards": [
+          "ITEM-ACTIONS-HAZ-012"
+        ],
+        "source": {
+          "files": [
+            "svc/src/main/java/se/platform24/actions/executor/ActionExecutionManager.java:153"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-ACTIONS-FM-003",
+        "name": "Health-manager service unavailable",
+        "category": "external_dependency",
+        "component": "CreateAppointmentActionExecutorImpl, CreateReferralActionExecutorImpl",
+        "effect_on_software_item": "ProcessingException or WebApplicationException caught, action marked as failed execution",
+        "effect_on_system": "Patient cannot create appointment or referral, must retry later or seek alternative care pathway",
+        "detection_mechanism": "Exception logging with service name, HTTP error codes, retry flags",
+        "recovery_mechanism": "Patient retries when service available; urgent cases may require manual escalation",
+        "related_hazards": [
+          "ITEM-ACTIONS-HAZ-010"
+        ],
+        "source": {
+          "files": [
+            "svc/src/main/java/se/platform24/actions/executor/impl/CreateAppointmentActionExecutorImpl.java:98-104",
+            "svc/src/main/java/se/platform24/actions/executor/impl/CreateReferralActionExecutorImpl.java:108-117"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-ACTIONS-FM-004",
+        "name": "Bookings service unavailable",
+        "category": "external_dependency",
+        "component": "CreateBookingActionExecutorImpl",
+        "effect_on_software_item": "WebApplicationException or ProcessingException caught, timeslot creation rolled back if created",
+        "effect_on_system": "Patient cannot book appointment, must retry or use alternative access channel",
+        "detection_mechanism": "Exception mapping to user-facing error, logging, metrics for bookings failures",
+        "recovery_mechanism": "Patient retries when bookings service available; SelectTimeSlot task may be reset to allow new timeslot selection",
+        "related_hazards": [
+          "ITEM-ACTIONS-HAZ-010"
+        ],
+        "source": {
+          "files": [
+            "svc/src/main/java/se/platform24/actions/executor/impl/CreateBookingActionExecutorImpl.java:187-203"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-ACTIONS-FM-005",
+        "name": "Timeslot already taken by another patient",
+        "category": "synchronization_error",
+        "component": "CreateBookingActionExecutorImpl",
+        "effect_on_software_item": "Bookings service returns TIMESLOT_ALREADY_TAKEN error, SelectTimeSlot task reset to unfinished",
+        "effect_on_system": "Patient prompted to select new timeslot; if action expires before selection, patient loses access",
+        "detection_mechanism": "Specific error type from bookings service, task state modification",
+        "recovery_mechanism": "User selects different timeslot; action refreshed to allow retry",
+        "related_hazards": [
+          "ITEM-ACTIONS-HAZ-003",
+          "ITEM-ACTIONS-HAZ-007"
+        ],
+        "source": {
+          "files": [
+            "svc/src/main/java/se/platform24/actions/executor/impl/CreateBookingActionExecutorImpl.java:240-263"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-ACTIONS-FM-006",
+        "name": "Action template misconfigured",
+        "category": "configuration_error",
+        "component": "ActionValidator",
+        "effect_on_software_item": "ActionsException thrown during action creation, action not created",
+        "effect_on_system": "User workflow interrupted, cannot proceed with intended action; may require admin intervention",
+        "detection_mechanism": "ActionValidator throws exception with specific error type, logged at warn level",
+        "recovery_mechanism": "Configuration must be fixed by administrator; user may need to restart workflow",
+        "related_hazards": [
+          "ITEM-ACTIONS-HAZ-009",
+          "ITEM-ACTIONS-HAZ-011"
+        ],
+        "source": {
+          "files": [
+            "svc/src/main/java/se/platform24/actions/ActionValidator.java:45-317"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-ACTIONS-FM-007",
+        "name": "Rollback fails after execution failure",
+        "category": "software_defect",
+        "component": "CreateBookingActionExecutorImpl.rollback, CreateAppointmentActionExecutorImpl.rollback",
+        "effect_on_software_item": "Exception during rollback is caught and logged, does not propagate; action marked as failed",
+        "effect_on_system": "Orphaned booking or appointment remains in downstream service, requires manual cleanup",
+        "detection_mechanism": "Rollback failure logged at warn level with specific resource ID, rollback_failed metric incremented",
+        "recovery_mechanism": "Manual reconciliation required; monitoring alerts for high rollback failure rates",
+        "related_hazards": [
+          "ITEM-ACTIONS-HAZ-005"
+        ],
+        "source": {
+          "files": [
+            "svc/src/main/java/se/platform24/actions/executor/ActionExecutionManager.java:155-161",
+            "svc/src/main/java/se/platform24/actions/executor/impl/CreateBookingActionExecutorImpl.java:308-320",
+            "svc/src/main/java/se/platform24/actions/executor/impl/CreateAppointmentActionExecutorImpl.java:260-271"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-ACTIONS-FM-008",
+        "name": "Concurrent action execution attempt",
+        "category": "synchronization_error",
+        "component": "Action (JPA entity with @Version)",
+        "effect_on_software_item": "Optimistic locking exception on save, transaction rolled back",
+        "effect_on_system": "One execution succeeds, concurrent attempt fails; patient may see error or success depending on which request they initiated",
+        "detection_mechanism": "OptimisticLockException from JPA, database version conflict",
+        "recovery_mechanism": "Failed execution rolled back; patient may retry if their request failed",
+        "related_hazards": [
+          "ITEM-ACTIONS-HAZ-001",
+          "ITEM-ACTIONS-HAZ-012"
+        ],
+        "source": {
+          "files": [
+            "svc/src/main/java/se/platform24/actions/domain/Action.java:190-191"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-ACTIONS-FM-009",
+        "name": "Patient verification fails",
+        "category": "authentication_failure",
+        "component": "Action.verifyPatient",
+        "effect_on_software_item": "ActionsException thrown with FORBIDDEN error type, execution aborted",
+        "effect_on_system": "Patient blocked from executing/cancelling action; logged as potential security issue",
+        "detection_mechanism": "Exception with patient ID mismatch logged at warn level",
+        "recovery_mechanism": "Access denied; user must authenticate as correct patient",
+        "related_hazards": [
+          "ITEM-ACTIONS-HAZ-008"
+        ],
+        "source": {
+          "files": [
+            "svc/src/main/java/se/platform24/actions/domain/Action.java:440-450"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-ACTIONS-FM-010",
+        "name": "Invalid origin or option configuration",
+        "category": "configuration_error",
+        "component": "ActionValidator.validateAction, OriginRegistry",
+        "effect_on_software_item": "ActionsException thrown, action creation fails",
+        "effect_on_system": "User cannot proceed with workflow, may be blocked from accessing care",
+        "detection_mechanism": "Validation exception logged with origin ID and action details",
+        "recovery_mechanism": "Configuration must be fixed; user may need to contact support",
+        "related_hazards": [
+          "ITEM-ACTIONS-HAZ-009"
+        ],
+        "source": {
+          "files": [
+            "svc/src/main/java/se/platform24/actions/ActionValidator.java:61-67"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-ACTIONS-FM-011",
+        "name": "Interview service failure when fetching triage result",
+        "category": "external_dependency",
+        "component": "CreateReferralActionExecutorImpl",
+        "effect_on_software_item": "Exception caught, referral created without patient recommendation text",
+        "effect_on_system": "Referral lacks clinical context (selfCareText), may reduce quality of practitioner review",
+        "detection_mechanism": "Null check on interviewResult, logged implicitly via null handling",
+        "recovery_mechanism": "Referral still created; practitioner accesses triage interview directly if needed",
+        "related_hazards": [
+          "ITEM-ACTIONS-HAZ-004"
+        ],
+        "source": {
+          "files": [
+            "svc/src/main/java/se/platform24/actions/executor/impl/CreateReferralActionExecutorImpl.java:74-82"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-ACTIONS-FM-012",
+        "name": "JMS message queue failure",
+        "category": "communication_failure",
+        "component": "ActionNotifier (via JMS)",
+        "effect_on_software_item": "Action event notification not sent, action state still persisted",
+        "effect_on_system": "Downstream consumers may not receive status update, potential data inconsistency",
+        "detection_mechanism": "JMS client exceptions, message queue monitoring",
+        "recovery_mechanism": "Retry mechanism at JMS level; eventual consistency via polling or manual reconciliation",
+        "related_hazards": [
+          "ITEM-ACTIONS-HAZ-010"
+        ],
+        "source": {
+          "files": [
+            "svc/src/main/java/se/platform24/actions/executor/ActionExecutionManager.java:168",
+            "svc/src/main/java/se/platform24/actions/executor/ActionExecutionManager.java:182"
+          ]
+        }
+      }
+    ],
+
+    "interfaces_with_safety_impact": [
+      {
+        "id": "ITEM-ACTIONS-IF-001",
+        "interface": "health-manager REST API",
+        "type": "REST",
+        "direction": "outbound",
+        "safety_impact": "Appointment or referral creation failure prevents patient from accessing care; incorrect data sent could result in wrong care delivery",
+        "failure_handling": "WebApplicationException and ProcessingException caught, mapped to user-facing errors, rollback triggered",
+        "timeout": "Configured via quarkus.rest-client properties",
+        "retry_policy": "No automatic retry; user must manually retry based on error message",
+        "source": {
+          "files": [
+            "svc/src/main/java/se/platform24/actions/executor/impl/CreateAppointmentActionExecutorImpl.java:98-104",
+            "svc/src/main/java/se/platform24/actions/executor/impl/CreateReferralActionExecutorImpl.java:102-118"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-ACTIONS-IF-002",
+        "interface": "bookings REST API",
+        "type": "REST",
+        "direction": "outbound",
+        "safety_impact": "Booking creation failure prevents patient from securing appointment slot; timeslot conflicts could cause double-bookings",
+        "failure_handling": "WebApplicationException and ProcessingException caught, timeslot creation rolled back, error mapped and presented to user",
+        "timeout": "Configured via quarkus.rest-client properties",
+        "retry_policy": "Specific handling for TIMESLOT_ALREADY_TAKEN resets SelectTimeSlot task; general failures require user retry",
+        "source": {
+          "files": [
+            "svc/src/main/java/se/platform24/actions/executor/impl/CreateBookingActionExecutorImpl.java:170-204",
+            "svc/src/main/java/se/platform24/actions/executor/impl/CreateBookingActionExecutorImpl.java:240-263"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-ACTIONS-IF-003",
+        "interface": "interviewer4 REST API",
+        "type": "REST",
+        "direction": "outbound",
+        "safety_impact": "Failure to retrieve interview results means referrals lack clinical context; could result in inappropriate care decisions",
+        "failure_handling": "Null check on response, referral created without patient recommendation if interview unavailable",
+        "timeout": "Configured via quarkus.rest-client properties",
+        "retry_policy": "No retry; referral proceeds without recommendation text",
+        "source": {
+          "files": [
+            "svc/src/main/java/se/platform24/actions/executor/impl/CreateReferralActionExecutorImpl.java:74-82",
+            "svc/src/main/java/se/platform24/actions/service/impl/InterviewServiceImpl.java"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-ACTIONS-IF-004",
+        "interface": "directory REST API",
+        "type": "REST",
+        "direction": "outbound",
+        "safety_impact": "Failure to validate practitioner capabilities could result in appointments with practitioners lacking required skills",
+        "failure_handling": "Used in validation only; failure logs warning but does not block action creation (depending on feature flag)",
+        "timeout": "Configured via quarkus.rest-client properties",
+        "retry_policy": "No retry; validation may be skipped on failure",
+        "source": {
+          "files": [
+            "svc/src/main/java/se/platform24/actions/ActionValidator.java:158-173"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-ACTIONS-IF-005",
+        "interface": "MariaDB database",
+        "type": "database",
+        "direction": "bidirectional",
+        "safety_impact": "Loss of action state data could result in duplicate executions or patient unable to access created resources (appointments, bookings)",
+        "failure_handling": "JPA exceptions propagate to caller; optimistic locking prevents lost updates; transaction rollback on failures",
+        "timeout": "Configured via datasource connection timeout",
+        "retry_policy": "No application-level retry; connection pool handles transient failures",
+        "source": {
+          "files": [
+            "svc/src/main/java/se/platform24/actions/domain/Action.java",
+            "svc/src/main/java/se/platform24/actions/executor/ActionExecutionManager.java:153"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-ACTIONS-IF-006",
+        "interface": "Artemis JMS queue",
+        "type": "JMS",
+        "direction": "outbound",
+        "safety_impact": "Failed event notifications mean downstream systems may have stale action status data",
+        "failure_handling": "Assumed handled by JMS infrastructure; no explicit error handling visible in code",
+        "timeout": "Configured via quarkus.artemis properties",
+        "retry_policy": "JMS broker-level retry and dead-letter queue",
+        "source": {
+          "files": [
+            "svc/src/main/java/se/platform24/actions/executor/ActionExecutionManager.java:168",
+            "svc/src/main/java/se/platform24/actions/executor/ActionExecutionManager.java:180-184"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-ACTIONS-IF-007",
+        "interface": "object-storage (action template configuration)",
+        "type": "REST",
+        "direction": "inbound",
+        "safety_impact": "Misconfigured action templates could result in invalid actions being created; unavailable templates block action creation",
+        "failure_handling": "Falls back to system default templates if partner-specific templates unavailable",
+        "timeout": "Configured via objectstorage client properties",
+        "retry_policy": "No explicit retry; fallback to system defaults provides resilience",
+        "source": {
+          "files": [
+            "README.md:210-255"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-ACTIONS-IF-008",
+        "interface": "plugin-service (external care provider integrations)",
+        "type": "REST",
+        "direction": "outbound",
+        "safety_impact": "Plugin failures could prevent actions requiring external system coordination (e.g., booking in external EMR)",
+        "failure_handling": "PluginActionExecutorImpl handles exceptions; specific error mapping depends on plugin implementation",
+        "timeout": "Configurable per plugin via PluginTimeoutsProperty",
+        "retry_policy": "No automatic retry; user must retry action",
+        "source": {
+          "files": [
+            "svc/src/main/java/se/platform24/actions/executor/impl/PluginActionExecutorImpl.java",
+            "svc/src/main/java/se/platform24/actions/config/PluginTimeoutsProperty.java"
+          ]
+        }
+      }
+    ],
+
+    "verification_gaps": [
+      {
+        "id": "ITEM-ACTIONS-GAP-001",
+        "type": "untested_control",
+        "description": "State validation logic (Action.assertActive) lacks comprehensive unit tests for edge cases (concurrent modification, timezone handling)",
+        "affected_items": [
+          "ITEM-ACTIONS-RC-001"
+        ],
+        "priority": "high",
+        "recommendation": "Add unit tests covering: concurrent execution attempts, expiration at exact boundary times, clock skew scenarios"
+      },
+      {
+        "id": "ITEM-ACTIONS-GAP-002",
+        "type": "untested_control",
+        "description": "Rollback mechanism success rate not verified via integration tests",
+        "affected_items": [
+          "ITEM-ACTIONS-RC-005"
+        ],
+        "priority": "high",
+        "recommendation": "Add integration tests simulating execution failures at each executor in chain; verify all upstream changes are rolled back"
+      },
+      {
+        "id": "ITEM-ACTIONS-GAP-003",
+        "type": "unverified_interface",
+        "description": "JMS event notification delivery not verified in production-like environment",
+        "affected_items": [
+          "ITEM-ACTIONS-IF-006",
+          "ITEM-ACTIONS-RC-014"
+        ],
+        "priority": "medium",
+        "recommendation": "Add integration tests verifying ActionStatusEvent published for DONE and FAILED states; test broker unavailability scenario"
+      },
+      {
+        "id": "ITEM-ACTIONS-GAP-004",
+        "type": "missing_failure_test",
+        "description": "Database transaction failure scenarios not tested (connection loss during save, optimistic lock conflicts)",
+        "affected_items": [
+          "ITEM-ACTIONS-HAZ-012",
+          "ITEM-ACTIONS-RC-012"
+        ],
+        "priority": "high",
+        "recommendation": "Add chaos testing for database failures; verify action state consistency when persistence fails after downstream service calls succeed"
+      },
+      {
+        "id": "ITEM-ACTIONS-GAP-005",
+        "type": "untested_control",
+        "description": "Exception mapping completeness not verified - some upstream service errors may not map to user-friendly messages",
+        "affected_items": [
+          "ITEM-ACTIONS-RC-009"
+        ],
+        "priority": "medium",
+        "recommendation": "Catalog all possible upstream error responses; verify each maps to appropriate ExecutionError with user-facing message"
+      },
+      {
+        "id": "ITEM-ACTIONS-GAP-006",
+        "type": "missing_failure_test",
+        "description": "Care unit resolution logic from multiple sources (action, option, state params) not fully tested for conflict scenarios",
+        "affected_items": [
+          "ITEM-ACTIONS-HAZ-006"
+        ],
+        "priority": "high",
+        "recommendation": "Add tests covering: conflicting care unit IDs from different sources, null handling, priority resolution"
+      },
+      {
+        "id": "ITEM-ACTIONS-GAP-007",
+        "type": "unverified_interface",
+        "description": "Plugin service timeout and retry behavior not verified",
+        "affected_items": [
+          "ITEM-ACTIONS-IF-008"
+        ],
+        "priority": "medium",
+        "recommendation": "Add integration tests with mock plugin services simulating slow responses, timeouts, transient failures"
+      },
+      {
+        "id": "ITEM-ACTIONS-GAP-008",
+        "type": "untested_control",
+        "description": "Action template validation does not have tests covering all validation rules (autoSelect, option count, skip-to-drop-in combinations)",
+        "affected_items": [
+          "ITEM-ACTIONS-RC-008"
+        ],
+        "priority": "medium",
+        "recommendation": "Add parametrized tests covering all ActionValidator validation rules with valid and invalid inputs"
+      }
+    ]
+  },
+
+  "aggregation_hints": {
+    "cross_item_interfaces": [
+      "health-manager REST API (appointments, referrals)",
+      "bookings REST API (bookings, timeslots)",
+      "interviewer4 REST API (interview results)",
+      "directory REST API (practitioner validation)",
+      "object-storage (action template configuration)",
+      "plugin-service (external integrations)",
+      "Artemis JMS (action status events)"
+    ],
+    "shared_hazards": [
+      "Upstream service unavailability (health-manager, bookings, interviewer, directory)",
+      "Database connection loss during critical operations",
+      "Action state inconsistency across distributed system",
+      "Configuration errors in action templates",
+      "Patient identity verification failures"
+    ],
+    "system_level_controls_needed": [
+      "End-to-end monitoring of action lifecycle from creation through execution to downstream resource creation",
+      "Alerting for high rates of action execution failures or rollback failures",
+      "Reconciliation process for orphaned bookings/appointments when rollback fails",
+      "SLA monitoring and circuit breakers for upstream service dependencies",
+      "Action template governance process with clinical review before deployment",
+      "Regular audit of action expiration rates and patterns indicating usability issues"
+    ]
+  }
+}

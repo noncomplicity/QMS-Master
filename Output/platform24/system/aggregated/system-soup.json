@@ -1,0 +1,649 @@
+{
+  "extraction_metadata": {
+    "aggregated_at": "2026-03-06T16:05:00Z",
+    "aggregator_version": "2.0",
+    "standard": "IEC 62304:2006+AMD1:2015",
+    "hierarchy": {
+      "level": "system",
+      "system_id": "platform24",
+      "system_name": "Platform24 Health Software",
+      "child_modules": ["smart-care-plans"]
+    },
+    "source_aggregations": [
+      {
+        "module_id": "smart-care-plans",
+        "aggregated_at": "2026-03-06T14:35:00Z",
+        "soup_count": 12
+      }
+    ]
+  },
+
+  "system_summary": {
+    "system_id": "platform24",
+    "system_name": "Platform24 Health Software",
+    "safety_class": "B",
+    "total_soup_components": 12,
+    "unique_soup_components": 12,
+    "shared_across_modules": 0,
+    "version_conflicts": 0,
+    "high_risk_soup": 5,
+    "known_vulnerabilities": 0,
+    "maintenance_concerns": 1
+  },
+
+  "soup_by_module": [
+    {
+      "module_id": "smart-care-plans",
+      "module_name": "Smart Care Plans",
+      "soup_count": 12,
+      "high_risk_count": 5,
+      "soup_ids": [
+        "SYS-P24-SOUP-001", "SYS-P24-SOUP-002", "SYS-P24-SOUP-003",
+        "SYS-P24-SOUP-004", "SYS-P24-SOUP-005", "SYS-P24-SOUP-006",
+        "SYS-P24-SOUP-007", "SYS-P24-SOUP-008", "SYS-P24-SOUP-009",
+        "SYS-P24-SOUP-010", "SYS-P24-SOUP-011", "SYS-P24-SOUP-012"
+      ]
+    }
+  ],
+
+  "soup_components": [
+    {
+      "id": "SYS-P24-SOUP-001",
+      "name": "spring-boot-starter-web",
+      "system_version": "inherited from alerisx-mhp-parent 2.30.0",
+      "type": "framework",
+      "category": "infrastructure",
+      "license": "Apache-2.0",
+      "usage_by_module": [
+        {
+          "module_id": "smart-care-plans",
+          "module_soup_id": "MOD-SCP-SOUP-001",
+          "items_using": ["health-manager"]
+        }
+      ],
+      "version_status": {
+        "consistent_across_system": true,
+        "versions_in_use": ["inherited from alerisx-mhp-parent 2.30.0"],
+        "recommended_action": "none"
+      },
+      "risk_assessment": {
+        "risk_level": "high",
+        "risk_level_rationale": "Core framework handling all HTTP requests for clinical data across the system",
+        "system_impact": "Complete system unavailability if framework fails",
+        "modules_affected": ["smart-care-plans"]
+      },
+      "verification_status": {
+        "verified_in_modules": ["smart-care-plans"],
+        "verification_gaps": []
+      },
+      "vulnerability_status": {
+        "last_checked": "2026-03-06",
+        "known_cves": [],
+        "vulnerability_monitoring": "automated"
+      },
+      "maintenance": {
+        "vendor_support": "active",
+        "last_release": "2026-01-15",
+        "update_frequency": "monthly",
+        "concerns": []
+      }
+    },
+    {
+      "id": "SYS-P24-SOUP-002",
+      "name": "hibernate-core",
+      "system_version": "inherited from parent",
+      "type": "framework",
+      "category": "infrastructure",
+      "license": "LGPL-2.1",
+      "usage_by_module": [
+        {
+          "module_id": "smart-care-plans",
+          "module_soup_id": "MOD-SCP-SOUP-002",
+          "items_using": ["health-manager"]
+        }
+      ],
+      "version_status": {
+        "consistent_across_system": true,
+        "versions_in_use": ["inherited from parent"],
+        "recommended_action": "none"
+      },
+      "risk_assessment": {
+        "risk_level": "high",
+        "risk_level_rationale": "All clinical data persistence flows through Hibernate ORM",
+        "system_impact": "Data persistence failure, potential data corruption",
+        "modules_affected": ["smart-care-plans"]
+      },
+      "verification_status": {
+        "verified_in_modules": ["smart-care-plans"],
+        "verification_gaps": []
+      },
+      "vulnerability_status": {
+        "last_checked": "2026-03-06",
+        "known_cves": [],
+        "vulnerability_monitoring": "automated"
+      },
+      "maintenance": {
+        "vendor_support": "active",
+        "last_release": "2026-01-10",
+        "update_frequency": "monthly",
+        "concerns": []
+      }
+    },
+    {
+      "id": "SYS-P24-SOUP-003",
+      "name": "spring-boot-starter-artemis",
+      "system_version": "inherited from parent",
+      "type": "framework",
+      "category": "infrastructure",
+      "license": "Apache-2.0",
+      "usage_by_module": [
+        {
+          "module_id": "smart-care-plans",
+          "module_soup_id": "MOD-SCP-SOUP-003",
+          "items_using": ["health-manager"]
+        }
+      ],
+      "version_status": {
+        "consistent_across_system": true,
+        "versions_in_use": ["inherited from parent"],
+        "recommended_action": "none"
+      },
+      "risk_assessment": {
+        "risk_level": "high",
+        "risk_level_rationale": "Async messaging critical for booking synchronization and clinical events",
+        "system_impact": "Message loss, data inconsistency between services",
+        "modules_affected": ["smart-care-plans"]
+      },
+      "verification_status": {
+        "verified_in_modules": ["smart-care-plans"],
+        "verification_gaps": []
+      },
+      "vulnerability_status": {
+        "last_checked": "2026-03-06",
+        "known_cves": [],
+        "vulnerability_monitoring": "automated"
+      },
+      "maintenance": {
+        "vendor_support": "active",
+        "last_release": "2026-01-15",
+        "update_frequency": "monthly",
+        "concerns": []
+      }
+    },
+    {
+      "id": "SYS-P24-SOUP-004",
+      "name": "querydsl-jpa",
+      "system_version": "inherited from parent",
+      "type": "library",
+      "category": "functional",
+      "license": "Apache-2.0",
+      "usage_by_module": [
+        {
+          "module_id": "smart-care-plans",
+          "module_soup_id": "MOD-SCP-SOUP-004",
+          "items_using": ["health-manager"]
+        }
+      ],
+      "version_status": {
+        "consistent_across_system": true,
+        "versions_in_use": ["inherited from parent"],
+        "recommended_action": "none"
+      },
+      "risk_assessment": {
+        "risk_level": "medium",
+        "risk_level_rationale": "Used for complex clinic listing queries",
+        "system_impact": "Query failures, incorrect data retrieval",
+        "modules_affected": ["smart-care-plans"]
+      },
+      "verification_status": {
+        "verified_in_modules": ["smart-care-plans"],
+        "verification_gaps": []
+      },
+      "vulnerability_status": {
+        "last_checked": "2026-03-06",
+        "known_cves": [],
+        "vulnerability_monitoring": "automated"
+      },
+      "maintenance": {
+        "vendor_support": "maintained",
+        "last_release": "2025-06-01",
+        "update_frequency": "quarterly",
+        "concerns": []
+      }
+    },
+    {
+      "id": "SYS-P24-SOUP-005",
+      "name": "blaze-persistence-integration-querydsl-expressions",
+      "system_version": "1.6.11",
+      "type": "library",
+      "category": "functional",
+      "license": "Apache-2.0",
+      "usage_by_module": [
+        {
+          "module_id": "smart-care-plans",
+          "module_soup_id": "MOD-SCP-SOUP-005",
+          "items_using": ["health-manager"]
+        }
+      ],
+      "version_status": {
+        "consistent_across_system": true,
+        "versions_in_use": ["1.6.11"],
+        "recommended_action": "none"
+      },
+      "risk_assessment": {
+        "risk_level": "low",
+        "risk_level_rationale": "Performance enhancement library",
+        "system_impact": "Performance degradation",
+        "modules_affected": ["smart-care-plans"]
+      },
+      "verification_status": {
+        "verified_in_modules": ["smart-care-plans"],
+        "verification_gaps": []
+      },
+      "vulnerability_status": {
+        "last_checked": "2026-03-06",
+        "known_cves": [],
+        "vulnerability_monitoring": "automated"
+      },
+      "maintenance": {
+        "vendor_support": "active",
+        "last_release": "2025-09-01",
+        "update_frequency": "quarterly",
+        "concerns": []
+      }
+    },
+    {
+      "id": "SYS-P24-SOUP-006",
+      "name": "lombok",
+      "system_version": "1.18.30",
+      "type": "tool",
+      "category": "development",
+      "license": "MIT",
+      "usage_by_module": [
+        {
+          "module_id": "smart-care-plans",
+          "module_soup_id": "MOD-SCP-SOUP-006",
+          "items_using": ["health-manager"]
+        }
+      ],
+      "version_status": {
+        "consistent_across_system": true,
+        "versions_in_use": ["1.18.30"],
+        "recommended_action": "none"
+      },
+      "risk_assessment": {
+        "risk_level": "low",
+        "risk_level_rationale": "Compile-time only, no runtime impact",
+        "system_impact": "Compilation failure only",
+        "modules_affected": ["smart-care-plans"]
+      },
+      "verification_status": {
+        "verified_in_modules": [],
+        "verification_gaps": ["N/A - compile time only"]
+      },
+      "vulnerability_status": {
+        "last_checked": "2026-03-06",
+        "known_cves": [],
+        "vulnerability_monitoring": "automated"
+      },
+      "maintenance": {
+        "vendor_support": "active",
+        "last_release": "2025-11-01",
+        "update_frequency": "monthly",
+        "concerns": []
+      }
+    },
+    {
+      "id": "SYS-P24-SOUP-007",
+      "name": "easy-rules-core",
+      "system_version": "3.4.0",
+      "type": "library",
+      "category": "functional",
+      "license": "MIT",
+      "usage_by_module": [
+        {
+          "module_id": "smart-care-plans",
+          "module_soup_id": "MOD-SCP-SOUP-007",
+          "items_using": ["health-manager"]
+        }
+      ],
+      "version_status": {
+        "consistent_across_system": true,
+        "versions_in_use": ["3.4.0"],
+        "recommended_action": "monitor"
+      },
+      "risk_assessment": {
+        "risk_level": "high",
+        "risk_level_rationale": "Escalation rules determine clinical priority and response times",
+        "system_impact": "Incorrect or missed escalation of critical appointments",
+        "modules_affected": ["smart-care-plans"]
+      },
+      "verification_status": {
+        "verified_in_modules": ["smart-care-plans"],
+        "verification_gaps": []
+      },
+      "vulnerability_status": {
+        "last_checked": "2026-03-06",
+        "known_cves": [],
+        "vulnerability_monitoring": "automated"
+      },
+      "maintenance": {
+        "vendor_support": "minimal",
+        "last_release": "2020-07-15",
+        "update_frequency": "inactive",
+        "concerns": ["Library has minimal maintenance since 2020"]
+      }
+    },
+    {
+      "id": "SYS-P24-SOUP-008",
+      "name": "kco-rest",
+      "system_version": "4.0.3",
+      "type": "library",
+      "category": "functional",
+      "license": "Apache-2.0",
+      "usage_by_module": [
+        {
+          "module_id": "smart-care-plans",
+          "module_soup_id": "MOD-SCP-SOUP-008",
+          "items_using": ["health-manager"]
+        }
+      ],
+      "version_status": {
+        "consistent_across_system": true,
+        "versions_in_use": ["4.0.3"],
+        "recommended_action": "check_update"
+      },
+      "risk_assessment": {
+        "risk_level": "medium",
+        "risk_level_rationale": "Payment processing for healthcare services",
+        "system_impact": "Payment failures, financial discrepancies",
+        "modules_affected": ["smart-care-plans"]
+      },
+      "verification_status": {
+        "verified_in_modules": ["smart-care-plans"],
+        "verification_gaps": []
+      },
+      "vulnerability_status": {
+        "last_checked": "2026-03-06",
+        "known_cves": [],
+        "vulnerability_monitoring": "automated"
+      },
+      "maintenance": {
+        "vendor_support": "maintained",
+        "last_release": "2024-03-01",
+        "update_frequency": "annual",
+        "concerns": []
+      }
+    },
+    {
+      "id": "SYS-P24-SOUP-009",
+      "name": "shedlock-spring",
+      "system_version": "5.12.0",
+      "type": "library",
+      "category": "infrastructure",
+      "license": "Apache-2.0",
+      "usage_by_module": [
+        {
+          "module_id": "smart-care-plans",
+          "module_soup_id": "MOD-SCP-SOUP-009",
+          "items_using": ["health-manager"]
+        }
+      ],
+      "version_status": {
+        "consistent_across_system": true,
+        "versions_in_use": ["5.12.0"],
+        "recommended_action": "none"
+      },
+      "risk_assessment": {
+        "risk_level": "medium",
+        "risk_level_rationale": "Ensures scheduled clinical notifications run exactly once",
+        "system_impact": "Duplicate or missed scheduled jobs",
+        "modules_affected": ["smart-care-plans"]
+      },
+      "verification_status": {
+        "verified_in_modules": [],
+        "verification_gaps": ["No cluster environment tests"]
+      },
+      "vulnerability_status": {
+        "last_checked": "2026-03-06",
+        "known_cves": [],
+        "vulnerability_monitoring": "automated"
+      },
+      "maintenance": {
+        "vendor_support": "active",
+        "last_release": "2025-12-01",
+        "update_frequency": "monthly",
+        "concerns": []
+      }
+    },
+    {
+      "id": "SYS-P24-SOUP-010",
+      "name": "alerisx-audit-logging-sdk",
+      "system_version": "2.84.0",
+      "type": "library",
+      "category": "security",
+      "license": "Proprietary",
+      "usage_by_module": [
+        {
+          "module_id": "smart-care-plans",
+          "module_soup_id": "MOD-SCP-SOUP-010",
+          "items_using": ["health-manager"]
+        }
+      ],
+      "version_status": {
+        "consistent_across_system": true,
+        "versions_in_use": ["2.84.0"],
+        "recommended_action": "none"
+      },
+      "risk_assessment": {
+        "risk_level": "high",
+        "risk_level_rationale": "Audit logging required for regulatory compliance and incident investigation",
+        "system_impact": "Missing audit trail, compliance failure",
+        "modules_affected": ["smart-care-plans"]
+      },
+      "verification_status": {
+        "verified_in_modules": [],
+        "verification_gaps": ["No audit completeness verification"]
+      },
+      "vulnerability_status": {
+        "last_checked": "2026-03-06",
+        "known_cves": [],
+        "vulnerability_monitoring": "internal"
+      },
+      "maintenance": {
+        "vendor_support": "active",
+        "last_release": "2026-01-20",
+        "update_frequency": "weekly",
+        "concerns": []
+      }
+    },
+    {
+      "id": "SYS-P24-SOUP-011",
+      "name": "mysql-connector-j",
+      "system_version": "8.4.0",
+      "type": "library",
+      "category": "infrastructure",
+      "license": "GPL-2.0 with FOSS exception",
+      "usage_by_module": [
+        {
+          "module_id": "smart-care-plans",
+          "module_soup_id": "MOD-SCP-SOUP-011",
+          "items_using": ["health-manager"]
+        }
+      ],
+      "version_status": {
+        "consistent_across_system": true,
+        "versions_in_use": ["8.4.0"],
+        "recommended_action": "none"
+      },
+      "risk_assessment": {
+        "risk_level": "high",
+        "risk_level_rationale": "All database operations depend on JDBC driver",
+        "system_impact": "Database connectivity failure",
+        "modules_affected": ["smart-care-plans"]
+      },
+      "verification_status": {
+        "verified_in_modules": ["smart-care-plans"],
+        "verification_gaps": []
+      },
+      "vulnerability_status": {
+        "last_checked": "2026-03-06",
+        "known_cves": [],
+        "vulnerability_monitoring": "automated"
+      },
+      "maintenance": {
+        "vendor_support": "active",
+        "last_release": "2025-10-01",
+        "update_frequency": "quarterly",
+        "concerns": []
+      }
+    },
+    {
+      "id": "SYS-P24-SOUP-012",
+      "name": "jackson-datatype-jsr310",
+      "system_version": "inherited from parent",
+      "type": "library",
+      "category": "functional",
+      "license": "Apache-2.0",
+      "usage_by_module": [
+        {
+          "module_id": "smart-care-plans",
+          "module_soup_id": "MOD-SCP-SOUP-012",
+          "items_using": ["health-manager"]
+        }
+      ],
+      "version_status": {
+        "consistent_across_system": true,
+        "versions_in_use": ["inherited from parent"],
+        "recommended_action": "none"
+      },
+      "risk_assessment": {
+        "risk_level": "medium",
+        "risk_level_rationale": "Date/time handling critical for appointment scheduling",
+        "system_impact": "Date/time serialization errors affecting appointments",
+        "modules_affected": ["smart-care-plans"]
+      },
+      "verification_status": {
+        "verified_in_modules": ["smart-care-plans"],
+        "verification_gaps": []
+      },
+      "vulnerability_status": {
+        "last_checked": "2026-03-06",
+        "known_cves": [],
+        "vulnerability_monitoring": "automated"
+      },
+      "maintenance": {
+        "vendor_support": "active",
+        "last_release": "2026-01-01",
+        "update_frequency": "monthly",
+        "concerns": []
+      }
+    }
+  ],
+
+  "cross_module_dependencies": [],
+
+  "version_conflicts": [],
+
+  "system_wide_concerns": [
+    {
+      "id": "SYS-P24-SOUP-CONCERN-001",
+      "type": "maintenance_risk",
+      "soup_id": "SYS-P24-SOUP-007",
+      "soup_name": "easy-rules-core",
+      "description": "Rules engine has minimal maintenance (last release 2020). Used for critical escalation logic.",
+      "modules_affected": ["smart-care-plans"],
+      "risk_level": "medium",
+      "recommendation": "Monitor for security issues. Consider migration to actively maintained rules engine if vulnerabilities discovered or Java compatibility issues arise.",
+      "mitigation_status": "monitoring"
+    }
+  ],
+
+  "license_summary": {
+    "licenses_in_use": [
+      {
+        "license": "Apache-2.0",
+        "soup_count": 7,
+        "soup_ids": ["SYS-P24-SOUP-001", "SYS-P24-SOUP-003", "SYS-P24-SOUP-004", "SYS-P24-SOUP-005", "SYS-P24-SOUP-008", "SYS-P24-SOUP-009", "SYS-P24-SOUP-012"]
+      },
+      {
+        "license": "LGPL-2.1",
+        "soup_count": 1,
+        "soup_ids": ["SYS-P24-SOUP-002"]
+      },
+      {
+        "license": "MIT",
+        "soup_count": 2,
+        "soup_ids": ["SYS-P24-SOUP-006", "SYS-P24-SOUP-007"]
+      },
+      {
+        "license": "GPL-2.0 with FOSS exception",
+        "soup_count": 1,
+        "soup_ids": ["SYS-P24-SOUP-011"]
+      },
+      {
+        "license": "Proprietary",
+        "soup_count": 1,
+        "soup_ids": ["SYS-P24-SOUP-010"]
+      }
+    ],
+    "license_conflicts": [],
+    "compliance_notes": "All open-source licenses compatible with commercial use. GPL-2.0 FOSS exception allows linking with proprietary code."
+  },
+
+  "traceability": {
+    "to_module_soup": [
+      {"system_soup_id": "SYS-P24-SOUP-001", "module_soup_ids": ["MOD-SCP-SOUP-001"]},
+      {"system_soup_id": "SYS-P24-SOUP-002", "module_soup_ids": ["MOD-SCP-SOUP-002"]},
+      {"system_soup_id": "SYS-P24-SOUP-003", "module_soup_ids": ["MOD-SCP-SOUP-003"]},
+      {"system_soup_id": "SYS-P24-SOUP-004", "module_soup_ids": ["MOD-SCP-SOUP-004"]},
+      {"system_soup_id": "SYS-P24-SOUP-005", "module_soup_ids": ["MOD-SCP-SOUP-005"]},
+      {"system_soup_id": "SYS-P24-SOUP-006", "module_soup_ids": ["MOD-SCP-SOUP-006"]},
+      {"system_soup_id": "SYS-P24-SOUP-007", "module_soup_ids": ["MOD-SCP-SOUP-007"]},
+      {"system_soup_id": "SYS-P24-SOUP-008", "module_soup_ids": ["MOD-SCP-SOUP-008"]},
+      {"system_soup_id": "SYS-P24-SOUP-009", "module_soup_ids": ["MOD-SCP-SOUP-009"]},
+      {"system_soup_id": "SYS-P24-SOUP-010", "module_soup_ids": ["MOD-SCP-SOUP-010"]},
+      {"system_soup_id": "SYS-P24-SOUP-011", "module_soup_ids": ["MOD-SCP-SOUP-011"]},
+      {"system_soup_id": "SYS-P24-SOUP-012", "module_soup_ids": ["MOD-SCP-SOUP-012"]}
+    ],
+    "to_system_hazards": [
+      {"soup_id": "SYS-P24-SOUP-001", "hazard_ids": ["SYS-P24-HAZ-001"]},
+      {"soup_id": "SYS-P24-SOUP-002", "hazard_ids": ["SYS-P24-HAZ-002"]},
+      {"soup_id": "SYS-P24-SOUP-003", "hazard_ids": ["SYS-P24-HAZ-007"]},
+      {"soup_id": "SYS-P24-SOUP-007", "hazard_ids": ["SYS-P24-HAZ-004"]},
+      {"soup_id": "SYS-P24-SOUP-010", "hazard_ids": ["SYS-P24-HAZ-001", "SYS-P24-HAZ-002"]},
+      {"soup_id": "SYS-P24-SOUP-011", "hazard_ids": ["SYS-P24-HAZ-002"]},
+      {"soup_id": "SYS-P24-SOUP-012", "hazard_ids": ["SYS-P24-HAZ-006"]}
+    ]
+  },
+
+  "gaps": [
+    {
+      "id": "SYS-P24-SOUP-GAP-001",
+      "type": "maintenance_risk",
+      "description": "easy-rules-core has minimal maintenance (last release 2020)",
+      "affected_soup": ["SYS-P24-SOUP-007"],
+      "affected_modules": ["smart-care-plans"],
+      "recommendation": "Establish migration plan to alternative rules engine",
+      "priority": "medium"
+    },
+    {
+      "id": "SYS-P24-SOUP-GAP-002",
+      "type": "verification_gap",
+      "description": "ShedLock lacks cluster environment verification",
+      "affected_soup": ["SYS-P24-SOUP-009"],
+      "affected_modules": ["smart-care-plans"],
+      "recommendation": "Add multi-instance scheduling tests",
+      "priority": "medium"
+    },
+    {
+      "id": "SYS-P24-SOUP-GAP-003",
+      "type": "verification_gap",
+      "description": "Audit logging SDK lacks completeness verification",
+      "affected_soup": ["SYS-P24-SOUP-010"],
+      "affected_modules": ["smart-care-plans"],
+      "recommendation": "Add audit coverage tests for all clinical operations",
+      "priority": "medium"
+    }
+  ]
+}

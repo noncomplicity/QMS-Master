@@ -13,7 +13,7 @@ owner: "Head of Clinical Management"
 
 The purpose of this document is to provide guidance on the generation of pre-market clinical data for medical device AI. It reflects current progress as it reflects Medical Device AI in local and global best practices, helping stakeholders understand the foundational regulatory landscape, identify applicable standards, determine what clinical data are appropriate, apply suitable methods for generating that data, and integrate the resulting evidence into a coherent validation framework that demonstrates safety, performance, and usability prior to market access.
 
-The relation and interaction of this procedure, its related procedures and the resulting output is visually represented in the [[Clinical Management Process.canvas|Clinical Management Process]]
+The relation and interaction of this procedure, its related procedures and the resulting output is visually represented in the [Clinical Management Process](../Canvases/Clinical%20Management%20Process.canvas)
 
 ---
 
@@ -62,8 +62,8 @@ This section represents an **instructional activity** within the validation fram
 
 The appropriateness of clinical data depends on **intended purpose**, **risk classification**, and **claim type**. Each sub-area below functions as a distinct decision point, linking to detailed procedural guidance.
 
-- [[Intended Purpose and Context of Use for AI-Based Medical Device Software]] — Define the [[Intended Purpose Statements]], including intended medical purpose, clinical task (diagnosis, triage, monitoring, prediction), target population, care setting, input modalities, users, and claims; map to indications for use and context-of-use requirements (EU MDR Art. 2 & 61; Annex XIV; IMDRF SaMD N41/N57; FDA SaMD Clinical Evaluation guidance).
-- [[System risks in AI-Based Medical Device Software]] — Determine device classification and AI risk based on intended purpose, significance of information to the healthcare decision, and state of healthcare situation; link the outcome to regulatory class (EU MDR Annex VIII rules; IMDRF SaMD risk categorization) to scale the depth of clinical evidence and decide whether prospective investigation is required.
+- [Intended Purpose and Context of Use for AI-Based Medical Device Software](Intended%20Purpose%20and%20Context%20of%20Use%20for%20AI-Based%20Medical%20Device%20Software.md) — Define the [[Intended Purpose Statements]], including intended medical purpose, clinical task (diagnosis, triage, monitoring, prediction), target population, care setting, input modalities, users, and claims; map to indications for use and context-of-use requirements (EU MDR Art. 2 & 61; Annex XIV; IMDRF SaMD N41/N57; FDA SaMD Clinical Evaluation guidance).
+- [System risks in AI-Based Medical Device Software](System%20risks%20in%20AI-Based%20Medical%20Device%20Software.md) — Determine device classification and AI risk based on intended purpose, significance of information to the healthcare decision, and state of healthcare situation; link the outcome to regulatory class (EU MDR Annex VIII rules; IMDRF SaMD risk categorization) to scale the depth of clinical evidence and decide whether prospective investigation is required.
 - [[Mode of action and technical guardrails]]
   What data is used as input. What format for output? What content in output? Model used, prompt used, change management och prompt and model.
 - [[Establishment of Evidence Hierarchy for AI Validation]] — Structure evidence across analytical validation → clinical association → clinical validation; pre-specify endpoints, performance metrics (e.g., sensitivity, specificity, AUC, calibration), acceptance criteria, and a statistical analysis plan with power justification (IMDRF SaMD N41/N57; ISO 14155; ISO 20916 for IVD contexts).
@@ -95,6 +95,6 @@ Clinical data generation should be part of the structured validation plan that a
 - **Clinical validation (real-world relevance, outcomes)** — Most standards such as [[ISO 14155_2020 Good Clinical Practice for medical device investigations]] and [[IMDRF SaMD N57 Framework for clinical evaluation of SaMD]] primarily address prospective clinical investigations or define general evaluation structures. They do not explicitly describe how retrospective data can serve clinical validation. It should be clarified that retrospective studies can also meet clinical validation requirements if they reproduce real-world clinical settings and endpoints. Appropriate MDCG guidance, such as [[MDCG 2020-1 Clinical evaluation of medical device software]] and [[MDCG 2022-5 Guidance on clinical evaluation equivalence and sufficient clinical evidence]], should be considered to ensure alignment with MDR expectations.
 - **Usability validation (interaction, safety, decision integration)** — Guided by IEC 62366-1 and ISO/TR 62366-2 for formative and summative evaluations, integrated with ISO 14971 for use-related risk management and clinical workflow safety.
 
-These elements collectively substantiate the [[Clinical Evaluation Reports]], ensuring the evidence package meets expectations for safety, performance, and usability.
+These elements collectively substantiate the [Clinical Evaluation Reports](Clinical%20Evaluation%20Reports.md), ensuring the evidence package meets expectations for safety, performance, and usability.
 
 What about Valid clinical association, technical performance, clinical performance

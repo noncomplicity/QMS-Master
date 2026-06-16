@@ -1,0 +1,416 @@
+{
+  "aggregation_metadata": {
+    "module_id": "infrastructure",
+    "module_name": "Infrastructure Services",
+    "aggregated_at": "2026-03-06T21:00:00Z",
+    "aggregator_version": "3.0",
+    "standard": "IEC 62304:2006+AMD1:2015 / ISO 14971:2019",
+    "hierarchy": {
+      "level": "module",
+      "parent_system": "triage-system"
+    },
+    "source_items": [
+      {
+        "item_id": "object-storage",
+        "item_name": "Object Storage Service",
+        "extraction_file": "items/object-storage/extracted/item-risk-contribution.json"
+      }
+    ]
+  },
+
+  "module_context": {
+    "id": "MOD-INFRASTRUCTURE",
+    "name": "Infrastructure Services",
+    "description": "Supporting infrastructure services including storage and configuration management. Provides foundational services used by other modules.",
+    "safety_class": "A",
+    "safety_class_rationale": "Supporting infrastructure not directly involved in clinical decisions. Failure affects system availability but not immediate patient safety. Classification may change if clinical data stored."
+  },
+
+  "software_items": [
+    {
+      "id": "ITEM-OS",
+      "name": "object-storage",
+      "description": "File storage service for arbitrary objects with AES-256 encryption at rest, organized into buckets with label-based metadata queries",
+      "safety_class": "A",
+      "version": "1.0.0",
+      "repository_url": "git@gitlab-p24:doktor24/services/object-storage.git",
+      "technology_stack": ["Go 1.26", "Echo v4", "MariaDB/MySQL", "AES-256-GCM", "ActiveMQ/STOMP", "ZeroMQ", "Prometheus"],
+      "deployment_type": "microservice"
+    }
+  ],
+
+  "core_functionalities": [
+    {
+      "id": "CF-INF-001",
+      "name": "Object Storage and Encryption",
+      "description": "Stores objects with AES-256-GCM encryption using per-object data encryption keys",
+      "software_items": ["ITEM-OS"],
+      "failure_modes": ["MOD-INF-FM-001", "MOD-INF-FM-002"]
+    },
+    {
+      "id": "CF-INF-002",
+      "name": "Object Retrieval and Decryption",
+      "description": "Retrieves and decrypts stored objects with key validation",
+      "software_items": ["ITEM-OS"],
+      "failure_modes": ["MOD-INF-FM-003", "MOD-INF-FM-004"]
+    },
+    {
+      "id": "CF-INF-003",
+      "name": "Access Control",
+      "description": "Authenticates and authorizes access to buckets and objects",
+      "software_items": ["ITEM-OS"],
+      "failure_modes": ["MOD-INF-FM-005"]
+    },
+    {
+      "id": "CF-INF-004",
+      "name": "Metadata Management",
+      "description": "Manages object metadata including labels for querying",
+      "software_items": ["ITEM-OS"],
+      "failure_modes": ["MOD-INF-FM-006", "MOD-INF-FM-007"]
+    },
+    {
+      "id": "CF-INF-005",
+      "name": "Event Notification",
+      "description": "Publishes object creation events for audit trail",
+      "software_items": ["ITEM-OS"],
+      "failure_modes": ["MOD-INF-FM-008"]
+    }
+  ],
+
+  "module_hazards": [
+    {
+      "id": "MOD-INF-HAZ-001",
+      "description": "Object stored with corrupted encryption key causing permanent data loss",
+      "contributing_items": ["ITEM-OS"],
+      "contributing_hazards": ["ITEM-OS-HAZ-001"],
+      "potential_harm": "Permanent data loss - configuration or files become unrecoverable",
+      "severity_contribution": "minor",
+      "cross_item_impact": "Dependent services cannot retrieve configuration"
+    },
+    {
+      "id": "MOD-INF-HAZ-002",
+      "description": "Key encryption key exposed compromising all stored data",
+      "contributing_items": ["ITEM-OS"],
+      "contributing_hazards": ["ITEM-OS-HAZ-002"],
+      "potential_harm": "All stored objects compromised - attacker can decrypt all data",
+      "severity_contribution": "serious",
+      "cross_item_impact": "System-wide security breach affecting all services using object storage"
+    },
+    {
+      "id": "MOD-INF-HAZ-003",
+      "description": "Unauthorized access to stored objects",
+      "contributing_items": ["ITEM-OS"],
+      "contributing_hazards": ["ITEM-OS-HAZ-004"],
+      "potential_harm": "Confidential configuration or data exposed to unauthorized users",
+      "severity_contribution": "serious",
+      "cross_item_impact": "Affects all services storing sensitive configuration"
+    },
+    {
+      "id": "MOD-INF-HAZ-004",
+      "description": "SQL injection through label parameters",
+      "contributing_items": ["ITEM-OS"],
+      "contributing_hazards": ["ITEM-OS-HAZ-006"],
+      "potential_harm": "Database compromise - attacker could read/modify data and extract encryption keys",
+      "severity_contribution": "critical",
+      "cross_item_impact": "Complete system compromise"
+    },
+    {
+      "id": "MOD-INF-HAZ-005",
+      "description": "Service unavailability due to database or filesystem failure",
+      "contributing_items": ["ITEM-OS"],
+      "contributing_hazards": ["ITEM-OS-HAZ-008", "ITEM-OS-HAZ-005"],
+      "potential_harm": "Dependent services cannot store/retrieve configuration, impacting system function",
+      "severity_contribution": "minor",
+      "cross_item_impact": "Cascading failures to rule-engine, actions, and other dependent services"
+    },
+    {
+      "id": "MOD-INF-HAZ-006",
+      "description": "Stale cached data returned to callers",
+      "contributing_items": ["ITEM-OS"],
+      "contributing_hazards": ["ITEM-OS-HAZ-009"],
+      "potential_harm": "Stale configuration delivered causing incorrect system behavior",
+      "severity_contribution": "minor",
+      "cross_item_impact": "Dependent services operate with outdated configuration"
+    }
+  ],
+
+  "failure_modes": [
+    {
+      "id": "MOD-INF-FM-001",
+      "name": "Encryption key generation fails",
+      "category": "software_crash",
+      "software_item_id": "ITEM-OS",
+      "core_functionality_id": "CF-INF-001",
+      "contributes_to_hazards": ["MOD-INF-HAZ-001"],
+      "effect_on_module": "Object creation fails, error returned to client",
+      "effect_on_system": "Configuration upload fails, dependent service cannot update config",
+      "source_failure_modes": ["ITEM-OS-FM-001"]
+    },
+    {
+      "id": "MOD-INF-FM-002",
+      "name": "Database connection lost during metadata save",
+      "category": "infrastructure_failure",
+      "software_item_id": "ITEM-OS",
+      "core_functionality_id": "CF-INF-001",
+      "contributes_to_hazards": ["MOD-INF-HAZ-005"],
+      "effect_on_module": "Save fails, rollback triggered to delete object file",
+      "effect_on_system": "Object creation fails, client receives error",
+      "source_failure_modes": ["ITEM-OS-FM-002"]
+    },
+    {
+      "id": "MOD-INF-FM-003",
+      "name": "Decryption fails due to corrupted ciphertext",
+      "category": "data_integrity",
+      "software_item_id": "ITEM-OS",
+      "core_functionality_id": "CF-INF-002",
+      "contributes_to_hazards": ["MOD-INF-HAZ-001"],
+      "effect_on_module": "GetObject returns error, data effectively lost",
+      "effect_on_system": "Dependent service cannot retrieve configuration",
+      "source_failure_modes": ["ITEM-OS-FM-006"]
+    },
+    {
+      "id": "MOD-INF-FM-004",
+      "name": "KEK ID mismatch prevents decryption",
+      "category": "configuration_error",
+      "software_item_id": "ITEM-OS",
+      "core_functionality_id": "CF-INF-002",
+      "contributes_to_hazards": ["MOD-INF-HAZ-001"],
+      "effect_on_module": "Decrypt fails, object unrecoverable if KEK lost",
+      "effect_on_system": "Configuration data inaccessible",
+      "source_failure_modes": ["ITEM-OS-FM-010"]
+    },
+    {
+      "id": "MOD-INF-FM-005",
+      "name": "Authentication credentials invalid",
+      "category": "authentication_failure",
+      "software_item_id": "ITEM-OS",
+      "core_functionality_id": "CF-INF-003",
+      "contributes_to_hazards": ["MOD-INF-HAZ-003"],
+      "effect_on_module": "Request rejected with 401",
+      "effect_on_system": "Legitimate operations blocked if credentials misconfigured",
+      "source_failure_modes": ["ITEM-OS-FM-005"]
+    },
+    {
+      "id": "MOD-INF-FM-006",
+      "name": "SQL injection via label parameter",
+      "category": "security_breach",
+      "software_item_id": "ITEM-OS",
+      "core_functionality_id": "CF-INF-004",
+      "contributes_to_hazards": ["MOD-INF-HAZ-004"],
+      "effect_on_module": "Attacker-controlled SQL executed",
+      "effect_on_system": "Database compromise, potential data exfiltration",
+      "source_failure_modes": ["ITEM-OS-FM-004"]
+    },
+    {
+      "id": "MOD-INF-FM-007",
+      "name": "Cache returns stale object data",
+      "category": "synchronization_error",
+      "software_item_id": "ITEM-OS",
+      "core_functionality_id": "CF-INF-004",
+      "contributes_to_hazards": ["MOD-INF-HAZ-006"],
+      "effect_on_module": "Old version returned from cache",
+      "effect_on_system": "Caller receives outdated configuration",
+      "source_failure_modes": ["ITEM-OS-FM-007"]
+    },
+    {
+      "id": "MOD-INF-FM-008",
+      "name": "Notification service unavailable",
+      "category": "external_dependency",
+      "software_item_id": "ITEM-OS",
+      "core_functionality_id": "CF-INF-005",
+      "contributes_to_hazards": [],
+      "effect_on_module": "Object creation fails, audit event not recorded",
+      "effect_on_system": "Audit trail gap",
+      "source_failure_modes": ["ITEM-OS-FM-008"]
+    }
+  ],
+
+  "module_risk_controls": [
+    {
+      "id": "MOD-INF-RC-001",
+      "description": "AES-256-GCM encryption with per-object unique DEKs",
+      "control_type": "inherent_safety",
+      "mitigates": ["MOD-INF-HAZ-003"],
+      "implementation": "Each object encrypted with unique 256-bit AES key using GCM mode",
+      "verification_status": "verified",
+      "source_controls": ["ITEM-OS-RC-001"]
+    },
+    {
+      "id": "MOD-INF-RC-002",
+      "description": "KEK stored only in memory, never persisted",
+      "control_type": "inherent_safety",
+      "mitigates": ["MOD-INF-HAZ-002"],
+      "implementation": "KEK loaded from Kubernetes secret at startup, unexported field",
+      "verification_status": "verified",
+      "source_controls": ["ITEM-OS-RC-002"]
+    },
+    {
+      "id": "MOD-INF-RC-003",
+      "description": "KEK ID mismatch detection",
+      "control_type": "protective_measure",
+      "mitigates": ["MOD-INF-HAZ-001"],
+      "implementation": "Decrypt validates KEK ID matches DEK before decryption",
+      "verification_status": "verified",
+      "source_controls": ["ITEM-OS-RC-003"]
+    },
+    {
+      "id": "MOD-INF-RC-004",
+      "description": "Basic authentication for all API endpoints",
+      "control_type": "protective_measure",
+      "mitigates": ["MOD-INF-HAZ-003"],
+      "implementation": "AccessController middleware validates credentials",
+      "verification_status": "partial",
+      "source_controls": ["ITEM-OS-RC-006"]
+    },
+    {
+      "id": "MOD-INF-RC-005",
+      "description": "Parameterized SQL queries",
+      "control_type": "inherent_safety",
+      "mitigates": ["MOD-INF-HAZ-004"],
+      "implementation": "Direct queries use ? placeholders with args",
+      "verification_status": "partial",
+      "source_controls": ["ITEM-OS-RC-009"]
+    },
+    {
+      "id": "MOD-INF-RC-006",
+      "description": "Label value escaping for LIKE clauses",
+      "control_type": "protective_measure",
+      "mitigates": ["MOD-INF-HAZ-004"],
+      "implementation": "escapeString replaces SQL metacharacters",
+      "verification_status": "unverified",
+      "source_controls": ["ITEM-OS-RC-010"]
+    },
+    {
+      "id": "MOD-INF-RC-007",
+      "description": "Filesystem operation timeout",
+      "control_type": "protective_measure",
+      "mitigates": ["MOD-INF-HAZ-005"],
+      "implementation": "Context timeout (5s default) prevents indefinite blocking",
+      "verification_status": "verified",
+      "source_controls": ["ITEM-OS-RC-008"]
+    },
+    {
+      "id": "MOD-INF-RC-008",
+      "description": "Rollback mechanism for failed metadata save",
+      "control_type": "protective_measure",
+      "mitigates": ["MOD-INF-HAZ-001"],
+      "implementation": "DeleteObject called if metadata save fails",
+      "verification_status": "partial",
+      "source_controls": ["ITEM-OS-RC-005"]
+    },
+    {
+      "id": "MOD-INF-RC-009",
+      "description": "Cache invalidation on delete",
+      "control_type": "protective_measure",
+      "mitigates": ["MOD-INF-HAZ-006"],
+      "implementation": "Delete removes entry from cache",
+      "verification_status": "partial",
+      "source_controls": ["ITEM-OS-RC-015"]
+    }
+  ],
+
+  "module_risk_controls_required_upstream": [
+    {
+      "id": "MOD-INF-RC-UP-001",
+      "description": "Kubernetes secret rotation policy for KEKs",
+      "rationale": "Service cannot rotate own KEK without orchestration-level coordination",
+      "recommended_level": "system",
+      "control_type": "protective_measure",
+      "mitigates": ["MOD-INF-HAZ-002"]
+    },
+    {
+      "id": "MOD-INF-RC-UP-002",
+      "description": "User permission management and credential lifecycle",
+      "rationale": "Service validates credentials but does not manage users",
+      "recommended_level": "system",
+      "control_type": "protective_measure",
+      "mitigates": ["MOD-INF-HAZ-003"]
+    },
+    {
+      "id": "MOD-INF-RC-UP-003",
+      "description": "Database backup and recovery procedures",
+      "rationale": "Service cannot implement backup strategy",
+      "recommended_level": "system",
+      "control_type": "protective_measure",
+      "mitigates": ["MOD-INF-HAZ-001", "MOD-INF-HAZ-005"]
+    },
+    {
+      "id": "MOD-INF-RC-UP-004",
+      "description": "Monitoring and alerting on filesystem capacity",
+      "rationale": "Service logs metrics but cannot implement alerting",
+      "recommended_level": "system",
+      "control_type": "information_for_safety",
+      "mitigates": ["MOD-INF-HAZ-005"]
+    }
+  ],
+
+  "cross_item_interfaces": [
+    {
+      "id": "MOD-INF-IF-001",
+      "name": "Rule Engine Configuration",
+      "from_item": "ITEM-REM (triage-engine)",
+      "to_item": "ITEM-OS",
+      "interface_type": "REST",
+      "safety_impact": "Rule packages loaded from object storage. Failure prevents rule updates or service startup.",
+      "data_exchanged": "YAML rule package definitions, attribute schemas",
+      "failure_handling": "Rule engine has automatic retry, fails to start if persistent"
+    },
+    {
+      "id": "MOD-INF-IF-002",
+      "name": "Action Template Configuration",
+      "from_item": "ITEM-ACTIONS (actions-module)",
+      "to_item": "ITEM-OS",
+      "interface_type": "REST",
+      "safety_impact": "Action templates loaded from object storage. Failure blocks action creation.",
+      "data_exchanged": "Action template definitions",
+      "failure_handling": "Falls back to system default templates"
+    }
+  ],
+
+  "module_verification_gaps": [
+    {
+      "id": "MOD-INF-GAP-001",
+      "type": "untested_control",
+      "description": "SQL injection protection via escapeString not verified",
+      "affected_hazards": ["MOD-INF-HAZ-004"],
+      "priority": "critical",
+      "recommendation": "Add unit tests with malicious SQL payloads in label values"
+    },
+    {
+      "id": "MOD-INF-GAP-002",
+      "type": "untested_control",
+      "description": "Rollback mechanism not tested",
+      "affected_hazards": ["MOD-INF-HAZ-001"],
+      "priority": "high",
+      "recommendation": "Add integration test forcing metadata save failure"
+    },
+    {
+      "id": "MOD-INF-GAP-003",
+      "type": "untested_control",
+      "description": "Permission-based access control not tested",
+      "affected_hazards": ["MOD-INF-HAZ-003"],
+      "priority": "high",
+      "recommendation": "Add integration tests for different user roles"
+    },
+    {
+      "id": "MOD-INF-GAP-004",
+      "type": "missing_failure_test",
+      "description": "Notification service failure scenarios not tested",
+      "affected_hazards": [],
+      "priority": "medium",
+      "recommendation": "Add test mocking notification service failure"
+    }
+  ],
+
+  "aggregation_summary": {
+    "total_item_hazards": 12,
+    "module_hazards": 6,
+    "total_item_failure_modes": 12,
+    "module_failure_modes": 8,
+    "total_item_controls": 16,
+    "module_controls": 9,
+    "total_verification_gaps": 8,
+    "critical_cross_item_interfaces": 2,
+    "notes": "Single-item infrastructure module. Primary safety concern is SQL injection vulnerability (critical) and encryption key management. Class A classification assumes no clinical data stored."
+  }
+}

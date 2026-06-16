@@ -1,0 +1,465 @@
+{
+  "aggregation_metadata": {
+    "module_id": "actions-module",
+    "module_name": "Actions Module",
+    "aggregated_at": "2026-03-06T21:00:00Z",
+    "aggregator_version": "3.0",
+    "standard": "IEC 62304:2006+AMD1:2015 / ISO 14971:2019",
+    "hierarchy": {
+      "level": "module",
+      "parent_system": "triage-system"
+    },
+    "source_items": [
+      {
+        "item_id": "actions",
+        "item_name": "Actions Service",
+        "extraction_file": "items/actions/extracted/item-risk-contribution.json"
+      }
+    ]
+  },
+
+  "module_context": {
+    "id": "MOD-ACTIONS",
+    "name": "Actions Module",
+    "description": "Patient action and workflow management module - handles action creation, lifecycle, and execution including bookings, appointments, referrals, and escalations",
+    "safety_class": "B",
+    "safety_class_rationale": "Module that executes clinical workflow actions based on triage outcomes. Incorrect action execution (wrong appointments, failed referrals, missed escalations) can contribute to patient harm, but clinical decisions originate from triage engine."
+  },
+
+  "software_items": [
+    {
+      "id": "ITEM-ACTIONS",
+      "name": "actions",
+      "description": "Patient action management service that creates and executes clinical workflow actions including bookings, appointments, referrals, and triage escalations",
+      "safety_class": "B",
+      "version": "1.0.0-SNAPSHOT",
+      "repository_url": "git@gitlab-p24:doktor24/services/actions.git",
+      "technology_stack": ["Java 21", "Quarkus 3.13.2", "MariaDB", "JMS/Artemis", "REST", "Maven"],
+      "deployment_type": "microservice"
+    }
+  ],
+
+  "core_functionalities": [
+    {
+      "id": "CF-ACT-001",
+      "name": "Action Creation and Validation",
+      "description": "Creates and validates clinical workflow actions based on triage outcomes",
+      "software_items": ["ITEM-ACTIONS"],
+      "failure_modes": ["MOD-ACT-FM-001", "MOD-ACT-FM-002"]
+    },
+    {
+      "id": "CF-ACT-002",
+      "name": "Appointment Booking",
+      "description": "Creates appointments and bookings with practitioners and care units",
+      "software_items": ["ITEM-ACTIONS"],
+      "failure_modes": ["MOD-ACT-FM-003", "MOD-ACT-FM-004"]
+    },
+    {
+      "id": "CF-ACT-003",
+      "name": "Referral Management",
+      "description": "Creates referrals to practitioners with triage interview context",
+      "software_items": ["ITEM-ACTIONS"],
+      "failure_modes": ["MOD-ACT-FM-005"]
+    },
+    {
+      "id": "CF-ACT-004",
+      "name": "Action Execution Lifecycle",
+      "description": "Manages action state transitions, execution, rollback, and failure handling",
+      "software_items": ["ITEM-ACTIONS"],
+      "failure_modes": ["MOD-ACT-FM-006", "MOD-ACT-FM-007", "MOD-ACT-FM-008"]
+    },
+    {
+      "id": "CF-ACT-005",
+      "name": "Patient Identity Verification",
+      "description": "Verifies patient identity before action execution or cancellation",
+      "software_items": ["ITEM-ACTIONS"],
+      "failure_modes": ["MOD-ACT-FM-009"]
+    }
+  ],
+
+  "module_hazards": [
+    {
+      "id": "MOD-ACT-HAZ-001",
+      "description": "Action executed when already executed/cancelled causing duplicate interventions",
+      "contributing_items": ["ITEM-ACTIONS"],
+      "contributing_hazards": ["ITEM-ACTIONS-HAZ-001"],
+      "potential_harm": "Duplicate appointments, multiple referrals, redundant escalations leading to patient confusion or conflicting care plans",
+      "severity_contribution": "minor",
+      "cross_item_impact": "Downstream services receive duplicate requests"
+    },
+    {
+      "id": "MOD-ACT-HAZ-002",
+      "description": "Appointment created without required patient or condition ID",
+      "contributing_items": ["ITEM-ACTIONS"],
+      "contributing_hazards": ["ITEM-ACTIONS-HAZ-002"],
+      "potential_harm": "Appointment created for wrong patient or without clinical context, leading to inappropriate care",
+      "severity_contribution": "serious",
+      "cross_item_impact": "Health-manager receives incomplete appointment data"
+    },
+    {
+      "id": "MOD-ACT-HAZ-003",
+      "description": "Booking created with unavailable timeslot",
+      "contributing_items": ["ITEM-ACTIONS"],
+      "contributing_hazards": ["ITEM-ACTIONS-HAZ-003"],
+      "potential_harm": "Double-booked appointments, patient unable to access care at expected time",
+      "severity_contribution": "minor",
+      "cross_item_impact": "Bookings service receives conflicting requests"
+    },
+    {
+      "id": "MOD-ACT-HAZ-004",
+      "description": "Referral created without triage interview context",
+      "contributing_items": ["ITEM-ACTIONS"],
+      "contributing_hazards": ["ITEM-ACTIONS-HAZ-004"],
+      "potential_harm": "Referral lacks clinical context, practitioner cannot understand patient needs",
+      "severity_contribution": "serious",
+      "cross_item_impact": "Practitioner receives referral without triage data"
+    },
+    {
+      "id": "MOD-ACT-HAZ-005",
+      "description": "Action execution partially succeeds leaving inconsistent state",
+      "contributing_items": ["ITEM-ACTIONS"],
+      "contributing_hazards": ["ITEM-ACTIONS-HAZ-005"],
+      "potential_harm": "Patient has booking but no appointment, or vice versa, leading to administrative errors",
+      "severity_contribution": "minor",
+      "cross_item_impact": "Downstream services have inconsistent records"
+    },
+    {
+      "id": "MOD-ACT-HAZ-006",
+      "description": "Wrong patient executes action",
+      "contributing_items": ["ITEM-ACTIONS"],
+      "contributing_hazards": ["ITEM-ACTIONS-HAZ-008"],
+      "potential_harm": "Patient accesses another patient's care plan, confidentiality breach, wrong treatment delivered",
+      "severity_contribution": "critical",
+      "cross_item_impact": "Cross-patient data access"
+    },
+    {
+      "id": "MOD-ACT-HAZ-007",
+      "description": "Upstream service failure causes action failure without clear communication",
+      "contributing_items": ["ITEM-ACTIONS"],
+      "contributing_hazards": ["ITEM-ACTIONS-HAZ-010"],
+      "potential_harm": "Patient believes action succeeded when it failed, missed appointments or delayed care",
+      "severity_contribution": "minor",
+      "cross_item_impact": "Depends on health-manager, bookings, interviewer availability"
+    },
+    {
+      "id": "MOD-ACT-HAZ-008",
+      "description": "Action expires before patient can execute blocking urgent care",
+      "contributing_items": ["ITEM-ACTIONS"],
+      "contributing_hazards": ["ITEM-ACTIONS-HAZ-007"],
+      "potential_harm": "Patient unable to book urgent appointment, delayed care for acute conditions",
+      "severity_contribution": "serious",
+      "cross_item_impact": "Patient workflow blocked"
+    }
+  ],
+
+  "failure_modes": [
+    {
+      "id": "MOD-ACT-FM-001",
+      "name": "Action template misconfigured",
+      "category": "configuration_error",
+      "software_item_id": "ITEM-ACTIONS",
+      "core_functionality_id": "CF-ACT-001",
+      "contributes_to_hazards": ["MOD-ACT-HAZ-001"],
+      "effect_on_module": "Action creation fails, user workflow interrupted",
+      "effect_on_system": "Patient cannot proceed with intended action",
+      "source_failure_modes": ["ITEM-ACTIONS-FM-006"]
+    },
+    {
+      "id": "MOD-ACT-FM-002",
+      "name": "Invalid origin or option configuration",
+      "category": "configuration_error",
+      "software_item_id": "ITEM-ACTIONS",
+      "core_functionality_id": "CF-ACT-001",
+      "contributes_to_hazards": ["MOD-ACT-HAZ-001"],
+      "effect_on_module": "Action creation fails with validation error",
+      "effect_on_system": "Patient may be blocked from accessing care",
+      "source_failure_modes": ["ITEM-ACTIONS-FM-010"]
+    },
+    {
+      "id": "MOD-ACT-FM-003",
+      "name": "Health-manager service unavailable",
+      "category": "external_dependency",
+      "software_item_id": "ITEM-ACTIONS",
+      "core_functionality_id": "CF-ACT-002",
+      "contributes_to_hazards": ["MOD-ACT-HAZ-007"],
+      "effect_on_module": "Appointment/referral creation fails, action marked as failed",
+      "effect_on_system": "Patient cannot create appointment, must retry later",
+      "source_failure_modes": ["ITEM-ACTIONS-FM-003"]
+    },
+    {
+      "id": "MOD-ACT-FM-004",
+      "name": "Bookings service unavailable",
+      "category": "external_dependency",
+      "software_item_id": "ITEM-ACTIONS",
+      "core_functionality_id": "CF-ACT-002",
+      "contributes_to_hazards": ["MOD-ACT-HAZ-007"],
+      "effect_on_module": "Booking creation fails, timeslot rolled back if created",
+      "effect_on_system": "Patient cannot book appointment, must retry",
+      "source_failure_modes": ["ITEM-ACTIONS-FM-004"]
+    },
+    {
+      "id": "MOD-ACT-FM-005",
+      "name": "Interview service failure when fetching triage result",
+      "category": "external_dependency",
+      "software_item_id": "ITEM-ACTIONS",
+      "core_functionality_id": "CF-ACT-003",
+      "contributes_to_hazards": ["MOD-ACT-HAZ-004"],
+      "effect_on_module": "Referral created without patient recommendation text",
+      "effect_on_system": "Referral lacks clinical context",
+      "source_failure_modes": ["ITEM-ACTIONS-FM-011"]
+    },
+    {
+      "id": "MOD-ACT-FM-006",
+      "name": "Concurrent action execution attempt",
+      "category": "synchronization_error",
+      "software_item_id": "ITEM-ACTIONS",
+      "core_functionality_id": "CF-ACT-004",
+      "contributes_to_hazards": ["MOD-ACT-HAZ-001"],
+      "effect_on_module": "Optimistic locking exception, one execution fails",
+      "effect_on_system": "Patient may see error or success depending on request",
+      "source_failure_modes": ["ITEM-ACTIONS-FM-008"]
+    },
+    {
+      "id": "MOD-ACT-FM-007",
+      "name": "Rollback fails after execution failure",
+      "category": "software_defect",
+      "software_item_id": "ITEM-ACTIONS",
+      "core_functionality_id": "CF-ACT-004",
+      "contributes_to_hazards": ["MOD-ACT-HAZ-005"],
+      "effect_on_module": "Orphaned booking/appointment in downstream service",
+      "effect_on_system": "Requires manual reconciliation",
+      "source_failure_modes": ["ITEM-ACTIONS-FM-007"]
+    },
+    {
+      "id": "MOD-ACT-FM-008",
+      "name": "Timeslot already taken",
+      "category": "synchronization_error",
+      "software_item_id": "ITEM-ACTIONS",
+      "core_functionality_id": "CF-ACT-002",
+      "contributes_to_hazards": ["MOD-ACT-HAZ-003", "MOD-ACT-HAZ-008"],
+      "effect_on_module": "Booking fails, patient prompted to select new timeslot",
+      "effect_on_system": "Patient loses selected timeslot, may cause action expiration",
+      "source_failure_modes": ["ITEM-ACTIONS-FM-005"]
+    },
+    {
+      "id": "MOD-ACT-FM-009",
+      "name": "Patient verification fails",
+      "category": "authentication_failure",
+      "software_item_id": "ITEM-ACTIONS",
+      "core_functionality_id": "CF-ACT-005",
+      "contributes_to_hazards": ["MOD-ACT-HAZ-006"],
+      "effect_on_module": "Action execution/cancellation denied",
+      "effect_on_system": "Patient blocked, logged as security issue",
+      "source_failure_modes": ["ITEM-ACTIONS-FM-009"]
+    }
+  ],
+
+  "module_risk_controls": [
+    {
+      "id": "MOD-ACT-RC-001",
+      "description": "Action state validation before execution",
+      "control_type": "protective_measure",
+      "mitigates": ["MOD-ACT-HAZ-001"],
+      "implementation": "Action.assertActive() validates status, execution time, expiration before allowing execution",
+      "verification_status": "partial",
+      "source_controls": ["ITEM-ACTIONS-RC-001"]
+    },
+    {
+      "id": "MOD-ACT-RC-002",
+      "description": "Idempotent execution check",
+      "control_type": "protective_measure",
+      "mitigates": ["MOD-ACT-HAZ-001"],
+      "implementation": "Returns existing result if same option already executed successfully",
+      "verification_status": "verified",
+      "source_controls": ["ITEM-ACTIONS-RC-002"]
+    },
+    {
+      "id": "MOD-ACT-RC-003",
+      "description": "Patient ID and condition ID validation",
+      "control_type": "protective_measure",
+      "mitigates": ["MOD-ACT-HAZ-002"],
+      "implementation": "Throws exception if patientId or conditionId is null before appointment creation",
+      "verification_status": "verified",
+      "source_controls": ["ITEM-ACTIONS-RC-003"]
+    },
+    {
+      "id": "MOD-ACT-RC-004",
+      "description": "Patient verification before action execution",
+      "control_type": "protective_measure",
+      "mitigates": ["MOD-ACT-HAZ-006"],
+      "implementation": "verifyPatient() validates patient ID matches action's patient",
+      "verification_status": "verified",
+      "source_controls": ["ITEM-ACTIONS-RC-004"]
+    },
+    {
+      "id": "MOD-ACT-RC-005",
+      "description": "Rollback mechanism for failed execution",
+      "control_type": "protective_measure",
+      "mitigates": ["MOD-ACT-HAZ-005"],
+      "implementation": "Each executor implements rollback() to undo changes when chain fails",
+      "verification_status": "partial",
+      "source_controls": ["ITEM-ACTIONS-RC-005"]
+    },
+    {
+      "id": "MOD-ACT-RC-006",
+      "description": "Triage interview ID validation",
+      "control_type": "protective_measure",
+      "mitigates": ["MOD-ACT-HAZ-004"],
+      "implementation": "Throws exception if triageInterviewId is empty before referral creation",
+      "verification_status": "verified",
+      "source_controls": ["ITEM-ACTIONS-RC-007"]
+    },
+    {
+      "id": "MOD-ACT-RC-007",
+      "description": "Optimistic locking prevents concurrent modification",
+      "control_type": "protective_measure",
+      "mitigates": ["MOD-ACT-HAZ-001"],
+      "implementation": "@Version field detects concurrent modifications",
+      "verification_status": "verified",
+      "source_controls": ["ITEM-ACTIONS-RC-012"]
+    },
+    {
+      "id": "MOD-ACT-RC-008",
+      "description": "Exception mapping for upstream service failures",
+      "control_type": "information_for_safety",
+      "mitigates": ["MOD-ACT-HAZ-007"],
+      "implementation": "Service-specific exception mappers convert errors to user-facing messages",
+      "verification_status": "partial",
+      "source_controls": ["ITEM-ACTIONS-RC-009"]
+    },
+    {
+      "id": "MOD-ACT-RC-009",
+      "description": "Metrics and monitoring for action execution",
+      "control_type": "information_for_safety",
+      "mitigates": ["MOD-ACT-HAZ-005", "MOD-ACT-HAZ-007"],
+      "implementation": "Micrometer timers and counters track execution, results, rollback failures",
+      "verification_status": "verified",
+      "source_controls": ["ITEM-ACTIONS-RC-011"]
+    }
+  ],
+
+  "module_risk_controls_required_upstream": [
+    {
+      "id": "MOD-ACT-RC-UP-001",
+      "description": "User training on action expiration and time sensitivity",
+      "rationale": "Software cannot force users to execute actions before expiration",
+      "recommended_level": "system",
+      "control_type": "information_for_safety",
+      "mitigates": ["MOD-ACT-HAZ-008"]
+    },
+    {
+      "id": "MOD-ACT-RC-UP-002",
+      "description": "Monitoring and alerting for high rollback rates",
+      "rationale": "Module logs rollbacks but system-level patterns require centralized monitoring",
+      "recommended_level": "system",
+      "control_type": "information_for_safety",
+      "mitigates": ["MOD-ACT-HAZ-005"]
+    },
+    {
+      "id": "MOD-ACT-RC-UP-003",
+      "description": "Action template review and approval process",
+      "rationale": "Software validates structure but cannot assess clinical appropriateness",
+      "recommended_level": "system",
+      "control_type": "protective_measure",
+      "mitigates": ["MOD-ACT-HAZ-001"]
+    },
+    {
+      "id": "MOD-ACT-RC-UP-004",
+      "description": "SLA monitoring for upstream service dependencies",
+      "rationale": "Module depends on health-manager, bookings, interviewer availability",
+      "recommended_level": "system",
+      "control_type": "protective_measure",
+      "mitigates": ["MOD-ACT-HAZ-007"]
+    }
+  ],
+
+  "cross_item_interfaces": [
+    {
+      "id": "MOD-ACT-IF-001",
+      "name": "Health-manager REST API",
+      "from_item": "ITEM-ACTIONS",
+      "to_item": "external",
+      "interface_type": "REST",
+      "safety_impact": "Appointment/referral creation failure prevents patient care access",
+      "data_exchanged": "Appointment details, referral data, patient context",
+      "failure_handling": "WebApplicationException caught, mapped to user errors, rollback triggered"
+    },
+    {
+      "id": "MOD-ACT-IF-002",
+      "name": "Bookings REST API",
+      "from_item": "ITEM-ACTIONS",
+      "to_item": "external",
+      "interface_type": "REST",
+      "safety_impact": "Booking creation failure prevents securing appointment slot",
+      "data_exchanged": "Booking details, timeslot selection",
+      "failure_handling": "Timeslot conflicts handled with task reset, general failures require retry"
+    },
+    {
+      "id": "MOD-ACT-IF-003",
+      "name": "Interviewer REST API",
+      "from_item": "ITEM-ACTIONS",
+      "to_item": "external",
+      "interface_type": "REST",
+      "safety_impact": "Failure means referrals lack clinical context",
+      "data_exchanged": "Interview results, patient recommendations",
+      "failure_handling": "Null check, referral proceeds without recommendation text"
+    },
+    {
+      "id": "MOD-ACT-IF-004",
+      "name": "JMS Action Events",
+      "from_item": "ITEM-ACTIONS",
+      "to_item": "external",
+      "interface_type": "JMS",
+      "safety_impact": "Failed notifications mean downstream systems have stale status",
+      "data_exchanged": "Action status events (DONE, FAILED)",
+      "failure_handling": "JMS broker-level retry and dead-letter queue"
+    }
+  ],
+
+  "module_verification_gaps": [
+    {
+      "id": "MOD-ACT-GAP-001",
+      "type": "untested_control",
+      "description": "State validation logic lacks comprehensive edge case tests",
+      "affected_hazards": ["MOD-ACT-HAZ-001"],
+      "priority": "high",
+      "recommendation": "Add tests for concurrent execution, expiration boundaries, timezone handling"
+    },
+    {
+      "id": "MOD-ACT-GAP-002",
+      "type": "untested_control",
+      "description": "Rollback mechanism success rate not verified via integration tests",
+      "affected_hazards": ["MOD-ACT-HAZ-005"],
+      "priority": "high",
+      "recommendation": "Add tests simulating failures at each executor, verify all changes rolled back"
+    },
+    {
+      "id": "MOD-ACT-GAP-003",
+      "type": "missing_failure_test",
+      "description": "Database transaction failure scenarios not tested",
+      "affected_hazards": ["MOD-ACT-HAZ-001"],
+      "priority": "high",
+      "recommendation": "Add chaos testing for database failures"
+    },
+    {
+      "id": "MOD-ACT-GAP-004",
+      "type": "missing_failure_test",
+      "description": "Care unit resolution from multiple sources not fully tested",
+      "affected_hazards": ["MOD-ACT-HAZ-002"],
+      "priority": "high",
+      "recommendation": "Add tests for conflicting care unit IDs"
+    }
+  ],
+
+  "aggregation_summary": {
+    "total_item_hazards": 12,
+    "module_hazards": 8,
+    "total_item_failure_modes": 12,
+    "module_failure_modes": 9,
+    "total_item_controls": 14,
+    "module_controls": 9,
+    "total_verification_gaps": 8,
+    "critical_cross_item_interfaces": 2,
+    "notes": "Single-item module with heavy external dependencies. Primary safety concerns are action state management and rollback mechanism reliability."
+  }
+}

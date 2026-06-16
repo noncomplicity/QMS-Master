@@ -1,0 +1,823 @@
+{
+  "extraction_metadata": {
+    "repository": "https://gitlab.com/doktor24/services/health-manager.git",
+    "commit": "16e0273739eda65f73af5410323e1caf53362f16",
+    "extracted_at": "2026-03-06T14:30:00Z",
+    "extractor_version": "2.0",
+    "standard": "IEC 62304:2006+AMD1:2015",
+    "hierarchy": {
+      "level": "item",
+      "item_id": "health-manager",
+      "item_name": "Health Manager Service",
+      "parent_module": "smart-care-plans",
+      "parent_system": "platform24"
+    }
+  },
+
+  "item_requirements": {
+    "item_id": "health-manager",
+    "summary": {
+      "total_requirements": 42,
+      "by_type": {
+        "functional": 18,
+        "interface": 12,
+        "performance": 3,
+        "security": 6,
+        "data": 3
+      }
+    },
+
+    "functional": [
+      {
+        "id": "ITEM-HM-REQ-FUNC-001",
+        "description": "The system shall manage appointment lifecycle including creation, status updates, and completion",
+        "rationale": "Core clinical workflow for patient-practitioner encounters",
+        "inputs": ["UpdateAppointmentDTO with action and appointment data"],
+        "outputs": ["AppointmentDTO with updated status"],
+        "preconditions": ["User is authenticated", "User has write access to appointment"],
+        "postconditions": ["Appointment status is updated", "JMS event published"],
+        "verification_method": "test",
+        "traces_to_parent": [],
+        "source": {
+          "files": [
+            "svc/src/main/java/se/alerisx/mhp/manager/service/UpdateAppointmentService.java:1-15",
+            "svc/src/main/java/se/alerisx/mhp/manager/service/impl/UpdateAppointmentServiceImpl.java:1-500"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-HM-REQ-FUNC-002",
+        "description": "The system shall support appointment handover between practitioners with propose, accept, deny, and cancel actions",
+        "rationale": "Enables care continuity when practitioners need to transfer patient responsibility",
+        "inputs": ["UpdateAppointmentDTO with handover action", "Target care unit and practitioner info"],
+        "outputs": ["Updated handover status", "Notifications to affected practitioners"],
+        "preconditions": ["Handover feature enabled for care unit", "Source practitioner has active appointment"],
+        "postconditions": ["Handover status updated (PROPOSED/ACCEPTED/DENIED/CANCELLED)", "JMS AppointmentHandoverStatusEvent published", "Clinic notifications sent"],
+        "verification_method": "test",
+        "traces_to_parent": [],
+        "source": {
+          "files": [
+            "svc/src/main/java/se/alerisx/mhp/manager/service/AppointmentHandoverService.java:1-15",
+            "svc/src/main/java/se/alerisx/mhp/manager/service/impl/AppointmentHandoverServiceImpl.java:1-300"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-HM-REQ-FUNC-003",
+        "description": "The system shall manage episode of care lifecycle with ONHOLD, ACTIVE, and CLOSED states",
+        "rationale": "Episodes group related appointments for a clinical condition",
+        "inputs": ["Episode of care identifiers", "Status transition requests"],
+        "outputs": ["Updated episode state"],
+        "preconditions": ["Valid appointment exists in episode"],
+        "postconditions": ["Episode status reflects requested state"],
+        "verification_method": "test",
+        "traces_to_parent": [],
+        "source": {
+          "files": [
+            "svc/src/main/java/se/alerisx/mhp/manager/service/EpisodeOfCareService.java:1-50",
+            "svc/src/main/java/se/alerisx/mhp/manager/domain/EpisodeOfCare.java:1-100"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-HM-REQ-FUNC-004",
+        "description": "The system shall support follow-up appointment creation with PENDING, PROPOSED, ACTIVE, and CLOSED states",
+        "rationale": "Ensures continuity of care after initial encounter",
+        "inputs": ["Parent appointment ID", "Follow-up request"],
+        "outputs": ["FollowUpDTO"],
+        "preconditions": ["Parent appointment exists and is FULFILLED"],
+        "postconditions": ["Follow-up created in PENDING state"],
+        "verification_method": "test",
+        "traces_to_parent": [],
+        "source": {
+          "files": [
+            "svc/src/main/java/se/alerisx/mhp/manager/service/FollowUpService.java:1-50",
+            "svc/src/main/java/se/alerisx/mhp/manager/domain/FollowUp.java:1-100"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-HM-REQ-FUNC-005",
+        "description": "The system shall automatically create follow-up appointments when patients send messages to fulfilled appointments",
+        "rationale": "Ensures patient messages are addressed by clinical staff",
+        "inputs": ["MessageEvent from JMS topic"],
+        "outputs": ["New follow-up appointment"],
+        "preconditions": ["Appointment is FULFILLED", "No pending/proposed follow-up exists"],
+        "postconditions": ["Follow-up created for patient message handling"],
+        "verification_method": "test",
+        "traces_to_parent": [],
+        "source": {
+          "files": [
+            "svc/src/main/java/se/alerisx/mhp/manager/listener/MessageEventListener.java:38-70"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-HM-REQ-FUNC-006",
+        "description": "The system shall support prescription management including creation, lookup, and external prescription integration",
+        "rationale": "Clinical requirement for medication prescribing",
+        "inputs": ["CreateUpdatePrescriptionDTO"],
+        "outputs": ["PrescriptionDTO"],
+        "preconditions": ["Practitioner has prescribing privileges"],
+        "postconditions": ["Prescription recorded"],
+        "verification_method": "test",
+        "traces_to_parent": [],
+        "source": {
+          "files": [
+            "svc/src/main/java/se/alerisx/mhp/manager/service/PrescriptionService.java:1-50",
+            "svc/src/main/java/se/alerisx/mhp/manager/controller/v1/PrescriptionController.java:1-100"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-HM-REQ-FUNC-007",
+        "description": "The system shall support referral management for internal and external referrals",
+        "rationale": "Enables patient referral to specialists or external providers",
+        "inputs": ["ReferralDTO"],
+        "outputs": ["Created/updated referral"],
+        "preconditions": ["Valid appointment exists"],
+        "postconditions": ["Referral created and optionally sent to external system"],
+        "verification_method": "test",
+        "traces_to_parent": [],
+        "source": {
+          "files": [
+            "svc/src/main/java/se/alerisx/mhp/manager/service/ReferralService.java:1-50",
+            "svc/src/main/java/se/alerisx/mhp/manager/service/ReferralBackendService.java:1-50"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-HM-REQ-FUNC-008",
+        "description": "The system shall support patient flag management for clinical alerts and warnings",
+        "rationale": "Safety feature to highlight important patient information",
+        "inputs": ["FlagDTO with patient ID and flag type"],
+        "outputs": ["Created/updated flag"],
+        "preconditions": ["Patient exists"],
+        "postconditions": ["Flag visible on patient appointments"],
+        "verification_method": "test",
+        "traces_to_parent": [],
+        "source": {
+          "files": [
+            "svc/src/main/java/se/alerisx/mhp/manager/service/FlagService.java:1-30",
+            "svc/src/main/java/se/alerisx/mhp/manager/service/FlagV2Service.java:1-30"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-HM-REQ-FUNC-009",
+        "description": "The system shall provide clinic listing pages for drop-in, scheduled, and async appointments",
+        "rationale": "Operational view for clinic staff to manage patient queue",
+        "inputs": ["Filter criteria (care unit, date, status)"],
+        "outputs": ["Paginated list of appointments"],
+        "preconditions": ["User has access to care unit"],
+        "postconditions": ["Filtered appointment list returned"],
+        "verification_method": "test",
+        "traces_to_parent": [],
+        "source": {
+          "files": [
+            "svc/src/main/java/se/alerisx/mhp/manager/controller/v1/clinic/DropInAppointmentListController.java:1-100",
+            "svc/src/main/java/se/alerisx/mhp/manager/controller/v1/clinic/ScheduledAppointmentListController.java:1-100",
+            "svc/src/main/java/se/alerisx/mhp/manager/controller/v1/clinic/AsyncAppointmentListController.java:1-100"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-HM-REQ-FUNC-010",
+        "description": "The system shall support consultation appointments between care units",
+        "rationale": "Enables specialist consultations within the platform",
+        "inputs": ["Consultation request with target care unit"],
+        "outputs": ["ConsultationDTO"],
+        "preconditions": ["Invitation sent and accepted"],
+        "postconditions": ["Consultation appointment linked to parent"],
+        "verification_method": "test",
+        "traces_to_parent": [],
+        "source": {
+          "files": [
+            "svc/src/main/java/se/alerisx/mhp/manager/service/ConsultationService.java:1-50",
+            "svc/src/main/java/se/alerisx/mhp/manager/domain/Consultation.java:1-100"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-HM-REQ-FUNC-011",
+        "description": "The system shall support medical history retrieval for patients",
+        "rationale": "Clinical requirement for informed decision making",
+        "inputs": ["Patient ID", "History filters"],
+        "outputs": ["Medical history items"],
+        "preconditions": ["User has consent to access patient records"],
+        "postconditions": ["History items returned based on consent scope"],
+        "verification_method": "test",
+        "traces_to_parent": [],
+        "source": {
+          "files": [
+            "svc/src/main/java/se/alerisx/mhp/manager/service/MedicalHistoryService.java:1-50"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-HM-REQ-FUNC-012",
+        "description": "The system shall support patient health profile management",
+        "rationale": "Aggregated view of patient health information",
+        "inputs": ["Patient ID"],
+        "outputs": ["Health profile data"],
+        "preconditions": ["User authorized to view patient data"],
+        "postconditions": ["Health profile returned"],
+        "verification_method": "test",
+        "traces_to_parent": [],
+        "source": {
+          "files": [
+            "svc/src/main/java/se/alerisx/mhp/manager/service/HealthProfileService.java:1-30",
+            "svc/src/main/java/se/alerisx/mhp/manager/controller/v1/HealthProfileController.java:1-50"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-HM-REQ-FUNC-013",
+        "description": "The system shall support irregularity reporting for quality management",
+        "rationale": "Quality assurance and incident tracking",
+        "inputs": ["Irregularity details"],
+        "outputs": ["Created irregularity record"],
+        "preconditions": ["Appointment exists"],
+        "postconditions": ["Irregularity logged for review"],
+        "verification_method": "test",
+        "traces_to_parent": [],
+        "source": {
+          "files": [
+            "svc/src/main/java/se/alerisx/mhp/manager/service/IrregularityService.java:1-30"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-HM-REQ-FUNC-014",
+        "description": "The system shall support appointment rating by patients",
+        "rationale": "Quality feedback mechanism",
+        "inputs": ["Rating and optional comment"],
+        "outputs": ["Saved rating"],
+        "preconditions": ["Appointment completed"],
+        "postconditions": ["Rating recorded for appointment"],
+        "verification_method": "test",
+        "traces_to_parent": [],
+        "source": {
+          "files": [
+            "svc/src/main/java/se/alerisx/mhp/manager/service/RatingService.java:1-30"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-HM-REQ-FUNC-015",
+        "description": "The system shall support practitioner availability and status management",
+        "rationale": "Operational requirement for scheduling",
+        "inputs": ["Practitioner ID", "Status updates"],
+        "outputs": ["Availability information"],
+        "preconditions": ["Practitioner registered in directory"],
+        "postconditions": ["Status/availability updated"],
+        "verification_method": "test",
+        "traces_to_parent": [],
+        "source": {
+          "files": [
+            "svc/src/main/java/se/alerisx/mhp/manager/service/PractitionerStatusesService.java:1-30",
+            "svc/src/main/java/se/alerisx/mhp/manager/service/PractitionerService.java:1-30"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-HM-REQ-FUNC-016",
+        "description": "The system shall support on-call preferences for practitioners",
+        "rationale": "Scheduling flexibility for practitioners",
+        "inputs": ["On-call preference settings"],
+        "outputs": ["Updated preferences"],
+        "preconditions": ["Practitioner exists"],
+        "postconditions": ["Preferences applied to scheduling"],
+        "verification_method": "test",
+        "traces_to_parent": [],
+        "source": {
+          "files": [
+            "svc/src/main/java/se/alerisx/mhp/manager/service/OnCallPreferencesService.java:1-30"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-HM-REQ-FUNC-017",
+        "description": "The system shall support phrase/template management for clinical notes",
+        "rationale": "Efficiency tool for practitioners",
+        "inputs": ["Phrase content and metadata"],
+        "outputs": ["Saved phrase"],
+        "preconditions": ["User authorized"],
+        "postconditions": ["Phrase available for use"],
+        "verification_method": "test",
+        "traces_to_parent": [],
+        "source": {
+          "files": [
+            "svc/src/main/java/se/alerisx/mhp/manager/service/PhraseService.java:1-30"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-HM-REQ-FUNC-018",
+        "description": "The system shall support AI note assist context enrichment",
+        "rationale": "AI-powered clinical decision support",
+        "inputs": ["Appointment context"],
+        "outputs": ["Enriched AI context"],
+        "preconditions": ["Note assist feature enabled"],
+        "postconditions": ["Context available for AI processing"],
+        "verification_method": "test",
+        "traces_to_parent": [],
+        "source": {
+          "files": [
+            "svc/src/main/java/se/alerisx/mhp/manager/service/AppointmentExtraAiContextService.java:1-30"
+          ]
+        }
+      }
+    ],
+
+    "interface": [
+      {
+        "id": "ITEM-HM-REQ-INT-001",
+        "interface_name": "Appointment REST API",
+        "direction": "provided",
+        "protocol": "REST",
+        "description": "Primary REST API for appointment management (v1, v2, v3)",
+        "contract": {
+          "endpoint": "/v1/appointments/{id}, /v2/appointments, /v3/appointments",
+          "method": "GET, PUT, POST",
+          "request_schema": "UpdateAppointmentDTO, RequestAppointmentDTO",
+          "response_schema": "AppointmentDTO",
+          "error_codes": ["400: Invalid request", "401: Unauthorized", "403: Forbidden", "404: Not found"]
+        },
+        "verification_method": "test",
+        "traces_to_parent": [],
+        "source": {
+          "files": [
+            "svc/src/main/java/se/alerisx/mhp/manager/controller/v1/AppointmentController.java:1-200"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-HM-REQ-INT-002",
+        "interface_name": "JMS Message Event Topic",
+        "direction": "consumed",
+        "protocol": "JMS",
+        "description": "Subscribes to meeting/message events from MeetingPlace service",
+        "contract": {
+          "endpoint": "alerisx.meetingplace.messageEventTopic",
+          "method": "N/A",
+          "request_schema": "N/A",
+          "response_schema": "MessageEvent (ConsultationMessageEvent, HandoverMessageEvent, VideoMessageEvent)",
+          "error_codes": []
+        },
+        "verification_method": "test",
+        "traces_to_parent": [],
+        "source": {
+          "files": [
+            "svc/src/main/java/se/alerisx/mhp/manager/listener/MessageEventListener.java:38-40"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-HM-REQ-INT-003",
+        "interface_name": "JMS Appointment Handover Event Topic",
+        "direction": "provided",
+        "protocol": "JMS",
+        "description": "Publishes appointment handover status changes to external subscribers",
+        "contract": {
+          "endpoint": "appointmentHandoverEventTopic",
+          "method": "N/A",
+          "request_schema": "N/A",
+          "response_schema": "AppointmentHandoverStatusEvent",
+          "error_codes": []
+        },
+        "verification_method": "test",
+        "traces_to_parent": [],
+        "source": {
+          "files": [
+            "svc/src/main/java/se/alerisx/mhp/manager/event/AppointmentEventSender.java:1-50"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-HM-REQ-INT-004",
+        "interface_name": "Notifier Service Client",
+        "direction": "consumed",
+        "protocol": "REST",
+        "description": "Sends clinic notifications to practitioners via external notification service",
+        "contract": {
+          "endpoint": "Notifier service endpoint",
+          "method": "POST",
+          "request_schema": "ClinicNotificationDTO",
+          "response_schema": "N/A",
+          "error_codes": ["500: Notification service unavailable"]
+        },
+        "verification_method": "test",
+        "traces_to_parent": [],
+        "source": {
+          "files": [
+            "svc/src/main/java/se/alerisx/mhp/manager/client/notifier/NotifierClient.java:1-8"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-HM-REQ-INT-005",
+        "interface_name": "Directory Service Client",
+        "direction": "consumed",
+        "protocol": "REST",
+        "description": "Retrieves practitioner and patient information from directory service",
+        "contract": {
+          "endpoint": "Directory service URL (configured)",
+          "method": "GET",
+          "request_schema": "Practitioner/Patient IDs",
+          "response_schema": "Practitioner, Patient DTOs",
+          "error_codes": ["404: User not found"]
+        },
+        "verification_method": "test",
+        "traces_to_parent": [],
+        "source": {
+          "files": [
+            "svc/src/main/java/se/alerisx/mhp/manager/client/directory/DirectoryService.java:1-50"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-HM-REQ-INT-006",
+        "interface_name": "MeetingPlace Service Client",
+        "direction": "consumed",
+        "protocol": "REST",
+        "description": "Manages video meetings and chat for appointments",
+        "contract": {
+          "endpoint": "MeetingPlace service URL",
+          "method": "GET, POST, PUT",
+          "request_schema": "Meeting request DTOs",
+          "response_schema": "Meeting DTOs",
+          "error_codes": ["500: Meeting service unavailable"]
+        },
+        "verification_method": "test",
+        "traces_to_parent": [],
+        "source": {
+          "files": [
+            "svc/src/main/java/se/alerisx/mhp/manager/service/AppointmentMeetingService.java:1-100"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-HM-REQ-INT-007",
+        "interface_name": "Booking Service Client",
+        "direction": "consumed",
+        "protocol": "REST",
+        "description": "Integrates with external booking systems (BokaDoktorn, EuroAccident)",
+        "contract": {
+          "endpoint": "External booking APIs",
+          "method": "POST",
+          "request_schema": "Booking request",
+          "response_schema": "Booking confirmation",
+          "error_codes": ["400: Invalid booking", "503: External service unavailable"]
+        },
+        "verification_method": "test",
+        "traces_to_parent": [],
+        "source": {
+          "files": [
+            "svc/src/main/java/se/alerisx/mhp/manager/service/ReferralBackendServiceBokaDoktornImpl.java:1-100",
+            "svc/src/main/java/se/alerisx/mhp/manager/service/ReferralBackendServiceEuroAccidentImpl.java:1-100"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-HM-REQ-INT-008",
+        "interface_name": "MySQL/MariaDB Database",
+        "direction": "consumed",
+        "protocol": "JDBC",
+        "description": "Primary data store for appointments, episodes, and clinical data",
+        "contract": {
+          "endpoint": "Database connection string (configured)",
+          "method": "SQL queries via JPA/Hibernate",
+          "request_schema": "JPA entities",
+          "response_schema": "JPA entities",
+          "error_codes": ["Connection timeout", "Constraint violation"]
+        },
+        "verification_method": "test",
+        "traces_to_parent": [],
+        "source": {
+          "files": [
+            "svc/src/main/resources/application.yml:1-50"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-HM-REQ-INT-009",
+        "interface_name": "Clinic Listing API",
+        "direction": "provided",
+        "protocol": "REST",
+        "description": "REST API for clinic staff to view and manage appointment queues",
+        "contract": {
+          "endpoint": "/v1/clinic/dropins, /v1/clinic/scheduled, /v1/clinic/async",
+          "method": "GET, POST",
+          "request_schema": "Filter parameters",
+          "response_schema": "Paginated appointment lists",
+          "error_codes": ["401: Unauthorized", "403: No access to care unit"]
+        },
+        "verification_method": "test",
+        "traces_to_parent": [],
+        "source": {
+          "files": [
+            "svc/src/main/java/se/alerisx/mhp/manager/controller/v1/clinic/DropInAppointmentListController.java:1-100"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-HM-REQ-INT-010",
+        "interface_name": "Patient Appointment API",
+        "direction": "provided",
+        "protocol": "REST",
+        "description": "REST API for patients to view their appointments",
+        "contract": {
+          "endpoint": "/v1/appointments/patient",
+          "method": "GET",
+          "request_schema": "Patient ID (from JWT)",
+          "response_schema": "Patient appointments",
+          "error_codes": ["401: Unauthorized", "403: Not patient's appointment"]
+        },
+        "verification_method": "test",
+        "traces_to_parent": [],
+        "source": {
+          "files": [
+            "svc/src/main/java/se/alerisx/mhp/manager/controller/v1/PatientAppointmentController.java:1-100"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-HM-REQ-INT-011",
+        "interface_name": "System Data Erasure API",
+        "direction": "provided",
+        "protocol": "REST",
+        "description": "System API for GDPR data erasure requests",
+        "contract": {
+          "endpoint": "/v1/system/data-erasure",
+          "method": "GET, DELETE",
+          "request_schema": "DataErasureDeleteRequestDTO",
+          "response_schema": "DeleteMedicalDataResponseDTO",
+          "error_codes": ["400: Invalid request", "403: Unauthorized"]
+        },
+        "verification_method": "test",
+        "traces_to_parent": [],
+        "source": {
+          "files": [
+            "svc/src/main/java/se/alerisx/mhp/manager/service/DataErasureService.java:1-15"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-HM-REQ-INT-012",
+        "interface_name": "Order Webhook API",
+        "direction": "provided",
+        "protocol": "REST",
+        "description": "Unsecured webhook endpoint for payment provider callbacks",
+        "contract": {
+          "endpoint": "/v1/orders/**",
+          "method": "POST",
+          "request_schema": "Payment provider specific",
+          "response_schema": "Acknowledgement",
+          "error_codes": []
+        },
+        "verification_method": "inspection",
+        "traces_to_parent": [],
+        "source": {
+          "files": [
+            "svc/src/main/java/se/alerisx/mhp/manager/controller/v1/OrderController.java:1-50"
+          ]
+        }
+      }
+    ],
+
+    "performance": [
+      {
+        "id": "ITEM-HM-REQ-PERF-001",
+        "description": "Remote client connection timeout shall be 10 seconds",
+        "metric": "Connection establishment time",
+        "target": "10 seconds (PT10S)",
+        "configured_at": "application.yml - alerisx.remote-client.connect-timeout",
+        "verification_method": "test",
+        "source": {
+          "files": [
+            "svc/src/main/resources/application.yml:1-100"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-HM-REQ-PERF-002",
+        "description": "Remote client read timeout shall be 5 minutes",
+        "metric": "Response read time",
+        "target": "5 minutes (PT5M)",
+        "configured_at": "application.yml - alerisx.remote-client.read-timeout",
+        "verification_method": "test",
+        "source": {
+          "files": [
+            "svc/src/main/resources/application.yml:1-100"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-HM-REQ-PERF-003",
+        "description": "Database connection pool shall support 10-100 connections with Hikari pooling",
+        "metric": "Concurrent database connections",
+        "target": "Min: 10, Max: 100",
+        "configured_at": "application.yml - spring.datasource.hikari",
+        "verification_method": "analysis",
+        "source": {
+          "files": [
+            "svc/src/main/resources/application.yml:1-100"
+          ]
+        }
+      }
+    ],
+
+    "security": [
+      {
+        "id": "ITEM-HM-REQ-SEC-001",
+        "description": "The system shall authenticate users via JWT tokens issued by alerisx-mhp",
+        "security_category": "authentication",
+        "implementation": "Spring Security with JWT validation, issuer: alerisx-mhp",
+        "verification_method": "test",
+        "source": {
+          "files": [
+            "svc/src/main/resources/application.yml:1-20",
+            "svc/src/main/java/se/alerisx/mhp/manager/security/AppointmentAuthorizer.java:21"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-HM-REQ-SEC-002",
+        "description": "The system shall enforce role-based access control with roles: PATIENT, PRACTITIONER, PRACTITIONER_LIMITED_ACCESS, SECRETARY, SYSTEM, ADMIN",
+        "security_category": "authorization",
+        "implementation": "JwtUser role checking in AppointmentAuthorizer and @PreAuthorize annotations",
+        "verification_method": "test",
+        "source": {
+          "files": [
+            "svc/src/main/java/se/alerisx/mhp/manager/security/AppointmentAuthorizer.java:65-99"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-HM-REQ-SEC-003",
+        "description": "The system shall verify patient consent before allowing cross-care-provider access to medical records",
+        "security_category": "authorization",
+        "implementation": "ConsentV2Service.isConsented() check with ACCESS_MEDICAL_RECORDS consent type",
+        "verification_method": "test",
+        "source": {
+          "files": [
+            "svc/src/main/java/se/alerisx/mhp/manager/security/AppointmentAuthorizer.java:138-144"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-HM-REQ-SEC-004",
+        "description": "The system shall cache authorization decisions for read and write operations",
+        "security_category": "authorization",
+        "implementation": "Spring @Cacheable on hasReadAccessToAppointment and hasWriteAccessToAppointment",
+        "verification_method": "inspection",
+        "source": {
+          "files": [
+            "svc/src/main/java/se/alerisx/mhp/manager/security/AppointmentAuthorizer.java:48-58"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-HM-REQ-SEC-005",
+        "description": "The system shall generate audit logs for sensitive operations",
+        "security_category": "audit",
+        "implementation": "@Audit annotation on controllers and services accessing patient data",
+        "verification_method": "inspection",
+        "source": {
+          "files": [
+            "svc/src/main/java/se/alerisx/mhp/manager/controller/v1/AppointmentController.java:1-50",
+            "svc/src/main/java/se/alerisx/mhp/manager/controller/v1/HealthProfileController.java:1-50"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-HM-REQ-SEC-006",
+        "description": "The system shall restrict practitioners to appointments within their care provider unless explicitly consented",
+        "security_category": "authorization",
+        "implementation": "Care provider and care unit validation in AppointmentAuthorizer.handlePractitionerAccess()",
+        "verification_method": "test",
+        "source": {
+          "files": [
+            "svc/src/main/java/se/alerisx/mhp/manager/security/AppointmentAuthorizer.java:101-154"
+          ]
+        }
+      }
+    ],
+
+    "data": [
+      {
+        "id": "ITEM-HM-REQ-DATA-001",
+        "description": "Appointment data shall be stored in MySQL/MariaDB with JPA entity mapping",
+        "data_entity": "Appointment",
+        "validation_rules": [
+          "appointmentId is unique",
+          "status is enum (WAITING, FULFILLED, etc.)",
+          "patientId is required for non-consultation appointments"
+        ],
+        "storage": "MySQL/MariaDB via Hibernate ORM",
+        "retention": "Not specified in code",
+        "privacy_impact": "high",
+        "verification_method": "test",
+        "source": {
+          "files": [
+            "svc/src/main/java/se/alerisx/mhp/manager/domain/Appointment.java:1-200"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-HM-REQ-DATA-002",
+        "description": "The system shall support GDPR data erasure for patient medical data",
+        "data_entity": "Patient medical records",
+        "validation_rules": [
+          "Partner ID required for erasure request",
+          "Patient IDs must be valid"
+        ],
+        "storage": "MySQL/MariaDB",
+        "retention": "Erasure on valid request",
+        "privacy_impact": "high",
+        "verification_method": "test",
+        "source": {
+          "files": [
+            "svc/src/main/java/se/alerisx/mhp/manager/service/DataErasureService.java:1-15"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-HM-REQ-DATA-003",
+        "description": "Patient consent records shall track ACCESS_MEDICAL_RECORDS consent per care unit",
+        "data_entity": "ConsentV2",
+        "validation_rules": [
+          "Patient ID required",
+          "Care unit ID required",
+          "Consent type (ACCESS_MEDICAL_RECORDS) required"
+        ],
+        "storage": "MySQL/MariaDB",
+        "retention": "Active until withdrawn",
+        "privacy_impact": "high",
+        "verification_method": "test",
+        "source": {
+          "files": [
+            "svc/src/main/java/se/alerisx/mhp/manager/service/ConsentV2Service.java:1-50"
+          ]
+        }
+      }
+    ]
+  },
+
+  "traceability": {
+    "to_parent": [],
+    "to_verification": [
+      {
+        "requirement_id": "ITEM-HM-REQ-FUNC-002",
+        "test_ids": ["ITEM-HM-TC-handover"],
+        "verification_status": "verified"
+      },
+      {
+        "requirement_id": "ITEM-HM-REQ-FUNC-005",
+        "test_ids": ["ITEM-HM-TC-messagelistener"],
+        "verification_status": "verified"
+      },
+      {
+        "requirement_id": "ITEM-HM-REQ-SEC-002",
+        "test_ids": ["ITEM-HM-TC-authorization"],
+        "verification_status": "verified"
+      }
+    ]
+  },
+
+  "gaps": [
+    {
+      "id": "ITEM-HM-GAP-001",
+      "type": "missing_parent_trace",
+      "description": "No traceability to system-level requirements documented",
+      "affected_requirements": ["All ITEM-HM-REQ-*"],
+      "recommendation": "Map item requirements to system requirements in platform24 system specification",
+      "priority": "medium"
+    },
+    {
+      "id": "ITEM-HM-GAP-002",
+      "type": "undocumented",
+      "description": "Data retention policies not explicitly defined in code",
+      "affected_requirements": ["ITEM-HM-REQ-DATA-001"],
+      "recommendation": "Document data retention requirements for appointments and clinical data",
+      "priority": "medium"
+    },
+    {
+      "id": "ITEM-HM-GAP-003",
+      "type": "unclear_requirement",
+      "description": "Order webhook endpoint is unsecured - security requirements unclear",
+      "affected_requirements": ["ITEM-HM-REQ-INT-012"],
+      "recommendation": "Document security rationale for unsecured /v1/orders/** endpoint or add authentication",
+      "priority": "high"
+    },
+    {
+      "id": "ITEM-HM-GAP-004",
+      "type": "untested",
+      "description": "Some V3 AI-related endpoints lack comprehensive test coverage",
+      "affected_requirements": ["ITEM-HM-REQ-FUNC-018"],
+      "recommendation": "Add integration tests for AI context enrichment features",
+      "priority": "low"
+    }
+  ]
+}

@@ -1,0 +1,150 @@
+{
+  "system": {
+    "id": "triage-system",
+    "name": "Digital Triage System",
+    "version": "1.0.0",
+    "safety_class": "B",
+    "description": "AI-assisted digital triage system for primary care. Collects patient symptoms through structured interviews, applies clinical rules to determine urgency, and guides patients to appropriate care pathways.",
+    "regulatory_context": {
+      "intended_classification": "Class IIa (MDR)",
+      "standards": ["IEC 62304", "ISO 14971", "IEC 82304-1", "IEC 62366-1"],
+      "clinical_domain": "Primary care triage"
+    }
+  },
+
+  "modules": [
+    {
+      "id": "triage-engine",
+      "name": "Triage Engine",
+      "description": "Core clinical decision logic - conducts symptom interviews and applies triage rules to determine patient urgency",
+      "items": ["interviewer4", "rule-engine-module"],
+      "safety_class": "B",
+      "safety_rationale": "Core clinical decision support - determines patient urgency levels"
+    },
+    {
+      "id": "actions-module",
+      "name": "Actions Module",
+      "description": "Patient action and workflow management - handles bookings, appointments, referrals",
+      "items": ["actions"],
+      "safety_class": "B",
+      "safety_rationale": "Executes clinical workflows including escalations and referrals"
+    },
+    {
+      "id": "infrastructure",
+      "name": "Infrastructure Services",
+      "description": "Supporting infrastructure - storage, configuration management",
+      "items": ["object-storage"],
+      "safety_class": "A",
+      "safety_rationale": "Supporting infrastructure, not directly involved in clinical decisions"
+    },
+    {
+      "id": "user-interfaces",
+      "name": "User Interfaces",
+      "description": "Patient and practitioner facing applications",
+      "items": ["patient-ui", "triage-ui", "triage-clinic-ui"],
+      "safety_class": "B",
+      "safety_rationale": "User interface for clinical data collection and display - human factors critical"
+    }
+  ],
+
+  "items": [
+    {
+      "id": "interviewer4",
+      "name": "Interviewer Service",
+      "description": "Questionnaire and interview management service - collects patient symptoms through structured interviews",
+      "repository": "/home/jakob/Noncomplicity/Repos/triage/interviewer4",
+      "module": "triage-engine",
+      "safety_class": "B",
+      "technology": {
+        "language": "Java 17",
+        "framework": "Spring Boot 2.7.18",
+        "build": "Maven"
+      }
+    },
+    {
+      "id": "rule-engine-module",
+      "name": "Rule Engine",
+      "description": "Clinical rule engine - evaluates triage rules to determine patient urgency and care recommendations",
+      "repository": "/home/jakob/Noncomplicity/Repos/triage/rule-engine-module",
+      "module": "triage-engine",
+      "safety_class": "B",
+      "technology": {
+        "language": "Java",
+        "framework": "Quarkus",
+        "build": "Maven"
+      }
+    },
+    {
+      "id": "actions",
+      "name": "Actions Service",
+      "description": "Patient action management - handles action creation, lifecycle, and execution including bookings, appointments, referrals",
+      "repository": "/home/jakob/Noncomplicity/Repos/triage/actions",
+      "module": "actions-module",
+      "safety_class": "B",
+      "technology": {
+        "language": "Java 21",
+        "framework": "Quarkus 3.13.2",
+        "build": "Maven"
+      }
+    },
+    {
+      "id": "object-storage",
+      "name": "Object Storage Service",
+      "description": "File storage service with encryption - stores configuration, documents, and media",
+      "repository": "/home/jakob/Noncomplicity/Repos/triage/object-storage",
+      "module": "infrastructure",
+      "safety_class": "A",
+      "technology": {
+        "language": "Go 1.26",
+        "framework": "Native Go",
+        "build": "Go modules"
+      }
+    },
+    {
+      "id": "patient-ui",
+      "name": "Patient Application",
+      "description": "Main patient-facing web application - micro-frontend architecture for triage flow",
+      "repository": "/home/jakob/Noncomplicity/Repos/triage/patient-ui",
+      "module": "user-interfaces",
+      "safety_class": "B",
+      "technology": {
+        "language": "TypeScript",
+        "framework": "React",
+        "build": "pnpm/webpack"
+      }
+    },
+    {
+      "id": "triage-ui",
+      "name": "Triage Interview UI",
+      "description": "Specialized triage interview interface - symptom collection and interview flow",
+      "repository": "/home/jakob/Noncomplicity/Repos/triage/triage-ui",
+      "module": "user-interfaces",
+      "safety_class": "B",
+      "technology": {
+        "language": "TypeScript",
+        "framework": "React",
+        "build": "webpack"
+      }
+    },
+    {
+      "id": "triage-clinic-ui",
+      "name": "Clinic Practitioner UI",
+      "description": "Practitioner-facing interface for triage review and management",
+      "repository": "/home/jakob/Noncomplicity/Repos/triage/triage-clinic-ui",
+      "module": "user-interfaces",
+      "safety_class": "B",
+      "technology": {
+        "language": "TypeScript",
+        "framework": "React",
+        "build": "webpack"
+      }
+    }
+  ],
+
+  "extraction_config": {
+    "output_base": "Output/triage-system",
+    "items_path": "items/{item_id}/extracted",
+    "modules_path": "modules/{module_id}/aggregated",
+    "system_path": "system/aggregated"
+  }
+}

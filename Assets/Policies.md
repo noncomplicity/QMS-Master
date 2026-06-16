@@ -9,10 +9,10 @@ process:
 requirements:
 owner:
 ---
-![[Quality Policy]]
+![Quality Policy](Quality%20Policy.md)
 
 
 
-![[Risk Management Policy]]Risk Management Policy
+![Risk Management Policy](Risk%20Management%20Policy.md)Risk Management Policy
 
 Define the scope and importance of Information Security

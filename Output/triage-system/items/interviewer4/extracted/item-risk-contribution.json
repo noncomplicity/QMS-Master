@@ -1,0 +1,802 @@
+{
+  "extraction_metadata": {
+    "repository": "git@gitlab-p24:doktor24/services/interviewer4.git",
+    "commit": "aa3fa8b4",
+    "extracted_at": "2026-03-06T19:50:00Z",
+    "extractor_version": "3.0",
+    "standard": "IEC 62304:2006+AMD1:2015 / ISO 14971:2019",
+    "hierarchy": {
+      "level": "item",
+      "item_id": "interviewer4",
+      "item_name": "Interviewer Service",
+      "parent_module": "triage-engine",
+      "parent_system": "triage-system"
+    }
+  },
+
+  "software_item": {
+    "id": "ITEM-INTERVIEWER4",
+    "name": "interviewer4",
+    "description": "Interview and questionnaire service responsible for collecting patient symptoms through guided questionnaires, executing branching logic, and managing interview state and answers.",
+    "safety_class": "B",
+    "safety_class_rationale": "Class B: Software that can contribute to hazardous situations but is not the sole cause of harm. Collects clinical data (symptoms, medical history) that drives downstream triage decisions but does not directly determine clinical outcomes. Incorrect data collection or interview logic errors could lead to wrong information being passed to the rule engine, potentially affecting care recommendations.",
+    "version": "0.0.0-SNAPSHOT",
+    "repository_url": "git@gitlab-p24:doktor24/services/interviewer4.git",
+    "technology_stack": [
+      "Java 17",
+      "Spring Boot 2.7.18",
+      "Hibernate JPA",
+      "MySQL",
+      "Apache Artemis JMS",
+      "REST APIs"
+    ],
+    "deployment_type": "microservice"
+  },
+
+  "item_risk_contribution": {
+    "item_id": "interviewer4",
+
+    "hazard_contributions": [
+      {
+        "id": "ITEM-INTERVIEWER4-HAZ-001",
+        "description": "Interview flow logic error causes questions to be skipped or shown out of order",
+        "cause": "Bug in QuestionnaireExecutor state machine, incorrect condition evaluation, or goto model processing failure",
+        "potential_harm": "Patient fails to report critical symptoms leading to incorrect triage level or missed urgent conditions",
+        "severity_contribution": "serious",
+        "affected_functions": [
+          "QuestionnaireExecutor.getCurrentQuestion",
+          "QuestionnaireExecutor.loadAnswers",
+          "QuestionnaireExecutor.filterAnswers",
+          "AbstractQuestionnaireExecutor.instantiateGoto"
+        ],
+        "source": {
+          "files": [
+            "core/src/main/java/se/alerisx/mhp/interviewer/service/QuestionnaireExecutor.java:56-314"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-INTERVIEWER4-HAZ-002",
+        "description": "Patient answers are lost or corrupted during save to database",
+        "cause": "Database transaction failure, JPA entity mapping error, JSON serialization failure of AnswerValue, or concurrent modification during answer filtering",
+        "potential_harm": "Clinical data loss results in incomplete patient assessment and potentially unsafe triage decisions",
+        "severity_contribution": "serious",
+        "affected_functions": [
+          "InterviewInstanceRepository.saveAnswer",
+          "InterviewInstanceRepository.saveAllAnswers",
+          "InterviewServiceV3Impl.answerQuestionByUser"
+        ],
+        "source": {
+          "files": [
+            "core/src/main/java/se/alerisx/mhp/interviewer/repository/InterviewInstanceRepository.java:33-34",
+            "svc/src/main/java/se/alerisx/mhp/interviewer/repository/jpa/domain/AnswerEntity.java:1-95"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-INTERVIEWER4-HAZ-003",
+        "description": "Answer filtering logic removes valid answers when patient changes previous response",
+        "cause": "Bug in filterAnswers() algorithm (lines 93-136) that incorrectly identifies answers to remove when detecting duplicates",
+        "potential_harm": "Patient's symptom data is incomplete, leading to under-triage or failure to identify red flag symptoms",
+        "severity_contribution": "serious",
+        "affected_functions": [
+          "QuestionnaireExecutor.filterAnswers"
+        ],
+        "source": {
+          "files": [
+            "core/src/main/java/se/alerisx/mhp/interviewer/service/QuestionnaireExecutor.java:93-136"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-INTERVIEWER4-HAZ-004",
+        "description": "Interview state becomes inconsistent between database and in-memory representation",
+        "cause": "Race condition during concurrent access, cache invalidation failure, or transaction boundary issues",
+        "potential_harm": "Patient sees stale or incorrect questions, answers are associated with wrong questions, or interview cannot be completed",
+        "severity_contribution": "minor",
+        "affected_functions": [
+          "InterviewServiceV3Impl.getInterviewByUser",
+          "InterviewServiceV3Impl.getQuestionsByUser",
+          "PersistedInterviewFactory"
+        ],
+        "source": {
+          "files": [
+            "svc/src/main/java/se/alerisx/mhp/interviewer/service/impl/InterviewServiceV3Impl.java:1-200",
+            "svc/src/main/java/se/alerisx/mhp/interviewer/repository/jpa/domain/InterviewInstanceEntity.java:1-109"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-INTERVIEWER4-HAZ-005",
+        "description": "External data import failure prevents interview from loading required clinical context",
+        "cause": "HealthData service unavailable, incorrect patient ID mapping, or missing required import data",
+        "potential_harm": "Interview proceeds without patient's medical history (medications, conditions), leading to incomplete assessment",
+        "severity_contribution": "serious",
+        "affected_functions": [
+          "QuestionnaireExecutor.loadImportedData",
+          "ExternalDataRegistryImpl.getExternalData"
+        ],
+        "source": {
+          "files": [
+            "core/src/main/java/se/alerisx/mhp/interviewer/service/QuestionnaireExecutor.java:261-299",
+            "svc/src/main/java/se/alerisx/mhp/interviewer/service/ExternalDataRegistryImpl.java:129-150"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-INTERVIEWER4-HAZ-006",
+        "description": "Interview data passed to rule engine is incomplete or malformed",
+        "cause": "Serialization error during result export, missing required fields in InterviewResult, or incorrect answer value mapping",
+        "potential_harm": "Rule engine receives incomplete data and produces incorrect triage recommendation",
+        "severity_contribution": "critical",
+        "affected_functions": [
+          "InterviewServiceV3Impl.getResultBySystem",
+          "ResultMapper",
+          "ExportDataMapper"
+        ],
+        "source": {
+          "files": [
+            "svc/src/main/java/se/alerisx/mhp/interviewer/service/impl/InterviewServiceV3Impl.java:1-200",
+            "svc/src/main/java/se/alerisx/mhp/interviewer/service/impl/ExportDataMapper.java:1-100"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-INTERVIEWER4-HAZ-007",
+        "description": "Access control bypass allows unauthorized access to patient interview data",
+        "cause": "Failure in InterviewAccessEnforcer validation, JWT authentication bypass, or patient-practitioner relationship check failure",
+        "potential_harm": "Privacy breach, GDPR violation, or malicious actor views/modifies patient health data",
+        "severity_contribution": "serious",
+        "affected_functions": [
+          "InterviewAccessEnforcer",
+          "InterviewServiceV3Impl.getInterviewByUser"
+        ],
+        "source": {
+          "files": [
+            "svc/src/main/java/se/alerisx/mhp/interviewer/security/InterviewAccessEnforcer.java:1-100"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-INTERVIEWER4-HAZ-008",
+        "description": "Interview expires or is locked prematurely, preventing patient from completing symptom assessment",
+        "cause": "Incorrect expiry time calculation, race condition in lock operation, or scheduled expiration job running while patient is active",
+        "potential_harm": "Patient unable to complete triage, forced to restart interview, potential delay in care",
+        "severity_contribution": "minor",
+        "affected_functions": [
+          "InterviewScheduler.expireInterviews",
+          "InterviewServiceV3Impl.lockInterviewByUser"
+        ],
+        "source": {
+          "files": [
+            "svc/src/main/java/se/alerisx/mhp/interviewer/service/InterviewScheduler.java:1-100"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-INTERVIEWER4-HAZ-009",
+        "description": "File upload handling allows malicious files or exceeds storage limits",
+        "cause": "Insufficient validation in FileService, object storage integration failure, or missing file type checks",
+        "potential_harm": "System compromise via malicious file, denial of service via storage exhaustion, or patient photos lost",
+        "severity_contribution": "minor",
+        "affected_functions": [
+          "FileServiceImpl",
+          "FileRepository"
+        ],
+        "source": {
+          "files": [
+            "svc/src/main/java/se/alerisx/mhp/interviewer/service/impl/FileServiceImpl.java:1-100"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-INTERVIEWER4-HAZ-010",
+        "description": "Null answer value causes NullPointerException in answer processing",
+        "cause": "Missing null check in getAnswerValue method when AnswerValue is null",
+        "potential_harm": "Interview crashes, patient loses progress, must restart symptom assessment",
+        "severity_contribution": "minor",
+        "affected_functions": [
+          "QuestionnaireExecutor.getAnswerValue"
+        ],
+        "source": {
+          "files": [
+            "core/src/main/java/se/alerisx/mhp/interviewer/service/QuestionnaireExecutor.java:196-216"
+          ]
+        }
+      }
+    ],
+
+    "risk_controls_implemented": [
+      {
+        "id": "ITEM-INTERVIEWER4-RC-001",
+        "description": "Answer timestamp and index-based ordering ensures chronological consistency",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-INTERVIEWER4-HAZ-003", "ITEM-INTERVIEWER4-HAZ-004"],
+        "implementation": "Answer entity has auto-generated index (database sequence) and timestamp. Answers are sorted by index first, then timestamp, ensuring deterministic ordering even during concurrent modifications.",
+        "verification_status": "verified",
+        "verification_evidence": {
+          "test_file": "core/src/test/java/se/alerisx/mhp/interviewer/service/QuestionnaireExecutorTest.java",
+          "test_function": "executeQuestionnaire_nullAnswerNextQuestion"
+        },
+        "source": {
+          "files": [
+            "svc/src/main/java/se/alerisx/mhp/interviewer/repository/jpa/domain/AnswerEntity.java:14-16,56-68",
+            "core/src/main/java/se/alerisx/mhp/interviewer/domain/Answer.java:86-100"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-INTERVIEWER4-RC-002",
+        "description": "Database transaction management ensures atomic answer saves",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-INTERVIEWER4-HAZ-002"],
+        "implementation": "Spring @Transactional annotations on service methods ensure answers are saved atomically with interview state updates. Rollback on exception prevents partial saves.",
+        "verification_status": "partial",
+        "verification_evidence": {
+          "test_file": "svc/src/test/java/se/alerisx/mhp/interviewer/repository/jpa/InterviewInstanceJpaRepositoryTest.java",
+          "test_function": "Various transaction tests"
+        },
+        "source": {
+          "files": [
+            "svc/src/main/java/se/alerisx/mhp/interviewer/service/impl/InterviewServiceV3Impl.java:12"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-INTERVIEWER4-RC-003",
+        "description": "Interview access control enforces patient-practitioner relationship checks",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-INTERVIEWER4-HAZ-007"],
+        "implementation": "InterviewAccessEnforcer validates JWT user role and patient relationship before allowing interview access. Separate endpoints for ROLE_PATIENT, ROLE_PRACTITIONER, ROLE_SYSTEM with @Secured annotations.",
+        "verification_status": "verified",
+        "verification_evidence": {
+          "test_file": "svc/src/test/java/se/alerisx/mhp/interviewer/controller/v3/PatientInterviewControllerTest.java",
+          "test_function": "Access control tests"
+        },
+        "source": {
+          "files": [
+            "svc/src/main/java/se/alerisx/mhp/interviewer/security/InterviewAccessEnforcer.java:1-100",
+            "svc/src/main/java/se/alerisx/mhp/interviewer/controller/v3/PatientInterviewController.java:28-38"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-INTERVIEWER4-RC-004",
+        "description": "Required import validation throws IllegalStateException when critical data is missing",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-INTERVIEWER4-HAZ-005"],
+        "implementation": "loadImportedData method checks if ImportDataModel.isRequired() and throws exception if required import fails. Interview cannot proceed without required external data.",
+        "verification_status": "verified",
+        "verification_evidence": {
+          "test_file": "svc/src/test/java/se/alerisx/mhp/interviewer/service/ExternalDataRegistryImplTest.java",
+          "test_function": "Import failure tests"
+        },
+        "source": {
+          "files": [
+            "core/src/main/java/se/alerisx/mhp/interviewer/service/QuestionnaireExecutor.java:272-286"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-INTERVIEWER4-RC-005",
+        "description": "Questionnaire validation ensures valid questionnaire IDs before interview creation",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-INTERVIEWER4-HAZ-001"],
+        "implementation": "assertQuestionnaires method validates all questionnaire IDs exist in code24Registry before creating interview. Throws BAD_REQUEST if questionnaire not found.",
+        "verification_status": "verified",
+        "verification_evidence": {
+          "test_file": "svc/src/test/java/se/alerisx/mhp/interviewer/service/impl/InterviewServiceV3ImplTest.java",
+          "test_function": "Questionnaire validation tests"
+        },
+        "source": {
+          "files": [
+            "svc/src/main/java/se/alerisx/mhp/interviewer/service/impl/InterviewServiceV3Impl.java:182-198"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-INTERVIEWER4-RC-006",
+        "description": "Interview locking mechanism prevents concurrent modifications",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-INTERVIEWER4-HAZ-004", "ITEM-INTERVIEWER4-HAZ-008"],
+        "implementation": "lockedAt timestamp prevents modifications after interview is locked. Lock operation is idempotent and updates lockedAt in single transaction.",
+        "verification_status": "partial",
+        "verification_evidence": {
+          "test_file": "svc/src/test/java/se/alerisx/mhp/interviewer/service/InterviewServiceTest.java",
+          "test_function": "Lock interview tests"
+        },
+        "source": {
+          "files": [
+            "svc/src/main/java/se/alerisx/mhp/interviewer/repository/jpa/domain/InterviewInstanceEntity.java:61-65",
+            "core/src/main/java/se/alerisx/mhp/interviewer/repository/InterviewInstanceRepository.java:39"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-INTERVIEWER4-RC-007",
+        "description": "Audit logging of interview events for traceability",
+        "control_type": "information_for_safety",
+        "mitigates": ["ITEM-INTERVIEWER4-HAZ-002", "ITEM-INTERVIEWER4-HAZ-007"],
+        "implementation": "InterviewerEventSender publishes interview events (created, answered, locked, cancelled) to JMS topic for audit trail and downstream processing.",
+        "verification_status": "partial",
+        "verification_evidence": {
+          "test_file": null,
+          "test_function": null
+        },
+        "source": {
+          "files": [
+            "svc/src/main/java/se/alerisx/mhp/interviewer/utils/InterviewerEventSender.java:1-100"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-INTERVIEWER4-RC-008",
+        "description": "Exception handling and logging for questionnaire execution failures",
+        "control_type": "information_for_safety",
+        "mitigates": ["ITEM-INTERVIEWER4-HAZ-001", "ITEM-INTERVIEWER4-HAZ-005"],
+        "implementation": "Try-catch blocks in loadImportedData log failures. QuestionnaireExecutor logs warnings when questions not found. Service methods throw InterviewerException with error types.",
+        "verification_status": "partial",
+        "verification_evidence": {
+          "test_file": null,
+          "test_function": null
+        },
+        "source": {
+          "files": [
+            "core/src/main/java/se/alerisx/mhp/interviewer/service/QuestionnaireExecutor.java:276-286",
+            "svc/src/main/java/se/alerisx/mhp/interviewer/exception/InterviewerException.java:1-24"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-INTERVIEWER4-RC-009",
+        "description": "Database connection pool health checks and monitoring",
+        "control_type": "information_for_safety",
+        "mitigates": ["ITEM-INTERVIEWER4-HAZ-002"],
+        "implementation": "Hikari connection pool configured with validation queries (SELECT 1), minimum idle connections, and health check endpoints exposed via Spring Actuator.",
+        "verification_status": "verified",
+        "verification_evidence": {
+          "test_file": "svc/src/test/java/se/alerisx/mhp/interviewer/healthcheck/ConnectionPoolHealthCheckTest.java",
+          "test_function": "Connection pool health tests"
+        },
+        "source": {
+          "files": [
+            "svc/src/main/resources/application.yml:86-99"
+          ]
+        }
+      }
+    ],
+
+    "risk_controls_required_upstream": [
+      {
+        "id": "ITEM-INTERVIEWER4-RC-UP-001",
+        "description": "Clinical validation of questionnaire content and branching logic",
+        "rationale": "Software item cannot validate clinical appropriateness of questions or symptom assessment logic - this requires clinical expertise and ongoing review",
+        "recommended_level": "system",
+        "control_type": "inherent_safety",
+        "mitigates": ["ITEM-INTERVIEWER4-HAZ-001"]
+      },
+      {
+        "id": "ITEM-INTERVIEWER4-RC-UP-002",
+        "description": "Monitoring and alerting for interview completion rates and failure patterns",
+        "rationale": "Item-level logging exists but system-level aggregation and alerting required to detect patterns indicating hazardous conditions",
+        "recommended_level": "system",
+        "control_type": "information_for_safety",
+        "mitigates": ["ITEM-INTERVIEWER4-HAZ-001", "ITEM-INTERVIEWER4-HAZ-002", "ITEM-INTERVIEWER4-HAZ-008"]
+      },
+      {
+        "id": "ITEM-INTERVIEWER4-RC-UP-003",
+        "description": "User training on interview cancellation and restart procedures",
+        "rationale": "Software cannot force users to follow proper procedures when technical issues occur",
+        "recommended_level": "system",
+        "control_type": "information_for_safety",
+        "mitigates": ["ITEM-INTERVIEWER4-HAZ-008"]
+      },
+      {
+        "id": "ITEM-INTERVIEWER4-RC-UP-004",
+        "description": "System-level data integrity validation between interviewer and rule engine",
+        "rationale": "Interviewer cannot validate downstream consumption of interview results - requires cross-service validation",
+        "recommended_level": "system",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-INTERVIEWER4-HAZ-006"]
+      },
+      {
+        "id": "ITEM-INTERVIEWER4-RC-UP-005",
+        "description": "Backup and recovery procedures for database failures",
+        "rationale": "Item relies on MySQL database but cannot implement backup/recovery strategy - requires infrastructure-level controls",
+        "recommended_level": "system",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-INTERVIEWER4-HAZ-002"]
+      }
+    ],
+
+    "failure_modes": [
+      {
+        "id": "ITEM-INTERVIEWER4-FM-001",
+        "name": "Questionnaire executor state machine failure",
+        "category": "software_defect",
+        "component": "QuestionnaireExecutor",
+        "effect_on_software_item": "getCurrentQuestion returns wrong question or empty, interview flow breaks, patient stuck or gets irrelevant questions",
+        "effect_on_system": "Patient cannot complete triage, incomplete symptom data sent to rule engine, potential under-triage",
+        "detection_mechanism": "Unit tests for state transitions, integration tests for questionnaire flows, user reports of incorrect questions",
+        "recovery_mechanism": "Patient must cancel and restart interview, no automatic recovery implemented",
+        "related_hazards": ["ITEM-INTERVIEWER4-HAZ-001"],
+        "source": {
+          "files": [
+            "core/src/main/java/se/alerisx/mhp/interviewer/service/QuestionnaireExecutor.java:56-314"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-INTERVIEWER4-FM-002",
+        "name": "Answer persistence transaction rollback",
+        "category": "data_integrity",
+        "component": "InterviewInstanceJpaRepository",
+        "effect_on_software_item": "Answer not saved to database, transaction rolls back, previous answers retained",
+        "effect_on_system": "Patient sees previous answer, may re-answer and succeed, or interview appears stuck if repeated failures",
+        "detection_mechanism": "Transaction exception logged, HTTP 500 error returned to client, database integrity constraints enforced",
+        "recovery_mechanism": "User retries answer submission, Spring retry mechanism on transient failures",
+        "related_hazards": ["ITEM-INTERVIEWER4-HAZ-002"],
+        "source": {
+          "files": [
+            "svc/src/main/java/se/alerisx/mhp/interviewer/repository/jpa/InterviewInstanceJpaRepositoryImpl.java:1-100"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-INTERVIEWER4-FM-003",
+        "name": "External service unavailable (HealthData, Directory2)",
+        "category": "external_dependency",
+        "component": "HealthDataService, Directory2Service",
+        "effect_on_software_item": "Import data fails, REST client throws exception, interview creation may fail if required data missing",
+        "effect_on_system": "Interview proceeds without patient medical history if import not required, or fails completely if required import unavailable",
+        "detection_mechanism": "HTTP client timeout or connection exception, logged and potentially thrown as InterviewerException",
+        "recovery_mechanism": "Required imports fail fast with IllegalStateException, optional imports logged and skipped, manual retry required",
+        "related_hazards": ["ITEM-INTERVIEWER4-HAZ-005"],
+        "source": {
+          "files": [
+            "core/src/main/java/se/alerisx/mhp/interviewer/service/QuestionnaireExecutor.java:261-299",
+            "svc/src/main/java/se/alerisx/mhp/interviewer/healthdata/HealthDataRestServiceImpl.java:1-100"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-INTERVIEWER4-FM-004",
+        "name": "Database connection pool exhaustion",
+        "category": "resource_exhaustion",
+        "component": "Hikari connection pool",
+        "effect_on_software_item": "All database operations fail, service unavailable, HTTP 500 responses",
+        "effect_on_system": "No new interviews can be created, existing interviews cannot be accessed or updated, system-wide outage for interviewer",
+        "detection_mechanism": "Connection timeout exception after 5 seconds, Hikari metrics exposed via Actuator, alerts triggered",
+        "recovery_mechanism": "Connection pool recovers when connections released, may require service restart if pool corrupted, monitoring alerts ops team",
+        "related_hazards": ["ITEM-INTERVIEWER4-HAZ-002", "ITEM-INTERVIEWER4-HAZ-004"],
+        "source": {
+          "files": [
+            "svc/src/main/resources/application.yml:86-99"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-INTERVIEWER4-FM-005",
+        "name": "JMS message delivery failure for interview events",
+        "category": "communication_failure",
+        "component": "InterviewerEventSender, Artemis JMS",
+        "effect_on_software_item": "Event not published to topic, downstream services miss interview state changes, audit trail incomplete",
+        "effect_on_system": "Other services (actions module) may not be notified of interview completion, potential delay in care workflow",
+        "detection_mechanism": "JMS exception logged, message may be retried by Artemis, DLQ monitoring for persistent failures",
+        "recovery_mechanism": "Artemis message redelivery on transient failures, DLQ for poison messages, manual replay required for lost events",
+        "related_hazards": ["ITEM-INTERVIEWER4-HAZ-006"],
+        "source": {
+          "files": [
+            "svc/src/main/resources/application.yml:112-120"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-INTERVIEWER4-FM-006",
+        "name": "Concurrent interview modification race condition",
+        "category": "synchronization_error",
+        "component": "InterviewServiceV3Impl",
+        "effect_on_software_item": "Two users modify interview simultaneously, last write wins, potential lost updates or inconsistent state",
+        "effect_on_system": "Patient or practitioner sees stale data, answers may be overwritten, lock operation may fail",
+        "detection_mechanism": "Optimistic locking exception from JPA, logged but may not be visible to user",
+        "recovery_mechanism": "User must refresh and retry, no automatic conflict resolution",
+        "related_hazards": ["ITEM-INTERVIEWER4-HAZ-004"],
+        "source": {
+          "files": [
+            "svc/src/main/java/se/alerisx/mhp/interviewer/service/impl/InterviewServiceV3Impl.java:1-200"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-INTERVIEWER4-FM-007",
+        "name": "JWT authentication token expired or invalid",
+        "category": "authentication_failure",
+        "component": "Spring Security JWT validation",
+        "effect_on_software_item": "All API calls return HTTP 401 Unauthorized, user cannot access interview",
+        "effect_on_system": "Patient must re-authenticate, interview progress preserved if session token refreshed, data loss if user abandons",
+        "detection_mechanism": "JWT validation filter rejects request, HTTP 401 response, logged",
+        "recovery_mechanism": "Client must obtain new JWT token, interview state preserved in database, user can resume after re-auth",
+        "related_hazards": ["ITEM-INTERVIEWER4-HAZ-007"],
+        "source": {
+          "files": [
+            "svc/src/main/resources/application.yml:1-3"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-INTERVIEWER4-FM-008",
+        "name": "Answer filtering algorithm removes wrong answers",
+        "category": "software_defect",
+        "component": "QuestionnaireExecutor.filterAnswers",
+        "effect_on_software_item": "Valid answers removed from answer list, patient symptom data incomplete",
+        "effect_on_system": "Interview results missing critical answers, rule engine receives incomplete data, potential under-triage",
+        "detection_mechanism": "Unit tests for filtering logic, user reports of missing answers, discrepancy between UI and stored answers",
+        "recovery_mechanism": "No automatic recovery, patient must re-answer questions if detected, data may be permanently lost",
+        "related_hazards": ["ITEM-INTERVIEWER4-HAZ-003"],
+        "source": {
+          "files": [
+            "core/src/main/java/se/alerisx/mhp/interviewer/service/QuestionnaireExecutor.java:93-136"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-INTERVIEWER4-FM-009",
+        "name": "Interview expiration during active session",
+        "category": "configuration_error",
+        "component": "InterviewScheduler, ExpireInterview",
+        "effect_on_software_item": "Interview marked expired while patient is actively answering, subsequent answers fail",
+        "effect_on_system": "Patient forced to restart interview, progress lost, frustration and potential abandonment",
+        "detection_mechanism": "Scheduled job logs expired interviews, patient receives error on next answer attempt",
+        "recovery_mechanism": "Patient must create new interview and restart, no way to extend expired interview",
+        "related_hazards": ["ITEM-INTERVIEWER4-HAZ-008"],
+        "source": {
+          "files": [
+            "svc/src/main/java/se/alerisx/mhp/interviewer/service/ExpireInterview.java:1-100",
+            "svc/src/main/java/se/alerisx/mhp/interviewer/service/InterviewScheduler.java:1-100"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-INTERVIEWER4-FM-010",
+        "name": "Null AnswerValue causes exception",
+        "category": "software_defect",
+        "component": "QuestionnaireExecutor.getAnswerValue",
+        "effect_on_software_item": "NullPointerException thrown, transaction rolls back, answer not processed",
+        "effect_on_system": "Patient sees error, must retry answer, repeated failures block interview progress",
+        "detection_mechanism": "Exception logged, HTTP 500 error, test coverage detects null handling",
+        "recovery_mechanism": "User retries with valid answer, null check added at method entry (line 197-199)",
+        "related_hazards": ["ITEM-INTERVIEWER4-HAZ-010"],
+        "source": {
+          "files": [
+            "core/src/main/java/se/alerisx/mhp/interviewer/service/QuestionnaireExecutor.java:196-216"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-INTERVIEWER4-FM-011",
+        "name": "Object storage unavailable for file uploads",
+        "category": "infrastructure_failure",
+        "component": "FileServiceImpl, ObjectStorage",
+        "effect_on_software_item": "File upload fails, exception thrown, patient cannot attach photos to interview",
+        "effect_on_system": "Interview can proceed without file if not required, visual symptom documentation lost if file required",
+        "detection_mechanism": "Object storage client exception, logged, HTTP error returned to client",
+        "recovery_mechanism": "User retries upload when storage available, interview can be locked without file if optional",
+        "related_hazards": ["ITEM-INTERVIEWER4-HAZ-009"],
+        "source": {
+          "files": [
+            "svc/src/main/java/se/alerisx/mhp/interviewer/service/impl/FileServiceImpl.java:1-100"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-INTERVIEWER4-FM-012",
+        "name": "Questionnaire cache returns stale version",
+        "category": "configuration_error",
+        "component": "Code24QuestionnaireRegistry cache",
+        "effect_on_software_item": "Interview uses outdated questionnaire logic, wrong questions shown, incorrect branching",
+        "effect_on_system": "Patients assessed with obsolete clinical logic, potential safety issue if critical changes not reflected",
+        "detection_mechanism": "Version mismatch logged, clinical review detects outdated logic, cache TTL monitoring",
+        "recovery_mechanism": "Cache invalidation forces reload, service restart clears cache, interviews in progress may complete with old version",
+        "related_hazards": ["ITEM-INTERVIEWER4-HAZ-001"],
+        "source": {
+          "files": [
+            "svc/src/main/resources/application.yml:30-32"
+          ]
+        }
+      }
+    ],
+
+    "interfaces_with_safety_impact": [
+      {
+        "id": "ITEM-INTERVIEWER4-IF-001",
+        "interface": "MySQL Database",
+        "type": "database",
+        "direction": "bidirectional",
+        "safety_impact": "All interview and answer data stored here. Database failure = complete data loss for active interviews. Corruption = incorrect triage data.",
+        "failure_handling": "Connection pool retries (5s timeout), validation queries, transaction rollback on failure. No data recovery mechanism beyond database backups.",
+        "timeout": "5000ms connection timeout, configured in Hikari pool",
+        "retry_policy": "Hikari connection pool retries, no application-level retry",
+        "source": {
+          "files": [
+            "svc/src/main/resources/application.yml:86-99"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-INTERVIEWER4-IF-002",
+        "interface": "HealthData Service REST API",
+        "type": "REST",
+        "direction": "outbound",
+        "safety_impact": "Provides patient medical history (medications, conditions, allergies) required for safe triage. Failure means interview proceeds without critical context.",
+        "failure_handling": "Required imports throw IllegalStateException and block interview. Optional imports logged and skipped. No retry mechanism.",
+        "timeout": "Not explicitly configured, likely default HTTP client timeout",
+        "retry_policy": "None - fails immediately on error",
+        "source": {
+          "files": [
+            "svc/src/main/java/se/alerisx/mhp/interviewer/healthdata/HealthDataRestServiceImpl.java:1-100",
+            "core/src/main/java/se/alerisx/mhp/interviewer/service/QuestionnaireExecutor.java:272-286"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-INTERVIEWER4-IF-003",
+        "interface": "Directory2 Service REST API",
+        "type": "REST",
+        "direction": "outbound",
+        "safety_impact": "Validates patient identity and user-patient relationships. Failure could block access to interview or allow unauthorized access.",
+        "failure_handling": "Service throws exception if patient/user not found. No fallback mechanism. Access denied on failure.",
+        "timeout": "Not explicitly configured",
+        "retry_policy": "None",
+        "source": {
+          "files": [
+            "svc/src/main/java/se/alerisx/mhp/interviewer/directory/Directory2ServiceSdkImpl.java:1-100"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-INTERVIEWER4-IF-004",
+        "interface": "Artemis JMS Interview Event Topic",
+        "type": "JMS",
+        "direction": "outbound",
+        "safety_impact": "Publishes interview lifecycle events to downstream services (actions module). Failure means other services unaware of interview completion, delaying care workflow.",
+        "failure_handling": "JMS exception logged but does not block interview operations. Message may be retried by Artemis. DLQ for poison messages.",
+        "timeout": "Default Artemis timeout",
+        "retry_policy": "Artemis built-in redelivery policy",
+        "source": {
+          "files": [
+            "svc/src/main/resources/application.yml:112-120"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-INTERVIEWER4-IF-005",
+        "interface": "Object Storage (MinIO/S3)",
+        "type": "REST",
+        "direction": "outbound",
+        "safety_impact": "Stores patient-uploaded files (photos of symptoms). Failure prevents file upload but should not block interview if files optional.",
+        "failure_handling": "Exception on upload failure, logged, returned to client. No retry. Interview can proceed without file if not required.",
+        "timeout": "Not explicitly configured",
+        "retry_policy": "None",
+        "source": {
+          "files": [
+            "svc/src/main/resources/application.yml:43-48",
+            "svc/src/main/java/se/alerisx/mhp/interviewer/service/impl/FileServiceImpl.java:1-100"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-INTERVIEWER4-IF-006",
+        "interface": "Text Classifier Service",
+        "type": "REST",
+        "direction": "outbound",
+        "safety_impact": "Maps patient symptom text to medical condition codes for questionnaire selection. Failure means patient cannot start triage from free-text symptom.",
+        "failure_handling": "Timeout configured (readTimeout, connectionTimeout). Exception logged and returned to client. User must retry or use condition picker.",
+        "timeout": "Configurable via textclassifier.readTimeout and textclassifier.connectionTimeout",
+        "retry_policy": "None",
+        "source": {
+          "files": [
+            "svc/src/main/resources/application.yml:72-75",
+            "svc/src/main/java/se/alerisx/mhp/interviewer/search/impl/TextClassifierRestService.java:1-100"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-INTERVIEWER4-IF-007",
+        "interface": "Rule Engine (via InterviewResult export)",
+        "type": "REST",
+        "direction": "outbound",
+        "safety_impact": "CRITICAL: Exports completed interview data to rule engine for triage decision. Malformed or incomplete data causes incorrect triage level, potential patient harm.",
+        "failure_handling": "Serialization errors logged. No validation that downstream received data correctly. Assumes synchronous call succeeds.",
+        "timeout": "Not explicitly configured",
+        "retry_policy": "None - one-shot export on interview lock",
+        "source": {
+          "files": [
+            "svc/src/main/java/se/alerisx/mhp/interviewer/service/impl/ExportDataMapper.java:1-100"
+          ]
+        }
+      }
+    ],
+
+    "verification_gaps": [
+      {
+        "id": "ITEM-INTERVIEWER4-GAP-001",
+        "type": "untested_control",
+        "description": "Answer filtering algorithm lacks comprehensive test coverage for edge cases (simultaneous duplicates, out-of-order indices)",
+        "affected_items": ["ITEM-INTERVIEWER4-RC-001", "ITEM-INTERVIEWER4-HAZ-003"],
+        "priority": "high",
+        "recommendation": "Add parameterized tests for filterAnswers() covering: multiple duplicate chains, null timestamps, equal timestamps with different indices, concurrent modifications"
+      },
+      {
+        "id": "ITEM-INTERVIEWER4-GAP-002",
+        "type": "unverified_interface",
+        "description": "No integration test verifying interview result data integrity when exported to rule engine",
+        "affected_items": ["ITEM-INTERVIEWER4-IF-007", "ITEM-INTERVIEWER4-HAZ-006"],
+        "priority": "high",
+        "recommendation": "Add end-to-end test that creates interview, answers questions, locks, and validates exported JSON matches expected schema and contains all answers"
+      },
+      {
+        "id": "ITEM-INTERVIEWER4-GAP-003",
+        "type": "missing_failure_test",
+        "description": "No test coverage for database transaction rollback scenarios during answer save",
+        "affected_items": ["ITEM-INTERVIEWER4-RC-002", "ITEM-INTERVIEWER4-FM-002"],
+        "priority": "high",
+        "recommendation": "Add test that simulates transaction failure (constraint violation, deadlock) and verifies rollback leaves interview in consistent state"
+      },
+      {
+        "id": "ITEM-INTERVIEWER4-GAP-004",
+        "type": "unverified_interface",
+        "description": "HealthData service failure handling not fully tested - unclear if required vs optional imports properly enforced",
+        "affected_items": ["ITEM-INTERVIEWER4-IF-002", "ITEM-INTERVIEWER4-RC-004"],
+        "priority": "medium",
+        "recommendation": "Add integration tests with mock HealthData service returning errors, verify required imports fail fast and optional imports skip gracefully"
+      },
+      {
+        "id": "ITEM-INTERVIEWER4-GAP-005",
+        "type": "missing_failure_test",
+        "description": "No test for concurrent interview lock operations from different users",
+        "affected_items": ["ITEM-INTERVIEWER4-RC-006", "ITEM-INTERVIEWER4-FM-006"],
+        "priority": "medium",
+        "recommendation": "Add multi-threaded test attempting concurrent locks on same interview, verify only one succeeds and state remains consistent"
+      },
+      {
+        "id": "ITEM-INTERVIEWER4-GAP-006",
+        "type": "untested_control",
+        "description": "Interview expiration logic not tested for edge case where patient is actively answering when expiration job runs",
+        "affected_items": ["ITEM-INTERVIEWER4-FM-009", "ITEM-INTERVIEWER4-HAZ-008"],
+        "priority": "low",
+        "recommendation": "Add test that simulates active interview being expired, verify patient sees appropriate error and can recover"
+      },
+      {
+        "id": "ITEM-INTERVIEWER4-GAP-007",
+        "type": "unverified_interface",
+        "description": "JMS event publishing failure handling not tested - unclear if failed events are retried or lost",
+        "affected_items": ["ITEM-INTERVIEWER4-IF-004", "ITEM-INTERVIEWER4-FM-005"],
+        "priority": "low",
+        "recommendation": "Add integration test with mock JMS broker that fails, verify event retry behavior and DLQ handling"
+      }
+    ]
+  },
+
+  "aggregation_hints": {
+    "cross_item_interfaces": [
+      "Interview result export to rule-engine-module (CRITICAL for triage decision)",
+      "HealthData import from healthdata service (required for medical history)",
+      "Directory2 for patient identity validation",
+      "JMS events to actions-module for workflow coordination",
+      "Object storage for patient file uploads"
+    ],
+    "shared_hazards": [
+      "Data integrity failures exist across all items that persist clinical data",
+      "External service unavailability affects interviewer4, actions-module, rule-engine-module",
+      "Authentication/authorization bypass risk exists in all patient-facing services",
+      "Database connection pool exhaustion could affect multiple services sharing database"
+    ],
+    "system_level_controls_needed": [
+      "End-to-end data integrity validation from patient input through triage decision",
+      "System-wide monitoring for interview completion rates and failure patterns",
+      "Cross-service transaction coordination if interview affects multiple services",
+      "Clinical validation and versioning of questionnaire content",
+      "Disaster recovery and backup strategy for patient interview data"
+    ]
+  }
+}

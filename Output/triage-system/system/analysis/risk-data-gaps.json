@@ -1,0 +1,550 @@
+{
+  "analysis_metadata": {
+    "analyzed_at": "2026-03-06T20:30:00Z",
+    "system_id": "triage-system",
+    "system_name": "Digital Triage System",
+    "items_analyzed": ["interviewer4", "rule-engine-module", "actions", "object-storage", "patient-ui", "triage-ui", "triage-clinic-ui"],
+    "modules_analyzed": ["triage-engine", "actions-module", "infrastructure", "user-interfaces"]
+  },
+
+  "extraction_summary": {
+    "software_items": {
+      "count": 7,
+      "items": [
+        {
+          "id": "ITEM-INTERVIEWER4",
+          "name": "interviewer4",
+          "safety_class": "B",
+          "failure_modes_count": 12,
+          "hazard_contributions_count": 10,
+          "controls_count": 9
+        },
+        {
+          "id": "ITEM-REM",
+          "name": "rule-engine-module",
+          "safety_class": "B",
+          "failure_modes_count": 12,
+          "hazard_contributions_count": 12,
+          "controls_count": 14
+        },
+        {
+          "id": "ITEM-ACTIONS",
+          "name": "actions",
+          "safety_class": "B",
+          "failure_modes_count": 12,
+          "hazard_contributions_count": 12,
+          "controls_count": 14
+        },
+        {
+          "id": "ITEM-OS",
+          "name": "object-storage",
+          "safety_class": "A",
+          "failure_modes_count": 12,
+          "hazard_contributions_count": 12,
+          "controls_count": 16
+        },
+        {
+          "id": "ITEM-PATIENT-UI",
+          "name": "patient-ui",
+          "safety_class": "B",
+          "failure_modes_count": 12,
+          "hazard_contributions_count": 12,
+          "controls_count": 10
+        },
+        {
+          "id": "ITEM-TRIAGE-UI",
+          "name": "triage-ui",
+          "safety_class": "B",
+          "failure_modes_count": 12,
+          "hazard_contributions_count": 12,
+          "controls_count": 10
+        },
+        {
+          "id": "ITEM-TCU",
+          "name": "triage-clinic-ui",
+          "safety_class": "B",
+          "failure_modes_count": 12,
+          "hazard_contributions_count": 10,
+          "controls_count": 12
+        }
+      ]
+    },
+    "failure_modes": {
+      "total": 84,
+      "by_category": {
+        "software_crash": 7,
+        "software_defect": 12,
+        "data_integrity": 11,
+        "communication_failure": 8,
+        "external_dependency": 7,
+        "authentication_failure": 5,
+        "configuration_error": 6,
+        "synchronization_error": 6,
+        "resource_exhaustion": 4,
+        "user_error": 6,
+        "usability_issue": 4,
+        "infrastructure_failure": 4,
+        "security_breach": 1,
+        "deployment_error": 1
+      },
+      "missing_category": [],
+      "missing_effect_on_system": []
+    },
+    "hazard_contributions": {
+      "total": 80,
+      "by_severity": {
+        "catastrophic": 1,
+        "critical": 7,
+        "serious": 41,
+        "minor": 28,
+        "negligible": 3
+      }
+    },
+    "risk_controls": {
+      "total": 85,
+      "by_type": {
+        "protective_measure": 52,
+        "information_for_safety": 26,
+        "inherent_safety": 7
+      },
+      "verification_status": {
+        "verified": 34,
+        "partial": 31,
+        "unverified": 20
+      }
+    },
+    "verification_gaps": {
+      "total": 68,
+      "by_type": {
+        "untested_control": 26,
+        "unverified_interface": 18,
+        "missing_failure_test": 24
+      },
+      "high_priority": 32,
+      "medium_priority": 28,
+      "low_priority": 8
+    }
+  },
+
+  "gaps_requiring_input": {
+    "intended_uses": {
+      "status": "MISSING",
+      "message": "No intended uses defined. Operator must specify clinical purpose, workflows, and patient outcomes for complete USE perspective.",
+      "suggested_from_code": [
+        {
+          "suggested_id": "IU-001",
+          "suggested_name": "Digital symptom triage",
+          "evidence": "System collects symptoms via interviewer4, evaluates via rule-engine-module, produces triage recommendations",
+          "needs_confirmation": true
+        },
+        {
+          "suggested_id": "IU-002",
+          "suggested_name": "Patient care pathway guidance",
+          "evidence": "Actions module executes bookings, appointments, referrals based on triage results",
+          "needs_confirmation": true
+        },
+        {
+          "suggested_id": "IU-003",
+          "suggested_name": "Practitioner clinical decision support",
+          "evidence": "triage-clinic-ui displays triage results and clinical flags to practitioners",
+          "needs_confirmation": true
+        }
+      ],
+      "template": {
+        "intended_uses": [
+          {
+            "id": "IU-001",
+            "name": "<FILL: clinical purpose name>",
+            "description": "<FILL: what clinical need this addresses>",
+            "clinical_context": "<FILL: clinical workflow and setting>",
+            "target_population": "<FILL: patient population>",
+            "user_intents": ["UI-001"]
+          }
+        ]
+      }
+    },
+
+    "user_intents": {
+      "status": "MISSING",
+      "message": "No user intents defined. Operator must specify what users are trying to accomplish with each workflow.",
+      "suggested_from_code": [
+        {
+          "suggested_id": "UI-001",
+          "suggested_name": "Patient completes symptom interview",
+          "evidence": "triage-ui collects symptom data, interviewer4 manages interview state",
+          "needs_confirmation": true
+        },
+        {
+          "suggested_id": "UI-002",
+          "suggested_name": "Patient books appointment based on triage",
+          "evidence": "actions module handles booking creation based on triage outcome",
+          "needs_confirmation": true
+        },
+        {
+          "suggested_id": "UI-003",
+          "suggested_name": "Practitioner reviews triage results",
+          "evidence": "triage-clinic-ui displays triage results and clinical flags",
+          "needs_confirmation": true
+        },
+        {
+          "suggested_id": "UI-004",
+          "suggested_name": "Practitioner initiates assisted triage",
+          "evidence": "triage-clinic-ui has NLP condition search for assisted triage",
+          "needs_confirmation": true
+        }
+      ],
+      "template": {
+        "user_intents": [
+          {
+            "id": "UI-001",
+            "name": "<FILL: what user wants to do>",
+            "description": "<FILL: user goal description>",
+            "user_type": "<FILL: patient | practitioner | system>",
+            "intended_use_id": "IU-001",
+            "core_functionalities": ["CF-001"]
+          }
+        ]
+      }
+    },
+
+    "safety_characteristics": {
+      "status": "MISSING",
+      "message": "ISO 14971 Annex C safety characteristics not assessed. Operator must determine applicability and rationale.",
+      "characteristics_to_assess": [
+        {
+          "id": "SC-001",
+          "category": "software",
+          "question": "Does the device contain software?",
+          "annex_c_ref": "C.2.19",
+          "suggested_applicable": true,
+          "suggested_rationale": "System is software-as-medical-device",
+          "needs_confirmation": false
+        },
+        {
+          "id": "SC-002",
+          "category": "intended_use",
+          "question": "What is the intended use and how is the device to be used?",
+          "annex_c_ref": "C.2.1",
+          "suggested_applicable": true,
+          "suggested_rationale": null,
+          "needs_confirmation": true,
+          "evidence_from_code": "Digital triage for primary care - collects symptoms, applies clinical rules, guides care pathway"
+        },
+        {
+          "id": "SC-003",
+          "category": "interpretive",
+          "question": "Is the device intended to be interpretive?",
+          "annex_c_ref": "C.2.12",
+          "suggested_applicable": true,
+          "suggested_rationale": null,
+          "needs_confirmation": true,
+          "evidence_from_code": "Rule engine interprets symptoms to determine urgency levels"
+        },
+        {
+          "id": "SC-004",
+          "category": "measurements",
+          "question": "Are measurements taken?",
+          "annex_c_ref": "C.2.11",
+          "suggested_applicable": true,
+          "suggested_rationale": null,
+          "needs_confirmation": true,
+          "evidence_from_code": "Collects numeric inputs (blood pressure, temperature, pain scale)"
+        },
+        {
+          "id": "SC-005",
+          "category": "other_devices",
+          "question": "Is the device intended to be used with other devices or medicinal products?",
+          "annex_c_ref": "C.2.13",
+          "suggested_applicable": null,
+          "suggested_rationale": null,
+          "needs_confirmation": true,
+          "evidence_from_code": "Integrates with health-manager, bookings, external EMR via plugins"
+        },
+        {
+          "id": "SC-006",
+          "category": "training",
+          "question": "Is special training needed?",
+          "annex_c_ref": "C.2.26",
+          "suggested_applicable": true,
+          "suggested_rationale": null,
+          "needs_confirmation": true,
+          "evidence_from_code": "Practitioners need training on interpreting triage urgency levels"
+        },
+        {
+          "id": "SC-007",
+          "category": "human_factors",
+          "question": "Is successful use critically dependent on human factors?",
+          "annex_c_ref": "C.2.28",
+          "suggested_applicable": true,
+          "suggested_rationale": null,
+          "needs_confirmation": true,
+          "evidence_from_code": "Patient data entry critical for triage accuracy, practitioner interpretation of results"
+        },
+        {
+          "id": "SC-008",
+          "category": "alarms",
+          "question": "Does the device use an alarm system?",
+          "annex_c_ref": "C.2.29",
+          "suggested_applicable": null,
+          "suggested_rationale": null,
+          "needs_confirmation": true,
+          "evidence_from_code": "Clinical flags displayed but no audible/visible alerts detected"
+        },
+        {
+          "id": "SC-009",
+          "category": "misuse",
+          "question": "Could the device be susceptible to deliberate misuse?",
+          "annex_c_ref": "C.2.30",
+          "suggested_applicable": true,
+          "suggested_rationale": null,
+          "needs_confirmation": true,
+          "evidence_from_code": "Patient could provide false symptoms, sessionStorage manipulation possible"
+        },
+        {
+          "id": "SC-010",
+          "category": "critical_data",
+          "question": "Does the device hold data critical to patient care?",
+          "annex_c_ref": "C.2.31",
+          "suggested_applicable": true,
+          "suggested_rationale": null,
+          "needs_confirmation": true,
+          "evidence_from_code": "Stores symptom data, triage results, consent records, appointment data"
+        },
+        {
+          "id": "SC-011",
+          "category": "essential_performance",
+          "question": "Does the device have essential performance?",
+          "annex_c_ref": "C.2.33",
+          "suggested_applicable": true,
+          "suggested_rationale": null,
+          "needs_confirmation": true,
+          "evidence_from_code": "Triage accuracy and availability are essential for safe care routing"
+        }
+      ]
+    },
+
+    "risk_acceptability_criteria": {
+      "status": "MISSING",
+      "message": "Organization must define severity/probability levels and acceptability matrix per ISO 14971.",
+      "template": {
+        "severity_levels": [
+          {"level": "S1", "name": "Negligible", "description": "<FILL: e.g., inconvenience, no injury>"},
+          {"level": "S2", "name": "Minor", "description": "<FILL: e.g., temporary discomfort, no treatment required>"},
+          {"level": "S3", "name": "Serious", "description": "<FILL: e.g., injury requiring medical intervention>"},
+          {"level": "S4", "name": "Critical", "description": "<FILL: e.g., serious injury, permanent impairment>"},
+          {"level": "S5", "name": "Catastrophic", "description": "<FILL: e.g., death or permanent life-altering condition>"}
+        ],
+        "probability_levels": [
+          {"level": "P1", "name": "Incredible", "description": "<FILL: e.g., <10^-6 per use>"},
+          {"level": "P2", "name": "Remote", "description": "<FILL: e.g., 10^-6 to 10^-4 per use>"},
+          {"level": "P3", "name": "Occasional", "description": "<FILL: e.g., 10^-4 to 10^-2 per use>"},
+          {"level": "P4", "name": "Probable", "description": "<FILL: e.g., 10^-2 to 10^-1 per use>"},
+          {"level": "P5", "name": "Frequent", "description": "<FILL: e.g., >10^-1 per use>"}
+        ],
+        "risk_matrix": {
+          "acceptable": ["<FILL: e.g., S1P1, S1P2, S1P3, S2P1>"],
+          "alarp": ["<FILL: e.g., S2P2, S2P3, S3P1, S3P2>"],
+          "unacceptable": ["<FILL: e.g., S4P*, S5P*, S3P4, S3P5>"]
+        }
+      }
+    },
+
+    "hazard_assessments": {
+      "status": "MISSING",
+      "message": "80 hazard contributions identified but require clinical severity and probability assessment.",
+      "hazards_needing_assessment": [
+        {
+          "hazard_id": "ITEM-TCU-HAZ-003",
+          "description": "Wrong patient data displayed in search or triage results",
+          "extracted_severity_contribution": "catastrophic",
+          "needs": ["severity_level", "severity_rationale", "probability_level", "probability_rationale"]
+        },
+        {
+          "hazard_id": "ITEM-TCU-HAZ-002",
+          "description": "Clinical flag displayed with incorrect or misleading content",
+          "extracted_severity_contribution": "critical",
+          "needs": ["severity_level", "severity_rationale", "probability_level", "probability_rationale"]
+        },
+        {
+          "hazard_id": "ITEM-TCU-HAZ-006",
+          "description": "Triage urgency or level of care information not prominently displayed",
+          "extracted_severity_contribution": "critical",
+          "needs": ["severity_level", "severity_rationale", "probability_level", "probability_rationale"]
+        },
+        {
+          "hazard_id": "ITEM-INTERVIEWER4-HAZ-006",
+          "description": "Interview data passed to rule engine is incomplete or malformed",
+          "extracted_severity_contribution": "critical",
+          "needs": ["severity_level", "severity_rationale", "probability_level", "probability_rationale"]
+        },
+        {
+          "hazard_id": "ITEM-REM-HAZ-003",
+          "description": "Mandatory patient attribute missing from input",
+          "extracted_severity_contribution": "critical",
+          "needs": ["severity_level", "severity_rationale", "probability_level", "probability_rationale"]
+        },
+        {
+          "hazard_id": "ITEM-REM-HAZ-007",
+          "description": "Remote rule repository fails to load or update rules",
+          "extracted_severity_contribution": "critical",
+          "needs": ["severity_level", "severity_rationale", "probability_level", "probability_rationale"]
+        },
+        {
+          "hazard_id": "ITEM-REM-HAZ-011",
+          "description": "Rule verification fails but execution proceeds with invalid rules",
+          "extracted_severity_contribution": "critical",
+          "needs": ["severity_level", "severity_rationale", "probability_level", "probability_rationale"]
+        },
+        {
+          "hazard_id": "ITEM-ACTIONS-HAZ-008",
+          "description": "Wrong patient executes action due to patient ID mismatch",
+          "extracted_severity_contribution": "critical",
+          "needs": ["severity_level", "severity_rationale", "probability_level", "probability_rationale"]
+        },
+        {
+          "hazard_id": "ITEM-OS-HAZ-006",
+          "description": "SQL injection through label parameters in metadata queries",
+          "extracted_severity_contribution": "critical",
+          "needs": ["severity_level", "severity_rationale", "probability_level", "probability_rationale"]
+        }
+      ],
+      "total_hazards_requiring_assessment": 80
+    },
+
+    "user_intent_to_functionality_mapping": {
+      "status": "MISSING",
+      "message": "Core functionalities extracted but not mapped to user intents",
+      "core_functionalities_without_user_intent": [
+        "Interview flow execution (triage-engine)",
+        "Rule evaluation (triage-engine)",
+        "Action execution (actions-module)",
+        "File storage (infrastructure)",
+        "Symptom collection (user-interfaces)",
+        "Triage result display (user-interfaces)"
+      ]
+    }
+  },
+
+  "linking_gaps": {
+    "failure_modes_without_safety_characteristic": [
+      {
+        "fm_id": "All failure modes",
+        "fm_name": "84 total failure modes",
+        "message": "Safety characteristics not yet defined - cannot link failure modes"
+      }
+    ],
+    "failure_modes_without_core_functionality": [],
+    "hazards_without_failure_modes": [],
+    "controls_requiring_upstream_implementation": {
+      "count": 37,
+      "by_level": {
+        "system": 28,
+        "module": 9
+      },
+      "examples": [
+        "Clinical validation of questionnaire content (system)",
+        "Clinical validation of rule packages (system)",
+        "Practitioner training on triage interpretation (system)",
+        "Database backup and recovery procedures (system)",
+        "Patient identity verification procedures (system)",
+        "Backend API data integrity validation (module)",
+        "Backend transactional updates for patient data (module)"
+      ]
+    }
+  },
+
+  "validation_issues": [
+    {
+      "type": "id_consistency",
+      "location": "All items",
+      "issue": "Item IDs are consistent with manifest",
+      "severity": "none"
+    },
+    {
+      "type": "completeness",
+      "location": "All items in manifest",
+      "issue": "All 7 items have extractions",
+      "severity": "none"
+    },
+    {
+      "type": "module_aggregations",
+      "location": "All modules",
+      "issue": "All 4 module aggregations created",
+      "severity": "none"
+    },
+    {
+      "type": "verification_coverage",
+      "location": "patient-ui",
+      "issue": "Only 52 test files for 671+ TypeScript source files (7.7% coverage)",
+      "severity": "high"
+    },
+    {
+      "type": "verification_coverage",
+      "location": "Multiple items",
+      "issue": "20 controls marked 'unverified', 31 marked 'partial'",
+      "severity": "medium"
+    }
+  ],
+
+  "recommended_actions": [
+    {
+      "priority": 1,
+      "action": "Define risk acceptability criteria",
+      "reason": "Required for all risk evaluations per ISO 14971",
+      "output_file": "system/defined/risk-criteria.json",
+      "effort": "1-2 hours with clinical risk management team"
+    },
+    {
+      "priority": 2,
+      "action": "Assess ISO 14971 Annex C safety characteristics",
+      "reason": "11 characteristics need applicability decision for hazard analysis",
+      "output_file": "system/defined/safety-characteristics.json",
+      "effort": "2-3 hours with clinical team"
+    },
+    {
+      "priority": 3,
+      "action": "Define intended uses and user intents",
+      "reason": "Required for USE perspective traceability and IEC 62304 compliance",
+      "output_file": "system/defined/intended-use.json",
+      "effort": "2-3 hours with product owner and clinical team"
+    },
+    {
+      "priority": 4,
+      "action": "Complete hazard severity and probability assessments",
+      "reason": "80 hazards need clinical risk assessment for risk matrix placement",
+      "output_file": "system/defined/hazard-assessments.json",
+      "effort": "4-6 hours with clinical risk management team"
+    },
+    {
+      "priority": 5,
+      "action": "Map core functionalities to user intents",
+      "reason": "Required for traceability between USE and IMPLEMENTATION perspectives",
+      "output_file": "system/defined/functionality-mapping.json",
+      "effort": "1-2 hours"
+    },
+    {
+      "priority": 6,
+      "action": "Address high-priority verification gaps",
+      "reason": "32 high-priority verification gaps identified across items",
+      "output_file": "N/A - requires test development",
+      "effort": "Significant - estimate 2-4 weeks for complete coverage"
+    }
+  ],
+
+  "readiness_assessment": {
+    "can_run_system_aggregation": false,
+    "blocking_gaps": [
+      "risk_acceptability_criteria",
+      "safety_characteristics",
+      "intended_uses",
+      "hazard_assessments"
+    ],
+    "completion_percentage": 35,
+    "items_complete": {
+      "extraction": "100% - all 7 items extracted",
+      "module_aggregation": "100% - all 4 modules aggregated",
+      "operator_input": "0% - no defined inputs provided"
+    },
+    "estimated_effort": "Operator input needed for 5 areas, approximately 10-14 hours total with clinical team involvement"
+  }
+}

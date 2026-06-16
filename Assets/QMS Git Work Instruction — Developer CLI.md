@@ -9,11 +9,11 @@ process: "Document and Record Control"
 requirements: "ISO 13485_2016 - 4.2.4 ISO 13485_2016 - 4.2.5"
 owner:
 ---
-Owner [[Head of Quality Management|Head of Quality Management]]
+Owner [Head of Quality Management](Head%20of%20Quality%20Management.md)
 Type: #WorkInstruction
 
-## Purpose 
-Enable a QMS developer to make controlled changes via CLI using the CI→CR→CIA→CCR flow defined in the [[QMS Change Control Procedure]].  
+## Purpose
+Enable a QMS developer to make controlled changes via CLI using the CI→CR→CIA→CCR flow defined in the [QMS Change Control Procedure](QMS%20Change%20Control%20Procedure.md).  
 
 ## Scope
 Changes to QMS content stored in Git. 

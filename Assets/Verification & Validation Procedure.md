@@ -9,7 +9,7 @@ process: "Product Management Process.canvas"
 requirements:
 owner:
 ---
-Owner [[Product Management]]
+Owner [Product Management](Product%20Management.md)
 
 Status: #Draft 
 Type: #Procedure 

@@ -1,0 +1,829 @@
+{
+  "extraction_metadata": {
+    "repository": "git@gitlab-p24:doktor24/frontends/patient-ui.git",
+    "commit": "ffc528a72c4dac99d8326704db2c661526925cf4",
+    "extracted_at": "2026-03-06T19:50:00Z",
+    "extractor_version": "3.0",
+    "standard": "IEC 62304:2006+AMD1:2015 / ISO 14971:2019",
+    "hierarchy": {
+      "level": "item",
+      "item_id": "patient-ui",
+      "item_name": "Patient UI",
+      "parent_module": "user-interfaces",
+      "parent_system": "triage-system"
+    }
+  },
+
+  "software_item": {
+    "id": "ITEM-PATIENT-UI",
+    "name": "patient-ui",
+    "description": "React/TypeScript micro-frontend monorepo providing patient-facing web application for triage interviews, appointments, chat, video consultations, and consent management",
+    "safety_class": "B",
+    "safety_class_rationale": "Software that can contribute to hazardous situations but is not the sole cause of harm. Interfaces with clinical decision support (triage), displays clinical information, manages patient appointments and consents, but does not directly control treatment or make autonomous clinical decisions. Failures can lead to delayed care, incorrect patient data, or loss of consent records.",
+    "version": "1.0.0",
+    "repository_url": "git@gitlab-p24:doktor24/frontends/patient-ui.git",
+    "technology_stack": [
+      "TypeScript 5.9.2",
+      "React 17.0.2",
+      "Redux",
+      "Redux Persist",
+      "Axios 0.24.0",
+      "React Query (TanStack) 4.29.5",
+      "Webpack 5.101.3",
+      "styled-components",
+      "WebSocket (WS 8.5.0)"
+    ],
+    "deployment_type": "monorepo"
+  },
+
+  "item_risk_contribution": {
+    "item_id": "patient-ui",
+
+    "hazard_contributions": [
+      {
+        "id": "ITEM-PATIENT-UI-HAZ-001",
+        "description": "Authentication token expiry not detected, allowing patient to submit clinical data without valid session",
+        "cause": "JWT token expiry checked only on initAuth, not continuously validated during long-running sessions",
+        "potential_harm": "Patient submits triage responses or consent decisions that are not properly associated with their identity, leading to misdiagnosis or inappropriate treatment",
+        "severity_contribution": "serious",
+        "affected_functions": ["initAuth", "setToken"],
+        "source": {
+          "files": ["src/redux/modules/auth/authActions.ts:135-155"]
+        }
+      },
+      {
+        "id": "ITEM-PATIENT-UI-HAZ-002",
+        "description": "WebSocket connection loss not detected immediately, patient continues interaction with stale data",
+        "cause": "WebSocket fallback uses polling intervals but may not detect connection loss until next interval, no immediate user notification of connection state",
+        "potential_harm": "Patient provides triage information or receives clinical guidance based on outdated data, leading to delayed or incorrect care decisions",
+        "severity_contribution": "serious",
+        "affected_functions": ["useWebsockets", "onConnectionMissing"],
+        "source": {
+          "files": ["src/modules/websockets/hooks/useWebsockets.ts:56-67"]
+        }
+      },
+      {
+        "id": "ITEM-PATIENT-UI-HAZ-003",
+        "description": "Error boundary catches errors but does not prevent data loss during triage interview",
+        "cause": "ReactErrorBoundary displays error UI and logs error but interview state may be lost if crash occurs during question answering",
+        "potential_harm": "Patient must restart triage interview, providing inconsistent or contradictory information, leading to incomplete clinical assessment",
+        "severity_contribution": "minor",
+        "affected_functions": ["ReactErrorBoundary"],
+        "source": {
+          "files": ["src/containers/ReactErrorBoundary.tsx:117-130"]
+        }
+      },
+      {
+        "id": "ITEM-PATIENT-UI-HAZ-004",
+        "description": "Consent status saved without verification of successful persistence",
+        "cause": "saveConsent API call returns but no explicit verification that consent was durably stored, relying on HTTP success status only",
+        "potential_harm": "Patient consent not properly recorded, leading to treatment without valid consent or denial of needed care",
+        "severity_contribution": "serious",
+        "affected_functions": ["saveConsent"],
+        "source": {
+          "files": ["src/api/consent.ts:34-56"]
+        }
+      },
+      {
+        "id": "ITEM-PATIENT-UI-HAZ-005",
+        "description": "Patient personal data update lacks atomic transaction guarantees",
+        "cause": "updatePatientPersonalData updates date of birth and gender via REST API without transaction scope, partial updates possible on failure",
+        "potential_harm": "Patient demographic data becomes inconsistent (e.g., gender updated but DOB not), leading to clinical decision errors based on incomplete information",
+        "severity_contribution": "minor",
+        "affected_functions": ["updatePatientPersonalData"],
+        "source": {
+          "files": ["src/api/patients.ts:17-32"]
+        }
+      },
+      {
+        "id": "ITEM-PATIENT-UI-HAZ-006",
+        "description": "Appointment cancellation does not verify downstream notification success",
+        "cause": "cancelAppointment API call succeeds but no verification that practitioner or care unit was notified of cancellation",
+        "potential_harm": "Practitioner unaware of cancellation, patient fails to receive care, or care slot remains unfilled when it could be reallocated",
+        "severity_contribution": "minor",
+        "affected_functions": ["cancelAppointment"],
+        "source": {
+          "files": ["src/api/appointment.ts:56-60"]
+        }
+      },
+      {
+        "id": "ITEM-PATIENT-UI-HAZ-007",
+        "description": "React Query error handling suppresses errors, user not informed of data fetch failures",
+        "cause": "queryClient configured with useErrorBoundary: false and networkMode: offlineFirst, errors shown as toast notifications only which may be dismissed",
+        "potential_harm": "Patient interacts with stale or missing clinical data without awareness, leading to incomplete or incorrect information during consultation",
+        "severity_contribution": "minor",
+        "affected_functions": ["queryClient"],
+        "source": {
+          "files": ["src/api/reactQuery/queryClient.ts:23-42"]
+        }
+      },
+      {
+        "id": "ITEM-PATIENT-UI-HAZ-008",
+        "description": "Universal error shutdown mechanism can be bypassed via session storage manipulation",
+        "cause": "useUniversalErrorShutdown checks sessionStorage which can be edited by patient via browser dev tools",
+        "potential_harm": "Patient bypasses safety shutdown intended to prevent use during critical system failures, leading to continued use of unsafe system state",
+        "severity_contribution": "serious",
+        "affected_functions": ["useUniversalErrorShutdown"],
+        "source": {
+          "files": ["src/hooks/useUniversalErrorShutdown.ts:6-26"]
+        }
+      },
+      {
+        "id": "ITEM-PATIENT-UI-HAZ-009",
+        "description": "Triage referral selection does not validate actionId before submission",
+        "cause": "selectReferral function accepts actionId without validation, submitting directly to backend API",
+        "potential_harm": "Invalid triage action submitted, potentially routing patient to inappropriate care level or specialty",
+        "severity_contribution": "serious",
+        "affected_functions": ["selectReferral"],
+        "source": {
+          "files": ["src/api/triage.ts:3-6"]
+        }
+      },
+      {
+        "id": "ITEM-PATIENT-UI-HAZ-010",
+        "description": "Authorization check can redirect during critical operations",
+        "cause": "useIsAuthorized performs navigation redirect based on isAnonymous flag during useEffect, which may interrupt in-progress operations",
+        "potential_harm": "Patient redirected during triage interview or appointment booking, losing progress and requiring restart with potentially inconsistent data",
+        "severity_contribution": "minor",
+        "affected_functions": ["useIsAuthorized"],
+        "source": {
+          "files": ["src/hooks/useIsAuthorized.ts:43-76"]
+        }
+      },
+      {
+        "id": "ITEM-PATIENT-UI-HAZ-011",
+        "description": "Redux state persisted in cookies without encryption",
+        "cause": "Redux-persist configured with cookie storage, authentication and user state stored in browser cookies accessible to JavaScript",
+        "potential_harm": "Patient session data exposed to XSS attacks, unauthorized access to patient account and clinical data",
+        "severity_contribution": "serious",
+        "affected_functions": ["redux-persist"],
+        "source": {
+          "files": ["package.json:156"]
+        }
+      },
+      {
+        "id": "ITEM-PATIENT-UI-HAZ-012",
+        "description": "Escalation consent status update does not verify current appointment state",
+        "cause": "saveEscalation updates escalation consent without checking if appointment is in valid state for escalation",
+        "potential_harm": "Consent for escalation recorded when appointment is already completed or cancelled, leading to confusion about patient intent",
+        "severity_contribution": "negligible",
+        "affected_functions": ["saveEscalation"],
+        "source": {
+          "files": ["src/api/appointment.ts:76-93"]
+        }
+      }
+    ],
+
+    "risk_controls_implemented": [
+      {
+        "id": "ITEM-PATIENT-UI-RC-001",
+        "description": "JWT token validation on application initialization",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-PATIENT-UI-HAZ-001"],
+        "implementation": "initAuth decodes JWT token and checks expiry timestamp against current time, triggers logout if expired",
+        "verification_status": "verified",
+        "verification_evidence": {
+          "test_file": "src/redux/modules/auth/__tests__/auth.test.ts",
+          "test_function": "auth module tests"
+        },
+        "source": {
+          "files": ["src/redux/modules/auth/authActions.ts:135-155"]
+        }
+      },
+      {
+        "id": "ITEM-PATIENT-UI-RC-002",
+        "description": "WebSocket connection fallback to polling",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-PATIENT-UI-HAZ-002"],
+        "implementation": "useWebsockets implements setFallbackIntervals to establish polling intervals when WebSocket connection is lost",
+        "verification_status": "unverified",
+        "verification_evidence": {
+          "test_file": null,
+          "test_function": null
+        },
+        "source": {
+          "files": ["src/modules/websockets/hooks/useWebsockets.ts:46-54"]
+        }
+      },
+      {
+        "id": "ITEM-PATIENT-UI-RC-003",
+        "description": "Global error boundary with analytics reporting",
+        "control_type": "information_for_safety",
+        "mitigates": ["ITEM-PATIENT-UI-HAZ-003"],
+        "implementation": "ReactErrorBoundary catches unhandled errors, logs to analytics with stack trace, displays error UI with event ID for support",
+        "verification_status": "partial",
+        "verification_evidence": {
+          "test_file": "src/modules/myAppointments/components/__tests__/StaleDataErrorBoundary.test.tsx",
+          "test_function": "StaleDataErrorBoundary tests (domain-specific, not global)"
+        },
+        "source": {
+          "files": ["src/containers/ReactErrorBoundary.tsx:45-131"]
+        }
+      },
+      {
+        "id": "ITEM-PATIENT-UI-RC-004",
+        "description": "React Query automatic error notification",
+        "control_type": "information_for_safety",
+        "mitigates": ["ITEM-PATIENT-UI-HAZ-007"],
+        "implementation": "queryClient configured with onError callback that displays toast notification for all failed queries and mutations",
+        "verification_status": "verified",
+        "verification_evidence": {
+          "test_file": "src/api/__tests__/healthProfile.test.ts",
+          "test_function": "API error handling tests"
+        },
+        "source": {
+          "files": ["src/api/reactQuery/queryClient.ts:31-39"]
+        }
+      },
+      {
+        "id": "ITEM-PATIENT-UI-RC-005",
+        "description": "Authorization lock prevents redirect loops",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-PATIENT-UI-HAZ-010"],
+        "implementation": "lockRequireAuthorizationRedirects flag prevents multiple simultaneous redirects during logout/login flows",
+        "verification_status": "verified",
+        "verification_evidence": {
+          "test_file": "src/hooks/__tests__/useIsAuthorized.test.ts",
+          "test_function": "useIsAuthorized tests"
+        },
+        "source": {
+          "files": ["src/hooks/useIsAuthorized.ts:44-49", "src/redux/modules/auth/authActions.ts:112-117"]
+        }
+      },
+      {
+        "id": "ITEM-PATIENT-UI-RC-006",
+        "description": "Patient ID validation before personal data update",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-PATIENT-UI-HAZ-005"],
+        "implementation": "updatePatientPersonalData throws error if id parameter is missing before making API call",
+        "verification_status": "unverified",
+        "verification_evidence": {
+          "test_file": null,
+          "test_function": null
+        },
+        "source": {
+          "files": ["src/api/patients.ts:21-25"]
+        }
+      },
+      {
+        "id": "ITEM-PATIENT-UI-RC-007",
+        "description": "Authorization header injection for all API requests",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-PATIENT-UI-HAZ-001"],
+        "implementation": "registerAuth adds Axios interceptor that injects Bearer token into Authorization header for all requests",
+        "verification_status": "unverified",
+        "verification_evidence": {
+          "test_file": null,
+          "test_function": null
+        },
+        "source": {
+          "files": ["src/api/axios/axiosRegisterAuth.ts:8-24"]
+        }
+      },
+      {
+        "id": "ITEM-PATIENT-UI-RC-008",
+        "description": "Consent merge prioritizes pending consents over registered",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-PATIENT-UI-HAZ-004"],
+        "implementation": "mergeConsentsAndPendingConsents ensures pending (newly required) consents override registered consents to prevent stale consent data",
+        "verification_status": "unverified",
+        "verification_evidence": {
+          "test_file": null,
+          "test_function": null
+        },
+        "source": {
+          "files": ["src/api/consent.ts:90-108"]
+        }
+      },
+      {
+        "id": "ITEM-PATIENT-UI-RC-009",
+        "description": "History back disabled during authorization redirects",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-PATIENT-UI-HAZ-010"],
+        "implementation": "RequireAuth sets HistoryBackMonitor disabled state when shouldRedirect is true, preventing navigation confusion",
+        "verification_status": "unverified",
+        "verification_evidence": {
+          "test_file": null,
+          "test_function": null
+        },
+        "source": {
+          "files": ["src/routes/RequireAuth/RequireAuth.tsx:29-31"]
+        }
+      },
+      {
+        "id": "ITEM-PATIENT-UI-RC-010",
+        "description": "Toast notification clearing on logout",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-PATIENT-UI-HAZ-003", "ITEM-PATIENT-UI-HAZ-007"],
+        "implementation": "logout function clears all visible toast notifications to prevent stale messages from previous session",
+        "verification_status": "unverified",
+        "verification_evidence": {
+          "test_file": null,
+          "test_function": null
+        },
+        "source": {
+          "files": ["src/redux/modules/auth/authActions.ts:119-122"]
+        }
+      }
+    ],
+
+    "risk_controls_required_upstream": [
+      {
+        "id": "ITEM-PATIENT-UI-RC-UP-001",
+        "description": "Backend API must validate triage action IDs before processing",
+        "rationale": "Frontend cannot reliably validate action IDs without duplicating triage engine logic; validation must be authoritative at backend",
+        "recommended_level": "module",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-PATIENT-UI-HAZ-009"]
+      },
+      {
+        "id": "ITEM-PATIENT-UI-RC-UP-002",
+        "description": "Backend must implement transactional updates for patient personal data",
+        "rationale": "Frontend cannot control database transaction boundaries across REST API; atomicity must be guaranteed by backend",
+        "recommended_level": "module",
+        "control_type": "inherent_safety",
+        "mitigates": ["ITEM-PATIENT-UI-HAZ-005"]
+      },
+      {
+        "id": "ITEM-PATIENT-UI-RC-UP-003",
+        "description": "Backend must verify consent persistence and return confirmation",
+        "rationale": "Frontend cannot directly access consent database to verify storage; backend must confirm durable write",
+        "recommended_level": "module",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-PATIENT-UI-HAZ-004"]
+      },
+      {
+        "id": "ITEM-PATIENT-UI-RC-UP-004",
+        "description": "Backend must implement webhook or message queue for appointment cancellation notifications",
+        "rationale": "Frontend cannot directly notify practitioners or care units; notification infrastructure must exist at system level",
+        "recommended_level": "system",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-PATIENT-UI-HAZ-006"]
+      },
+      {
+        "id": "ITEM-PATIENT-UI-RC-UP-005",
+        "description": "Infrastructure must enforce HTTPS with secure cookies and HSTS",
+        "rationale": "Frontend cannot control transport security; TLS and cookie security attributes must be enforced by infrastructure",
+        "recommended_level": "system",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-PATIENT-UI-HAZ-011"]
+      },
+      {
+        "id": "ITEM-PATIENT-UI-RC-UP-006",
+        "description": "Backend must implement content security policy to prevent XSS",
+        "rationale": "Frontend cannot protect against XSS without server-side CSP headers; browser security controls must be configured at infrastructure level",
+        "recommended_level": "system",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-PATIENT-UI-HAZ-011"]
+      },
+      {
+        "id": "ITEM-PATIENT-UI-RC-UP-007",
+        "description": "System must monitor and alert on universal error shutdown activations",
+        "rationale": "Frontend can trigger shutdown but cannot monitor trends or coordinate across multiple patient sessions; system-level monitoring required",
+        "recommended_level": "system",
+        "control_type": "information_for_safety",
+        "mitigates": ["ITEM-PATIENT-UI-HAZ-008"]
+      },
+      {
+        "id": "ITEM-PATIENT-UI-RC-UP-008",
+        "description": "Patient training on recognizing disconnection and error states",
+        "rationale": "Software cannot force user attention or comprehension; user training and documentation required",
+        "recommended_level": "system",
+        "control_type": "information_for_safety",
+        "mitigates": ["ITEM-PATIENT-UI-HAZ-002", "ITEM-PATIENT-UI-HAZ-007"]
+      }
+    ],
+
+    "failure_modes": [
+      {
+        "id": "ITEM-PATIENT-UI-FM-001",
+        "name": "React component unhandled exception",
+        "category": "software_crash",
+        "component": "React components throughout application",
+        "effect_on_software_item": "Component tree unmounts, error boundary catches and displays error UI, application state may be partially lost",
+        "effect_on_system": "Patient session interrupted, may need to restart interview or booking flow, data loss possible if not persisted",
+        "detection_mechanism": "ReactErrorBoundary catches error, logs to analytics platform with stack trace and event ID",
+        "recovery_mechanism": "User must reload page or navigate to home, session state recovered from Redux Persist if available",
+        "related_hazards": ["ITEM-PATIENT-UI-HAZ-003"],
+        "source": {
+          "files": ["src/containers/ReactErrorBoundary.tsx:117-130"]
+        }
+      },
+      {
+        "id": "ITEM-PATIENT-UI-FM-002",
+        "name": "WebSocket connection timeout",
+        "category": "communication_failure",
+        "component": "WebSocketContext",
+        "effect_on_software_item": "Real-time updates cease, TOPICS.DISCONNECTED event fired, fallback polling intervals established",
+        "effect_on_system": "Patient receives delayed updates on appointment status, chat messages, or triage progress",
+        "detection_mechanism": "WebSocket onclose event, wasClean flag indicates clean vs unclean disconnect",
+        "recovery_mechanism": "Automatic fallback to HTTP polling with configurable interval, reconnection attempted on TOPICS.CONNECTED",
+        "related_hazards": ["ITEM-PATIENT-UI-HAZ-002"],
+        "source": {
+          "files": ["src/modules/websockets/hooks/useWebsockets.ts:56-67"]
+        }
+      },
+      {
+        "id": "ITEM-PATIENT-UI-FM-003",
+        "name": "API request timeout or network error",
+        "category": "communication_failure",
+        "component": "Axios HTTP client, React Query",
+        "effect_on_software_item": "Query/mutation fails, onError callback triggered, toast notification displayed to user",
+        "effect_on_system": "Patient action (booking, consent, triage submission) fails, data not persisted to backend",
+        "detection_mechanism": "Axios error interceptor, React Query error handlers, network error codes",
+        "recovery_mechanism": "User must manually retry operation, no automatic retry configured (retry: false)",
+        "related_hazards": ["ITEM-PATIENT-UI-HAZ-007"],
+        "source": {
+          "files": ["src/api/reactQuery/queryClient.ts:23-42"]
+        }
+      },
+      {
+        "id": "ITEM-PATIENT-UI-FM-004",
+        "name": "JWT token expiry during active session",
+        "category": "authentication_failure",
+        "component": "Auth module, axios interceptors",
+        "effect_on_software_item": "API requests begin failing with 401 Unauthorized, logout triggered, user redirected to login",
+        "effect_on_system": "Patient session terminated, must re-authenticate to continue, in-progress operations lost",
+        "detection_mechanism": "Token expiry check in initAuth, 401 responses from backend API",
+        "recovery_mechanism": "Automatic logout and redirect to login page, session state cleared, anonymous token obtained",
+        "related_hazards": ["ITEM-PATIENT-UI-HAZ-001", "ITEM-PATIENT-UI-HAZ-010"],
+        "source": {
+          "files": ["src/redux/modules/auth/authActions.ts:135-155"]
+        }
+      },
+      {
+        "id": "ITEM-PATIENT-UI-FM-005",
+        "name": "Redux state hydration failure from persisted storage",
+        "category": "data_integrity",
+        "component": "Redux Persist",
+        "effect_on_software_item": "Application state not restored, user appears logged out, preferences lost",
+        "effect_on_system": "Patient must re-authenticate and re-enter preferences, previous session context lost",
+        "detection_mechanism": "Redux persist error callbacks, console logging",
+        "recovery_mechanism": "Application starts with initial state, user must re-authenticate",
+        "related_hazards": ["ITEM-PATIENT-UI-HAZ-003"],
+        "source": {
+          "files": ["package.json:155-156"]
+        }
+      },
+      {
+        "id": "ITEM-PATIENT-UI-FM-006",
+        "name": "Browser local/session storage quota exceeded",
+        "category": "resource_exhaustion",
+        "component": "Redux Persist, sessionStorage usage",
+        "effect_on_software_item": "State persistence fails, writes to sessionStorage throw QuotaExceededError",
+        "effect_on_system": "Patient session state not persisted, refresh causes data loss, shutdown flags may not be stored",
+        "detection_mechanism": "JavaScript exception on storage write operations",
+        "recovery_mechanism": "No automatic recovery, user must clear browser storage or use different browser",
+        "related_hazards": ["ITEM-PATIENT-UI-HAZ-003", "ITEM-PATIENT-UI-HAZ-008"],
+        "source": {
+          "files": ["src/hooks/useUniversalErrorShutdown.ts:15"]
+        }
+      },
+      {
+        "id": "ITEM-PATIENT-UI-FM-007",
+        "name": "Axios request interceptor failure",
+        "category": "software_defect",
+        "component": "axiosRegisterAuth",
+        "effect_on_software_item": "Authorization header not added to request, or request interceptor throws exception",
+        "effect_on_system": "API requests fail authentication, all patient operations fail, 401 errors cascade",
+        "detection_mechanism": "Axios interceptor error callback, API 401 responses",
+        "recovery_mechanism": "Error rejected via Promise.reject, higher level error handlers attempt recovery",
+        "related_hazards": ["ITEM-PATIENT-UI-HAZ-001"],
+        "source": {
+          "files": ["src/api/axios/axiosRegisterAuth.ts:9-23"]
+        }
+      },
+      {
+        "id": "ITEM-PATIENT-UI-FM-008",
+        "name": "Consent API returns success but data not persisted",
+        "category": "data_integrity",
+        "component": "Consent API, saveConsent function",
+        "effect_on_software_item": "HTTP 200 response received, UI indicates success, but backend database write failed",
+        "effect_on_system": "Patient believes consent is recorded but system has no record, potential consent violation",
+        "detection_mechanism": "Backend must detect persistence failure, but currently no verification in frontend",
+        "recovery_mechanism": "No automatic recovery, relies on backend transaction integrity and error responses",
+        "related_hazards": ["ITEM-PATIENT-UI-HAZ-004"],
+        "source": {
+          "files": ["src/api/consent.ts:34-56"]
+        }
+      },
+      {
+        "id": "ITEM-PATIENT-UI-FM-009",
+        "name": "Triage interview state lost during navigation",
+        "category": "data_integrity",
+        "component": "Interview module, Redux state",
+        "effect_on_software_item": "User navigates away or browser crash loses Redux state before persistence",
+        "effect_on_system": "Patient must restart triage interview, potentially providing different answers, clinical assessment incomplete",
+        "detection_mechanism": "Redux state monitoring, persistence layer monitoring",
+        "recovery_mechanism": "Redux Persist attempts to restore state, but timing window exists before initial persistence",
+        "related_hazards": ["ITEM-PATIENT-UI-HAZ-003"],
+        "source": {
+          "files": ["src/modules/interview/redux/interviewReducers.ts"]
+        }
+      },
+      {
+        "id": "ITEM-PATIENT-UI-FM-010",
+        "name": "Infinite redirect loop during authorization",
+        "category": "software_defect",
+        "component": "useIsAuthorized, RequireAuth",
+        "effect_on_software_item": "Redirect logic triggers repeatedly, browser eventually stops with 'too many redirects' error",
+        "effect_on_system": "Patient cannot access application, stuck in login loop, service unavailable",
+        "detection_mechanism": "Browser redirect limit (usually 20), lockRequireAuthorizationRedirects flag",
+        "recovery_mechanism": "lockRequireAuthorizationRedirects prevents most cases, but manual browser storage clear may be required",
+        "related_hazards": ["ITEM-PATIENT-UI-HAZ-010"],
+        "source": {
+          "files": ["src/hooks/useIsAuthorized.ts:43-76"]
+        }
+      },
+      {
+        "id": "ITEM-PATIENT-UI-FM-011",
+        "name": "Bundle loading failure (chunk load error)",
+        "category": "deployment_error",
+        "component": "Webpack dynamic imports, code splitting",
+        "effect_on_software_item": "JavaScript bundle fails to load, module import throws error, page render fails",
+        "effect_on_system": "Patient cannot access specific features (chat, video, appointments), partial application failure",
+        "detection_mechanism": "Browser console errors, network request failures, ErrorBoundary if during render",
+        "recovery_mechanism": "webpack-retry-chunk-load-plugin attempts retry, but persistent failures require page reload",
+        "related_hazards": ["ITEM-PATIENT-UI-HAZ-003"],
+        "source": {
+          "files": ["workspaces/patient-core/package.json:81"]
+        }
+      },
+      {
+        "id": "ITEM-PATIENT-UI-FM-012",
+        "name": "React Query cache corruption",
+        "category": "data_integrity",
+        "component": "TanStack React Query cache",
+        "effect_on_software_item": "Cached data becomes stale or inconsistent with backend, user sees outdated information",
+        "effect_on_system": "Patient views incorrect appointment times, outdated consent status, or stale triage results",
+        "detection_mechanism": "StaleDataErrorBoundary for specific domains, manual user refresh required otherwise",
+        "recovery_mechanism": "refetchOnWindowFocus: false prevents automatic refresh, user must manually reload",
+        "related_hazards": ["ITEM-PATIENT-UI-HAZ-007"],
+        "source": {
+          "files": ["src/api/reactQuery/queryClient.ts:23-42", "src/modules/myAppointments/components/StaleDataErrorBoundary/StaleDataErrorBoundary.tsx"]
+        }
+      }
+    ],
+
+    "interfaces_with_safety_impact": [
+      {
+        "id": "ITEM-PATIENT-UI-IF-001",
+        "interface": "healthmanager API - /v1/appointments/*",
+        "type": "REST",
+        "direction": "bidirectional",
+        "safety_impact": "Appointment data (booking, cancellation, updates) critical for patient care continuity. Failure prevents booking or cancelling appointments, leading to missed care or resource waste.",
+        "failure_handling": "Axios error interceptor catches HTTP errors, React Query onError displays toast notification, no automatic retry, user must manually retry operation",
+        "timeout": "Default Axios timeout (not explicitly configured)",
+        "retry_policy": "No retry (retry: false in queryClient)",
+        "source": {
+          "files": ["src/api/appointment.ts:7-93"]
+        }
+      },
+      {
+        "id": "ITEM-PATIENT-UI-IF-002",
+        "interface": "healthmanager API - /v2/consents/*",
+        "type": "REST",
+        "direction": "bidirectional",
+        "safety_impact": "Consent data critical for legal compliance and treatment authorization. Failure to save or retrieve consent can lead to treatment without authorization or denial of needed care.",
+        "failure_handling": "Axios error interceptor, React Query error notification, no retry, user must manually retry consent acceptance/decline",
+        "timeout": "Default Axios timeout",
+        "retry_policy": "No retry",
+        "source": {
+          "files": ["src/api/consent.ts:34-143"]
+        }
+      },
+      {
+        "id": "ITEM-PATIENT-UI-IF-003",
+        "interface": "healthmanager API - /referrals/v1/triage",
+        "type": "REST",
+        "direction": "outbound",
+        "safety_impact": "Triage action selection determines care pathway and urgency. Failure to submit or incorrect action ID can route patient to inappropriate care level (e.g., self-care when emergency needed).",
+        "failure_handling": "Axios error interceptor, no retry, user sees error notification but may not understand clinical implications",
+        "timeout": "Default Axios timeout",
+        "retry_policy": "No retry",
+        "source": {
+          "files": ["src/api/triage.ts:3-6"]
+        }
+      },
+      {
+        "id": "ITEM-PATIENT-UI-IF-004",
+        "interface": "directory2 API - /v1/users/me/patients/*",
+        "type": "REST",
+        "direction": "bidirectional",
+        "safety_impact": "Patient demographic data (date of birth, gender) used for clinical decision support. Incorrect data can lead to inappropriate treatment (e.g., gender-specific conditions, age-based dosing).",
+        "failure_handling": "updatePatientPersonalData throws error if id missing, Axios error handling for API failures, partial update possible if connection lost mid-operation",
+        "timeout": "Default Axios timeout",
+        "retry_policy": "No retry",
+        "source": {
+          "files": ["src/api/patients.ts:4-32"]
+        }
+      },
+      {
+        "id": "ITEM-PATIENT-UI-IF-005",
+        "interface": "WebSocket connection to backend",
+        "type": "WebSocket",
+        "direction": "bidirectional",
+        "safety_impact": "Real-time updates for chat messages, appointment status changes, triage progress. Failure delays critical information (e.g., appointment cancelled, urgent message from practitioner).",
+        "failure_handling": "Automatic fallback to HTTP polling with configurable interval, connectionWasLost flag triggers fallback callbacks, reconnection attempted when connection restored",
+        "timeout": "WebSocket close event indicates timeout/disconnect",
+        "retry_policy": "Automatic reconnection on TOPICS.CONNECTED event",
+        "source": {
+          "files": ["src/modules/websockets/hooks/useWebsockets.ts:13-142"]
+        }
+      },
+      {
+        "id": "ITEM-PATIENT-UI-IF-006",
+        "interface": "Platform24 Analytics API",
+        "type": "REST",
+        "direction": "outbound",
+        "safety_impact": "Error logging and event tracking for safety monitoring. If analytics unavailable, error events may not be logged, preventing detection of systematic failures.",
+        "failure_handling": "logError and sendEventV2 failures caught but not critical, analytics errors do not block user operations",
+        "timeout": "Default analytics SDK timeout",
+        "retry_policy": "Analytics SDK handles retry internally",
+        "source": {
+          "files": ["src/containers/ReactErrorBoundary.tsx:54-78"]
+        }
+      },
+      {
+        "id": "ITEM-PATIENT-UI-IF-007",
+        "interface": "front-door API - /v1/appointments/*/notes",
+        "type": "REST",
+        "direction": "inbound",
+        "safety_impact": "Clinical notes from practitioners displayed to patient. Missing or stale notes can lead to patient non-compliance with treatment instructions.",
+        "failure_handling": "React Query error handling, no retry, patient sees error notification or empty notes section",
+        "timeout": "Default Axios timeout",
+        "retry_policy": "No retry",
+        "source": {
+          "files": ["src/api/appointment.ts:15-30"]
+        }
+      },
+      {
+        "id": "ITEM-PATIENT-UI-IF-008",
+        "interface": "exit-actions API",
+        "type": "REST",
+        "direction": "inbound",
+        "safety_impact": "Exit actions contain post-appointment instructions (prescriptions, follow-ups, referrals). Failure to retrieve can lead to patient missing critical follow-up care.",
+        "failure_handling": "Axios error handling, no retry, patient may see no exit actions or error message",
+        "timeout": "Default Axios timeout",
+        "retry_policy": "No retry",
+        "source": {
+          "files": ["src/api/appointment.ts:70-75"]
+        }
+      },
+      {
+        "id": "ITEM-PATIENT-UI-IF-009",
+        "interface": "Browser local storage / sessionStorage",
+        "type": "browser API",
+        "direction": "bidirectional",
+        "safety_impact": "Stores session state, authentication tokens, user preferences, shutdown flags. Failure affects session persistence and safety controls.",
+        "failure_handling": "QuotaExceededError on write, no automatic handling, application may fail to persist critical state",
+        "timeout": "N/A - synchronous browser API",
+        "retry_policy": "No retry",
+        "source": {
+          "files": ["src/hooks/useUniversalErrorShutdown.ts:7-24"]
+        }
+      },
+      {
+        "id": "ITEM-PATIENT-UI-IF-010",
+        "interface": "CDN for Platform24 design system and MFE components",
+        "type": "HTTP",
+        "direction": "inbound",
+        "safety_impact": "Design system components and micro-frontends loaded from external CDN. Failure prevents rendering of critical UI components.",
+        "failure_handling": "Browser network layer handles failures, webpack-retry-chunk-load-plugin retries failed chunk loads, but persistent CDN outage blocks functionality",
+        "timeout": "Browser default HTTP timeout",
+        "retry_policy": "webpack-retry-chunk-load-plugin automatic retry",
+        "source": {
+          "files": ["workspaces/patient-core/package.json:90-119"]
+        }
+      }
+    ],
+
+    "verification_gaps": [
+      {
+        "id": "ITEM-PATIENT-UI-GAP-001",
+        "type": "untested_control",
+        "description": "WebSocket fallback mechanism not covered by unit tests",
+        "affected_items": ["ITEM-PATIENT-UI-RC-002"],
+        "priority": "high",
+        "recommendation": "Add unit tests for useWebsockets hook covering connection loss scenarios, fallback interval establishment, and reconnection logic"
+      },
+      {
+        "id": "ITEM-PATIENT-UI-GAP-002",
+        "type": "untested_control",
+        "description": "Authorization header injection not verified in tests",
+        "affected_items": ["ITEM-PATIENT-UI-RC-007"],
+        "priority": "medium",
+        "recommendation": "Add integration tests verifying Authorization header is correctly added to all authenticated API requests"
+      },
+      {
+        "id": "ITEM-PATIENT-UI-GAP-003",
+        "type": "untested_control",
+        "description": "Patient personal data update validation not tested",
+        "affected_items": ["ITEM-PATIENT-UI-RC-006"],
+        "priority": "medium",
+        "recommendation": "Add unit tests for updatePatientPersonalData error cases (missing id, API failures, partial updates)"
+      },
+      {
+        "id": "ITEM-PATIENT-UI-GAP-004",
+        "type": "unverified_interface",
+        "description": "Triage referral selection API integration not tested",
+        "affected_items": ["ITEM-PATIENT-UI-HAZ-009"],
+        "priority": "high",
+        "recommendation": "Add integration tests for selectReferral covering valid and invalid actionId scenarios, verify backend validation"
+      },
+      {
+        "id": "ITEM-PATIENT-UI-GAP-005",
+        "type": "untested_control",
+        "description": "Consent merge logic not verified",
+        "affected_items": ["ITEM-PATIENT-UI-RC-008"],
+        "priority": "high",
+        "recommendation": "Add unit tests for mergeConsentsAndPendingConsents verifying pending consents correctly override registered consents"
+      },
+      {
+        "id": "ITEM-PATIENT-UI-GAP-006",
+        "type": "missing_failure_test",
+        "description": "Token expiry during active operations not tested",
+        "affected_items": ["ITEM-PATIENT-UI-FM-004"],
+        "priority": "high",
+        "recommendation": "Add end-to-end tests simulating token expiry during triage interview, appointment booking, and consent submission"
+      },
+      {
+        "id": "ITEM-PATIENT-UI-GAP-007",
+        "type": "missing_failure_test",
+        "description": "Redux Persist hydration failures not tested",
+        "affected_items": ["ITEM-PATIENT-UI-FM-005"],
+        "priority": "medium",
+        "recommendation": "Add tests for Redux Persist error scenarios (corrupted storage, quota exceeded, version migration failures)"
+      },
+      {
+        "id": "ITEM-PATIENT-UI-GAP-008",
+        "type": "unverified_interface",
+        "description": "API timeout and network failure scenarios not systematically tested",
+        "affected_items": ["ITEM-PATIENT-UI-IF-001", "ITEM-PATIENT-UI-IF-002", "ITEM-PATIENT-UI-IF-003", "ITEM-PATIENT-UI-IF-004"],
+        "priority": "high",
+        "recommendation": "Add systematic integration tests for all critical APIs covering timeout, network error, and partial response scenarios"
+      },
+      {
+        "id": "ITEM-PATIENT-UI-GAP-009",
+        "type": "untested_control",
+        "description": "Universal error shutdown mechanism not tested for bypass scenarios",
+        "affected_items": ["ITEM-PATIENT-UI-HAZ-008"],
+        "priority": "medium",
+        "recommendation": "Add tests verifying shutdown cannot be easily bypassed via sessionStorage manipulation, consider server-side shutdown enforcement"
+      },
+      {
+        "id": "ITEM-PATIENT-UI-GAP-010",
+        "type": "missing_failure_test",
+        "description": "Infinite redirect loop prevention not tested",
+        "affected_items": ["ITEM-PATIENT-UI-FM-010", "ITEM-PATIENT-UI-RC-005"],
+        "priority": "medium",
+        "recommendation": "Add tests verifying lockRequireAuthorizationRedirects prevents redirect loops in edge cases (concurrent logouts, expired tokens during navigation)"
+      },
+      {
+        "id": "ITEM-PATIENT-UI-GAP-011",
+        "type": "untested_control",
+        "description": "Only 52 test files for 671+ TypeScript source files (7.7% coverage)",
+        "affected_items": ["ITEM-PATIENT-UI-RC-001", "ITEM-PATIENT-UI-RC-002", "ITEM-PATIENT-UI-RC-003", "ITEM-PATIENT-UI-RC-004", "ITEM-PATIENT-UI-RC-005", "ITEM-PATIENT-UI-RC-006", "ITEM-PATIENT-UI-RC-007", "ITEM-PATIENT-UI-RC-008", "ITEM-PATIENT-UI-RC-009", "ITEM-PATIENT-UI-RC-010"],
+        "priority": "high",
+        "recommendation": "Establish systematic unit testing for all safety-critical modules (authentication, consent, triage, appointments, patient data) with target 80%+ coverage for safety-relevant code"
+      },
+      {
+        "id": "ITEM-PATIENT-UI-GAP-012",
+        "type": "unverified_interface",
+        "description": "WebSocket reconnection and state synchronization not tested",
+        "affected_items": ["ITEM-PATIENT-UI-IF-005", "ITEM-PATIENT-UI-FM-002"],
+        "priority": "high",
+        "recommendation": "Add integration tests for WebSocket disconnect/reconnect scenarios, verify no data loss or state inconsistency during connection interruption"
+      }
+    ]
+  },
+
+  "aggregation_hints": {
+    "cross_item_interfaces": [
+      "healthmanager API (appointments, consents, triage)",
+      "directory2 API (patient data)",
+      "front-door API (clinical notes)",
+      "exit-actions API (post-appointment instructions)",
+      "WebSocket backend (real-time updates)",
+      "Platform24 Analytics (error logging)",
+      "CDN (design system, micro-frontends)"
+    ],
+    "shared_hazards": [
+      "Authentication token expiry (shared with practitioner-ui, clinic-ui)",
+      "WebSocket connection loss (shared with all real-time components)",
+      "API timeout and network errors (shared with all backend-dependent items)",
+      "Data persistence failures (shared with all items using backend storage)",
+      "Consent management errors (potentially shared with clinic-ui for verification)"
+    ],
+    "system_level_controls_needed": [
+      "End-to-end encryption for patient data in transit and at rest",
+      "Multi-factor authentication for patient accounts",
+      "Audit logging of all consent decisions and triage submissions",
+      "Real-time monitoring of API failure rates and WebSocket connection health",
+      "Automated alerting for universal error shutdown activations",
+      "Systematic backup and recovery for patient session state",
+      "Content Security Policy enforcement at infrastructure level",
+      "Rate limiting and DDoS protection for patient-facing endpoints"
+    ]
+  }
+}

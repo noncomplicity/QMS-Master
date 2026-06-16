@@ -1,0 +1,163 @@
+{
+  "_template_instructions": {
+    "purpose": "Define organizational risk acceptability criteria: severity levels, probability levels, and risk matrix",
+    "when_to_fill": "Early in risk management process - defines how risks will be evaluated",
+    "how_to_use": "1. Copy to Output/<system>/system/defined/risk-criteria.json, 2. Customize levels for your organization, 3. Remove _template_instructions",
+    "references": [
+      "ISO 14971:2019 clause 4.4 - Risk management plan",
+      "ISO 14971:2019 clause 6 - Risk evaluation"
+    ],
+    "notes": "These definitions should align with your organization's risk management policy"
+  },
+
+  "system_id": "<FILL: system identifier>",
+  "approved_by": "<FILL: name and role>",
+  "approval_date": "<FILL: ISO-8601 date>",
+  "version": "1.0",
+
+  "severity_levels": [
+    {
+      "level": "S1",
+      "name": "Negligible",
+      "description": "Inconvenience or temporary discomfort",
+      "examples": [
+        "Minor delay in non-urgent appointment",
+        "User needs to retry an action",
+        "Temporary display issue"
+      ],
+      "patient_impact": "No injury, minor inconvenience"
+    },
+    {
+      "level": "S2",
+      "name": "Minor",
+      "description": "Temporary injury or impairment not requiring professional medical intervention",
+      "examples": [
+        "Appointment rescheduled causing minor delay in care",
+        "Notification missed for non-urgent matter",
+        "User confusion leading to extra steps"
+      ],
+      "patient_impact": "Temporary discomfort, self-limiting"
+    },
+    {
+      "level": "S3",
+      "name": "Serious",
+      "description": "Injury or impairment requiring professional medical intervention",
+      "examples": [
+        "Significant delay in care requiring additional treatment",
+        "Incorrect practitioner assignment affecting care quality",
+        "Missed escalation for moderately urgent case"
+      ],
+      "patient_impact": "Requires professional intervention, reversible"
+    },
+    {
+      "level": "S4",
+      "name": "Critical",
+      "description": "Life-threatening injury or permanent impairment",
+      "examples": [
+        "Failed escalation for urgent case leading to delayed emergency care",
+        "Complete loss of patient data during active care",
+        "Wrong patient identification in critical workflow"
+      ],
+      "patient_impact": "Potential permanent impairment, life-threatening"
+    },
+    {
+      "level": "S5",
+      "name": "Catastrophic",
+      "description": "Death or severe permanent impairment",
+      "examples": [
+        "Total system failure during emergency escalation",
+        "Systematic error affecting multiple patients in critical care"
+      ],
+      "patient_impact": "Death or severe permanent disability"
+    }
+  ],
+
+  "probability_levels": [
+    {
+      "level": "P1",
+      "name": "Incredible",
+      "description": "So unlikely it can be assumed it will not occur",
+      "frequency": "< 1 in 1,000,000 uses",
+      "qualitative": "Has never occurred in similar systems, multiple barriers exist"
+    },
+    {
+      "level": "P2",
+      "name": "Remote",
+      "description": "Unlikely but possible to occur",
+      "frequency": "1 in 100,000 to 1 in 1,000,000 uses",
+      "qualitative": "Rare occurrence in similar systems, strong controls exist"
+    },
+    {
+      "level": "P3",
+      "name": "Occasional",
+      "description": "Likely to occur sometime in device lifetime",
+      "frequency": "1 in 10,000 to 1 in 100,000 uses",
+      "qualitative": "Has occurred in similar systems, controls present but not comprehensive"
+    },
+    {
+      "level": "P4",
+      "name": "Probable",
+      "description": "Will probably occur",
+      "frequency": "1 in 100 to 1 in 10,000 uses",
+      "qualitative": "Known to occur, limited controls"
+    },
+    {
+      "level": "P5",
+      "name": "Frequent",
+      "description": "Will occur repeatedly",
+      "frequency": "> 1 in 100 uses",
+      "qualitative": "Expected to occur regularly, insufficient controls"
+    }
+  ],
+
+  "risk_matrix": {
+    "_explanation": {
+      "acceptable": "Risk is acceptable without further action",
+      "alarp": "Risk must be reduced As Low As Reasonably Practicable",
+      "unacceptable": "Risk must be eliminated or reduced before release"
+    },
+    "matrix": {
+      "S1": {"P1": "acceptable", "P2": "acceptable", "P3": "acceptable", "P4": "acceptable", "P5": "alarp"},
+      "S2": {"P1": "acceptable", "P2": "acceptable", "P3": "acceptable", "P4": "alarp", "P5": "alarp"},
+      "S3": {"P1": "acceptable", "P2": "acceptable", "P3": "alarp", "P4": "alarp", "P5": "unacceptable"},
+      "S4": {"P1": "acceptable", "P2": "alarp", "P3": "alarp", "P4": "unacceptable", "P5": "unacceptable"},
+      "S5": {"P1": "alarp", "P2": "alarp", "P3": "unacceptable", "P4": "unacceptable", "P5": "unacceptable"}
+    },
+    "visual": [
+      "        P1         P2         P3         P4         P5      ",
+      "     Incredible  Remote   Occasional Probable  Frequent   ",
+      "S5  |  ALARP   |  ALARP   |  UNACCEPT | UNACCEPT | UNACCEPT |",
+      "S4  |  Accept  |  ALARP   |  ALARP    | UNACCEPT | UNACCEPT |",
+      "S3  |  Accept  |  Accept  |  ALARP    | ALARP    | UNACCEPT |",
+      "S2  |  Accept  |  Accept  |  Accept   | ALARP    | ALARP    |",
+      "S1  |  Accept  |  Accept  |  Accept   | Accept   | ALARP    |"
+    ]
+  },
+
+  "benefit_risk_policy": {
+    "when_applicable": "When residual risk is in ALARP region",
+    "criteria": [
+      "Clinical benefit must be documented and substantiated",
+      "No practical means to further reduce risk",
+      "Benefit must clearly outweigh residual risk",
+      "Risk must be disclosed to users"
+    ],
+    "approval_required": "Benefits exceeding risks requires review by: <FILL: role/committee>",
+    "documentation_required": [
+      "Description of clinical benefit",
+      "Justification that benefit outweighs risk",
+      "Disclosure text for IFU",
+      "Approval signature"
+    ]
+  },
+
+  "overall_residual_risk_policy": {
+    "evaluation_method": "Review all individual residual risks collectively to assess overall device risk",
+    "criteria_for_acceptable": [
+      "No individual unacceptable risks remain",
+      "ALARP risks have documented benefit-risk analysis",
+      "Cumulative risk from multiple ALARP items assessed",
+      "Risk disclosures prepared for IFU"
+    ]
+  }
+}

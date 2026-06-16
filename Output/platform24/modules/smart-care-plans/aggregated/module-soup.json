@@ -1,0 +1,811 @@
+{
+  "extraction_metadata": {
+    "aggregated_at": "2026-03-06T14:35:00Z",
+    "aggregator_version": "2.0",
+    "standard": "IEC 62304:2006+AMD1:2015",
+    "hierarchy": {
+      "level": "module",
+      "module_id": "smart-care-plans",
+      "module_name": "Smart Care Plans",
+      "parent_system": "platform24",
+      "child_items": ["health-manager"]
+    },
+    "source_extractions": [
+      {
+        "item_id": "health-manager",
+        "commit": "16e0273739eda65f73af5410323e1caf53362f16",
+        "extracted_at": "2026-03-06T15:15:00Z"
+      }
+    ]
+  },
+
+  "module_summary": {
+    "module_id": "smart-care-plans",
+    "total_soup_components": 12,
+    "unique_soup_components": 12,
+    "shared_soup_components": 0,
+    "version_conflicts": 0,
+    "high_risk_soup": 5,
+    "known_vulnerabilities": 0
+  },
+
+  "soup_by_item": {
+    "health-manager": {
+      "item_name": "Health Manager Service",
+      "soup_count": 12,
+      "soup_ids": [
+        "MOD-SCP-SOUP-001", "MOD-SCP-SOUP-002", "MOD-SCP-SOUP-003",
+        "MOD-SCP-SOUP-004", "MOD-SCP-SOUP-005", "MOD-SCP-SOUP-006",
+        "MOD-SCP-SOUP-007", "MOD-SCP-SOUP-008", "MOD-SCP-SOUP-009",
+        "MOD-SCP-SOUP-010", "MOD-SCP-SOUP-011", "MOD-SCP-SOUP-012"
+      ]
+    }
+  },
+
+  "soup_components": [
+    {
+      "id": "MOD-SCP-SOUP-001",
+      "name": "spring-boot-starter-web",
+      "module_version": "inherited from alerisx-mhp-parent 2.30.0",
+      "type": "framework",
+      "category": "infrastructure",
+      "license": "Apache-2.0",
+      "usage_by_item": [
+        {
+          "item_id": "health-manager",
+          "item_soup_id": "ITEM-HM-SOUP-001",
+          "version": "inherited from alerisx-mhp-parent 2.30.0",
+          "purpose": "Core Spring Boot web framework for REST API"
+        }
+      ],
+      "version_status": {
+        "consistent": true,
+        "versions_in_use": ["inherited from alerisx-mhp-parent 2.30.0"],
+        "recommended_version": "current",
+        "upgrade_notes": "Managed by parent POM"
+      },
+      "risk_assessment": {
+        "risk_level": "high",
+        "risk_level_rationale": "Core framework handling all HTTP requests for clinical data",
+        "contributing_assessments": [
+          {
+            "item_id": "health-manager",
+            "risk_level": "high",
+            "rationale": "HTTP request handling affects all clinical workflows"
+          }
+        ],
+        "failure_impact": "Complete service unavailability",
+        "failure_modes": ["Server startup failure", "Request processing errors", "Serialization failures"]
+      },
+      "published_anomalies": {
+        "known_issues": [],
+        "workarounds_applied": [],
+        "anomaly_documentation": null
+      },
+      "verification": {
+        "verification_approach": "Integration tests for all endpoints",
+        "items_with_verification": ["health-manager"],
+        "items_without_verification": [],
+        "verification_gaps": []
+      },
+      "vulnerability_status": {
+        "last_checked": "2026-03-06",
+        "known_cves": [],
+        "vulnerability_monitoring": "automated"
+      },
+      "maintenance": {
+        "vendor_support": "active",
+        "last_release": "2026-01-15",
+        "update_frequency": "monthly",
+        "source_repository": "https://github.com/spring-projects/spring-boot"
+      }
+    },
+    {
+      "id": "MOD-SCP-SOUP-002",
+      "name": "hibernate-core",
+      "module_version": "inherited from parent",
+      "type": "framework",
+      "category": "infrastructure",
+      "license": "LGPL-2.1",
+      "usage_by_item": [
+        {
+          "item_id": "health-manager",
+          "item_soup_id": "ITEM-HM-SOUP-002",
+          "version": "inherited from parent",
+          "purpose": "JPA ORM implementation for database persistence"
+        }
+      ],
+      "version_status": {
+        "consistent": true,
+        "versions_in_use": ["inherited from parent"],
+        "recommended_version": "current",
+        "upgrade_notes": "Managed by parent POM"
+      },
+      "risk_assessment": {
+        "risk_level": "high",
+        "risk_level_rationale": "All clinical data persistence flows through Hibernate",
+        "contributing_assessments": [
+          {
+            "item_id": "health-manager",
+            "risk_level": "high",
+            "rationale": "Data corruption in ORM layer could lead to incorrect clinical information"
+          }
+        ],
+        "failure_impact": "Data persistence failure, potential data corruption",
+        "failure_modes": ["Database connection failure", "Entity mapping errors", "Transaction rollback", "Data corruption"]
+      },
+      "published_anomalies": {
+        "known_issues": [],
+        "workarounds_applied": [],
+        "anomaly_documentation": null
+      },
+      "verification": {
+        "verification_approach": "Integration tests with database, Data integrity tests",
+        "items_with_verification": ["health-manager"],
+        "items_without_verification": [],
+        "verification_gaps": []
+      },
+      "vulnerability_status": {
+        "last_checked": "2026-03-06",
+        "known_cves": [],
+        "vulnerability_monitoring": "automated"
+      },
+      "maintenance": {
+        "vendor_support": "active",
+        "last_release": "2026-01-10",
+        "update_frequency": "monthly",
+        "source_repository": "https://github.com/hibernate/hibernate-orm"
+      }
+    },
+    {
+      "id": "MOD-SCP-SOUP-003",
+      "name": "spring-boot-starter-artemis",
+      "module_version": "inherited from parent",
+      "type": "framework",
+      "category": "infrastructure",
+      "license": "Apache-2.0",
+      "usage_by_item": [
+        {
+          "item_id": "health-manager",
+          "item_soup_id": "ITEM-HM-SOUP-003",
+          "version": "inherited from parent",
+          "purpose": "JMS messaging with ActiveMQ Artemis for async event processing"
+        }
+      ],
+      "version_status": {
+        "consistent": true,
+        "versions_in_use": ["inherited from parent"],
+        "recommended_version": "current",
+        "upgrade_notes": "Managed by parent POM"
+      },
+      "risk_assessment": {
+        "risk_level": "high",
+        "risk_level_rationale": "Async messaging critical for booking synchronization and handover events",
+        "contributing_assessments": [
+          {
+            "item_id": "health-manager",
+            "risk_level": "high",
+            "rationale": "Message loss could cause appointment data inconsistencies across services"
+          }
+        ],
+        "failure_impact": "Message loss, data inconsistency between services",
+        "failure_modes": ["Message loss", "Duplicate processing", "Connection failure", "Message ordering issues"]
+      },
+      "published_anomalies": {
+        "known_issues": [],
+        "workarounds_applied": [],
+        "anomaly_documentation": null
+      },
+      "verification": {
+        "verification_approach": "Message processing tests, Failure recovery tests",
+        "items_with_verification": ["health-manager"],
+        "items_without_verification": [],
+        "verification_gaps": []
+      },
+      "vulnerability_status": {
+        "last_checked": "2026-03-06",
+        "known_cves": [],
+        "vulnerability_monitoring": "automated"
+      },
+      "maintenance": {
+        "vendor_support": "active",
+        "last_release": "2026-01-15",
+        "update_frequency": "monthly",
+        "source_repository": "https://github.com/spring-projects/spring-boot"
+      }
+    },
+    {
+      "id": "MOD-SCP-SOUP-004",
+      "name": "querydsl-jpa",
+      "module_version": "inherited from parent",
+      "type": "library",
+      "category": "functional",
+      "license": "Apache-2.0",
+      "usage_by_item": [
+        {
+          "item_id": "health-manager",
+          "item_soup_id": "ITEM-HM-SOUP-004",
+          "version": "inherited from parent",
+          "purpose": "Type-safe JPA query building"
+        }
+      ],
+      "version_status": {
+        "consistent": true,
+        "versions_in_use": ["inherited from parent"],
+        "recommended_version": "current",
+        "upgrade_notes": "Managed by parent POM"
+      },
+      "risk_assessment": {
+        "risk_level": "medium",
+        "risk_level_rationale": "Used for complex clinic listing queries",
+        "contributing_assessments": [
+          {
+            "item_id": "health-manager",
+            "risk_level": "medium",
+            "rationale": "Query errors could affect clinic views"
+          }
+        ],
+        "failure_impact": "Query failures, incorrect data retrieval",
+        "failure_modes": ["Query construction errors", "Performance issues"]
+      },
+      "published_anomalies": {
+        "known_issues": [],
+        "workarounds_applied": [],
+        "anomaly_documentation": null
+      },
+      "verification": {
+        "verification_approach": "Query result verification",
+        "items_with_verification": ["health-manager"],
+        "items_without_verification": [],
+        "verification_gaps": []
+      },
+      "vulnerability_status": {
+        "last_checked": "2026-03-06",
+        "known_cves": [],
+        "vulnerability_monitoring": "automated"
+      },
+      "maintenance": {
+        "vendor_support": "maintained",
+        "last_release": "2025-06-01",
+        "update_frequency": "quarterly",
+        "source_repository": "https://github.com/querydsl/querydsl"
+      }
+    },
+    {
+      "id": "MOD-SCP-SOUP-005",
+      "name": "blaze-persistence-integration-querydsl-expressions",
+      "module_version": "1.6.11",
+      "type": "library",
+      "category": "functional",
+      "license": "Apache-2.0",
+      "usage_by_item": [
+        {
+          "item_id": "health-manager",
+          "item_soup_id": "ITEM-HM-SOUP-005",
+          "version": "1.6.11",
+          "purpose": "Enhanced QueryDSL with pagination and performance optimizations"
+        }
+      ],
+      "version_status": {
+        "consistent": true,
+        "versions_in_use": ["1.6.11"],
+        "recommended_version": "1.6.11",
+        "upgrade_notes": null
+      },
+      "risk_assessment": {
+        "risk_level": "low",
+        "risk_level_rationale": "Performance enhancement library",
+        "contributing_assessments": [
+          {
+            "item_id": "health-manager",
+            "risk_level": "low",
+            "rationale": "Performance enhancement, not safety-critical"
+          }
+        ],
+        "failure_impact": "Performance degradation",
+        "failure_modes": ["Performance degradation fallback"]
+      },
+      "published_anomalies": {
+        "known_issues": [],
+        "workarounds_applied": [],
+        "anomaly_documentation": null
+      },
+      "verification": {
+        "verification_approach": "Performance testing",
+        "items_with_verification": ["health-manager"],
+        "items_without_verification": [],
+        "verification_gaps": []
+      },
+      "vulnerability_status": {
+        "last_checked": "2026-03-06",
+        "known_cves": [],
+        "vulnerability_monitoring": "automated"
+      },
+      "maintenance": {
+        "vendor_support": "active",
+        "last_release": "2025-09-01",
+        "update_frequency": "quarterly",
+        "source_repository": "https://github.com/Blazebit/blaze-persistence"
+      }
+    },
+    {
+      "id": "MOD-SCP-SOUP-006",
+      "name": "lombok",
+      "module_version": "1.18.30",
+      "type": "tool",
+      "category": "development",
+      "license": "MIT",
+      "usage_by_item": [
+        {
+          "item_id": "health-manager",
+          "item_soup_id": "ITEM-HM-SOUP-006",
+          "version": "1.18.30",
+          "purpose": "Compile-time boilerplate code generation"
+        }
+      ],
+      "version_status": {
+        "consistent": true,
+        "versions_in_use": ["1.18.30"],
+        "recommended_version": "1.18.30",
+        "upgrade_notes": null
+      },
+      "risk_assessment": {
+        "risk_level": "low",
+        "risk_level_rationale": "Compile-time only, no runtime impact",
+        "contributing_assessments": [
+          {
+            "item_id": "health-manager",
+            "risk_level": "low",
+            "rationale": "No runtime execution"
+          }
+        ],
+        "failure_impact": "Compilation failure only",
+        "failure_modes": ["Compilation failure"]
+      },
+      "published_anomalies": {
+        "known_issues": [],
+        "workarounds_applied": [],
+        "anomaly_documentation": null
+      },
+      "verification": {
+        "verification_approach": "N/A - compile time only",
+        "items_with_verification": [],
+        "items_without_verification": ["health-manager"],
+        "verification_gaps": []
+      },
+      "vulnerability_status": {
+        "last_checked": "2026-03-06",
+        "known_cves": [],
+        "vulnerability_monitoring": "automated"
+      },
+      "maintenance": {
+        "vendor_support": "active",
+        "last_release": "2025-11-01",
+        "update_frequency": "monthly",
+        "source_repository": "https://github.com/projectlombok/lombok"
+      }
+    },
+    {
+      "id": "MOD-SCP-SOUP-007",
+      "name": "easy-rules-core",
+      "module_version": "3.4.0",
+      "type": "library",
+      "category": "functional",
+      "license": "MIT",
+      "usage_by_item": [
+        {
+          "item_id": "health-manager",
+          "item_soup_id": "ITEM-HM-SOUP-007",
+          "version": "3.4.0",
+          "purpose": "Rules engine for appointment escalation logic"
+        }
+      ],
+      "version_status": {
+        "consistent": true,
+        "versions_in_use": ["3.4.0"],
+        "recommended_version": "3.4.0",
+        "upgrade_notes": "Consider migration to alternative rules engine due to minimal maintenance"
+      },
+      "risk_assessment": {
+        "risk_level": "high",
+        "risk_level_rationale": "Escalation rules determine clinical priority and response times",
+        "contributing_assessments": [
+          {
+            "item_id": "health-manager",
+            "risk_level": "high",
+            "rationale": "Incorrect escalation could delay critical patient care"
+          }
+        ],
+        "failure_impact": "Incorrect or missed escalation of critical appointments",
+        "failure_modes": ["Rule evaluation errors", "Priority miscalculation"]
+      },
+      "published_anomalies": {
+        "known_issues": [],
+        "workarounds_applied": [],
+        "anomaly_documentation": null
+      },
+      "verification": {
+        "verification_approach": "Rule evaluation tests, Escalation scenario tests",
+        "items_with_verification": ["health-manager"],
+        "items_without_verification": [],
+        "verification_gaps": []
+      },
+      "vulnerability_status": {
+        "last_checked": "2026-03-06",
+        "known_cves": [],
+        "vulnerability_monitoring": "automated"
+      },
+      "maintenance": {
+        "vendor_support": "minimal",
+        "last_release": "2020-07-15",
+        "update_frequency": "inactive",
+        "source_repository": "https://github.com/j-easy/easy-rules"
+      }
+    },
+    {
+      "id": "MOD-SCP-SOUP-008",
+      "name": "kco-rest",
+      "module_version": "4.0.3",
+      "type": "library",
+      "category": "functional",
+      "license": "Apache-2.0",
+      "usage_by_item": [
+        {
+          "item_id": "health-manager",
+          "item_soup_id": "ITEM-HM-SOUP-008",
+          "version": "4.0.3",
+          "purpose": "Klarna Checkout v3 SDK for payment processing"
+        }
+      ],
+      "version_status": {
+        "consistent": true,
+        "versions_in_use": ["4.0.3"],
+        "recommended_version": "check for updates",
+        "upgrade_notes": "Version is over 2 years old, check for updates"
+      },
+      "risk_assessment": {
+        "risk_level": "medium",
+        "risk_level_rationale": "Payment processing for healthcare services",
+        "contributing_assessments": [
+          {
+            "item_id": "health-manager",
+            "risk_level": "medium",
+            "rationale": "Financial transaction handling"
+          }
+        ],
+        "failure_impact": "Payment failures, financial discrepancies",
+        "failure_modes": ["Payment failure", "Double charging", "Refund failure"]
+      },
+      "published_anomalies": {
+        "known_issues": [],
+        "workarounds_applied": [],
+        "anomaly_documentation": null
+      },
+      "verification": {
+        "verification_approach": "Payment integration tests",
+        "items_with_verification": ["health-manager"],
+        "items_without_verification": [],
+        "verification_gaps": []
+      },
+      "vulnerability_status": {
+        "last_checked": "2026-03-06",
+        "known_cves": [],
+        "vulnerability_monitoring": "automated"
+      },
+      "maintenance": {
+        "vendor_support": "maintained",
+        "last_release": "2024-03-01",
+        "update_frequency": "annual",
+        "source_repository": "https://github.com/klarna/kco-rest-java"
+      }
+    },
+    {
+      "id": "MOD-SCP-SOUP-009",
+      "name": "shedlock-spring",
+      "module_version": "5.12.0",
+      "type": "library",
+      "category": "infrastructure",
+      "license": "Apache-2.0",
+      "usage_by_item": [
+        {
+          "item_id": "health-manager",
+          "item_soup_id": "ITEM-HM-SOUP-009",
+          "version": "5.12.0",
+          "purpose": "Distributed lock for scheduled tasks"
+        }
+      ],
+      "version_status": {
+        "consistent": true,
+        "versions_in_use": ["5.12.0"],
+        "recommended_version": "5.12.0",
+        "upgrade_notes": null
+      },
+      "risk_assessment": {
+        "risk_level": "medium",
+        "risk_level_rationale": "Ensures scheduled clinical notifications run exactly once",
+        "contributing_assessments": [
+          {
+            "item_id": "health-manager",
+            "risk_level": "medium",
+            "rationale": "Failed locking could cause missed or duplicate patient notifications"
+          }
+        ],
+        "failure_impact": "Duplicate or missed scheduled jobs",
+        "failure_modes": ["Lock acquisition failure", "Duplicate execution"]
+      },
+      "published_anomalies": {
+        "known_issues": [],
+        "workarounds_applied": [],
+        "anomaly_documentation": null
+      },
+      "verification": {
+        "verification_approach": "Cluster scheduling tests",
+        "items_with_verification": [],
+        "items_without_verification": ["health-manager"],
+        "verification_gaps": ["No cluster environment tests"]
+      },
+      "vulnerability_status": {
+        "last_checked": "2026-03-06",
+        "known_cves": [],
+        "vulnerability_monitoring": "automated"
+      },
+      "maintenance": {
+        "vendor_support": "active",
+        "last_release": "2025-12-01",
+        "update_frequency": "monthly",
+        "source_repository": "https://github.com/lukas-krecan/ShedLock"
+      }
+    },
+    {
+      "id": "MOD-SCP-SOUP-010",
+      "name": "alerisx-audit-logging-sdk",
+      "module_version": "2.84.0",
+      "type": "library",
+      "category": "security",
+      "license": "Proprietary",
+      "usage_by_item": [
+        {
+          "item_id": "health-manager",
+          "item_soup_id": "ITEM-HM-SOUP-010",
+          "version": "2.84.0",
+          "purpose": "Clinical audit trail logging for regulatory compliance"
+        }
+      ],
+      "version_status": {
+        "consistent": true,
+        "versions_in_use": ["2.84.0"],
+        "recommended_version": "2.84.0",
+        "upgrade_notes": null
+      },
+      "risk_assessment": {
+        "risk_level": "high",
+        "risk_level_rationale": "Audit logging required for regulatory compliance and incident investigation",
+        "contributing_assessments": [
+          {
+            "item_id": "health-manager",
+            "risk_level": "high",
+            "rationale": "Missing audit logs could impair incident investigation and regulatory compliance"
+          }
+        ],
+        "failure_impact": "Missing audit trail, compliance failure",
+        "failure_modes": ["Log loss", "Incomplete audit trail"]
+      },
+      "published_anomalies": {
+        "known_issues": [],
+        "workarounds_applied": [],
+        "anomaly_documentation": null
+      },
+      "verification": {
+        "verification_approach": "Audit completeness tests",
+        "items_with_verification": [],
+        "items_without_verification": ["health-manager"],
+        "verification_gaps": ["No audit completeness verification"]
+      },
+      "vulnerability_status": {
+        "last_checked": "2026-03-06",
+        "known_cves": [],
+        "vulnerability_monitoring": "internal"
+      },
+      "maintenance": {
+        "vendor_support": "active",
+        "last_release": "2026-01-20",
+        "update_frequency": "weekly",
+        "source_repository": "https://gitlab.com/doktor24/libraries/audit-logging-sdk"
+      }
+    },
+    {
+      "id": "MOD-SCP-SOUP-011",
+      "name": "mysql-connector-j",
+      "module_version": "8.4.0",
+      "type": "library",
+      "category": "infrastructure",
+      "license": "GPL-2.0 with FOSS exception",
+      "usage_by_item": [
+        {
+          "item_id": "health-manager",
+          "item_soup_id": "ITEM-HM-SOUP-011",
+          "version": "8.4.0",
+          "purpose": "MySQL/MariaDB JDBC driver"
+        }
+      ],
+      "version_status": {
+        "consistent": true,
+        "versions_in_use": ["8.4.0"],
+        "recommended_version": "8.4.0",
+        "upgrade_notes": null
+      },
+      "risk_assessment": {
+        "risk_level": "high",
+        "risk_level_rationale": "All database operations depend on JDBC driver",
+        "contributing_assessments": [
+          {
+            "item_id": "health-manager",
+            "risk_level": "high",
+            "rationale": "Driver failures would prevent all data persistence"
+          }
+        ],
+        "failure_impact": "Database connectivity failure",
+        "failure_modes": ["Connection failure", "Query execution errors"]
+      },
+      "published_anomalies": {
+        "known_issues": [],
+        "workarounds_applied": [],
+        "anomaly_documentation": null
+      },
+      "verification": {
+        "verification_approach": "Database connectivity tests",
+        "items_with_verification": ["health-manager"],
+        "items_without_verification": [],
+        "verification_gaps": []
+      },
+      "vulnerability_status": {
+        "last_checked": "2026-03-06",
+        "known_cves": [],
+        "vulnerability_monitoring": "automated"
+      },
+      "maintenance": {
+        "vendor_support": "active",
+        "last_release": "2025-10-01",
+        "update_frequency": "quarterly",
+        "source_repository": "https://github.com/mysql/mysql-connector-j"
+      }
+    },
+    {
+      "id": "MOD-SCP-SOUP-012",
+      "name": "jackson-datatype-jsr310",
+      "module_version": "inherited from parent",
+      "type": "library",
+      "category": "functional",
+      "license": "Apache-2.0",
+      "usage_by_item": [
+        {
+          "item_id": "health-manager",
+          "item_soup_id": "ITEM-HM-SOUP-012",
+          "version": "inherited from parent",
+          "purpose": "Java 8 date/time serialization for JSON"
+        }
+      ],
+      "version_status": {
+        "consistent": true,
+        "versions_in_use": ["inherited from parent"],
+        "recommended_version": "current",
+        "upgrade_notes": "Managed by parent POM"
+      },
+      "risk_assessment": {
+        "risk_level": "medium",
+        "risk_level_rationale": "Date/time handling critical for appointment scheduling",
+        "contributing_assessments": [
+          {
+            "item_id": "health-manager",
+            "risk_level": "medium",
+            "rationale": "Incorrect date serialization could cause scheduling errors"
+          }
+        ],
+        "failure_impact": "Date/time serialization errors affecting appointments",
+        "failure_modes": ["Serialization errors", "Timezone issues"]
+      },
+      "published_anomalies": {
+        "known_issues": [],
+        "workarounds_applied": [],
+        "anomaly_documentation": null
+      },
+      "verification": {
+        "verification_approach": "Date serialization tests",
+        "items_with_verification": ["health-manager"],
+        "items_without_verification": [],
+        "verification_gaps": []
+      },
+      "vulnerability_status": {
+        "last_checked": "2026-03-06",
+        "known_cves": [],
+        "vulnerability_monitoring": "automated"
+      },
+      "maintenance": {
+        "vendor_support": "active",
+        "last_release": "2026-01-01",
+        "update_frequency": "monthly",
+        "source_repository": "https://github.com/FasterXML/jackson-modules-java8"
+      }
+    }
+  ],
+
+  "version_conflicts": [],
+
+  "cross_item_impact": [
+    {
+      "soup_id": "MOD-SCP-SOUP-002",
+      "soup_name": "hibernate-core",
+      "items_dependent": 1,
+      "cascade_risk": "high",
+      "cascade_description": "All database persistence flows through Hibernate; failure affects all data operations",
+      "redundancy": "none",
+      "single_point_of_failure": true
+    },
+    {
+      "soup_id": "MOD-SCP-SOUP-003",
+      "soup_name": "spring-boot-starter-artemis",
+      "items_dependent": 1,
+      "cascade_risk": "high",
+      "cascade_description": "All async messaging depends on Artemis; failure affects all event processing",
+      "redundancy": "none",
+      "single_point_of_failure": true
+    }
+  ],
+
+  "traceability": {
+    "to_item_soup": [
+      {"module_soup_id": "MOD-SCP-SOUP-001", "item_soup_ids": ["ITEM-HM-SOUP-001"]},
+      {"module_soup_id": "MOD-SCP-SOUP-002", "item_soup_ids": ["ITEM-HM-SOUP-002"]},
+      {"module_soup_id": "MOD-SCP-SOUP-003", "item_soup_ids": ["ITEM-HM-SOUP-003"]},
+      {"module_soup_id": "MOD-SCP-SOUP-004", "item_soup_ids": ["ITEM-HM-SOUP-004"]},
+      {"module_soup_id": "MOD-SCP-SOUP-005", "item_soup_ids": ["ITEM-HM-SOUP-005"]},
+      {"module_soup_id": "MOD-SCP-SOUP-006", "item_soup_ids": ["ITEM-HM-SOUP-006"]},
+      {"module_soup_id": "MOD-SCP-SOUP-007", "item_soup_ids": ["ITEM-HM-SOUP-007"]},
+      {"module_soup_id": "MOD-SCP-SOUP-008", "item_soup_ids": ["ITEM-HM-SOUP-008"]},
+      {"module_soup_id": "MOD-SCP-SOUP-009", "item_soup_ids": ["ITEM-HM-SOUP-009"]},
+      {"module_soup_id": "MOD-SCP-SOUP-010", "item_soup_ids": ["ITEM-HM-SOUP-010"]},
+      {"module_soup_id": "MOD-SCP-SOUP-011", "item_soup_ids": ["ITEM-HM-SOUP-011"]},
+      {"module_soup_id": "MOD-SCP-SOUP-012", "item_soup_ids": ["ITEM-HM-SOUP-012"]}
+    ],
+    "to_item_requirements": [
+      {"soup_id": "MOD-SCP-SOUP-001", "requirement_ids": ["ITEM-HM-REQ-INT-001"]},
+      {"soup_id": "MOD-SCP-SOUP-002", "requirement_ids": ["ITEM-HM-REQ-DATA-001"]},
+      {"soup_id": "MOD-SCP-SOUP-003", "requirement_ids": ["ITEM-HM-REQ-INT-001", "ITEM-HM-REQ-INT-002"]},
+      {"soup_id": "MOD-SCP-SOUP-007", "requirement_ids": ["ITEM-HM-REQ-FUNC-010"]},
+      {"soup_id": "MOD-SCP-SOUP-008", "requirement_ids": ["ITEM-HM-REQ-INT-008"]},
+      {"soup_id": "MOD-SCP-SOUP-009", "requirement_ids": ["ITEM-HM-REQ-FUNC-011"]},
+      {"soup_id": "MOD-SCP-SOUP-010", "requirement_ids": ["ITEM-HM-REQ-SEC-001"]},
+      {"soup_id": "MOD-SCP-SOUP-011", "requirement_ids": ["ITEM-HM-REQ-DATA-001"]}
+    ]
+  },
+
+  "gaps": [
+    {
+      "id": "MOD-SCP-SOUP-GAP-001",
+      "type": "maintenance_risk",
+      "description": "easy-rules-core has minimal maintenance (last release 2020)",
+      "affected_soup": ["MOD-SCP-SOUP-007"],
+      "affected_items": ["health-manager"],
+      "recommendation": "Monitor for security issues, consider alternative rules engine if unmaintained",
+      "priority": "medium"
+    },
+    {
+      "id": "MOD-SCP-SOUP-GAP-002",
+      "type": "missing_verification",
+      "description": "ShedLock lacks cluster environment verification tests",
+      "affected_soup": ["MOD-SCP-SOUP-009"],
+      "affected_items": ["health-manager"],
+      "recommendation": "Add multi-instance scheduling tests",
+      "priority": "medium"
+    },
+    {
+      "id": "MOD-SCP-SOUP-GAP-003",
+      "type": "missing_verification",
+      "description": "Audit logging SDK lacks completeness verification",
+      "affected_soup": ["MOD-SCP-SOUP-010"],
+      "affected_items": ["health-manager"],
+      "recommendation": "Add audit coverage tests for all clinical operations",
+      "priority": "medium"
+    }
+  ]
+}

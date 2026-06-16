@@ -14,7 +14,7 @@ owner: "R&D Management"
 # Identification of data
 
 Considerations for the identification of relevant clinical data:
-- [[Pre-Market Clinical Data for AI-Based Medical Device Software]]
+- [Pre-Market Clinical Data for AI-Based Medical Device Software](Pre-Market%20Clinical%20Data%20for%20AI-Based%20Medical%20Device%20Software.md)
 
 
 ## External Sources for Scientific Litterateur

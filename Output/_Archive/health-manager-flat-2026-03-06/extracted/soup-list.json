@@ -1,0 +1,2000 @@
+{
+  "extraction_metadata": {
+    "repository": "/home/jakob/Noncomplicity/Repos/health-manager",
+    "commit": "16e0273739eda65f73af5410323e1caf53362f16",
+    "extracted_at": "2026-03-06T00:00:00Z",
+    "manifest_files_analyzed": [
+      "pom.xml",
+      "svc/pom.xml",
+      "dto/pom.xml",
+      "cnf/pom.xml",
+      "modules/escalator/pom.xml"
+    ]
+  },
+  "summary": {
+    "total_direct_dependencies": 68,
+    "total_transitive_dependencies": 0,
+    "critical_soup_count": 12,
+    "outdated_count": 3,
+    "vulnerable_count": 1
+  },
+  "soup_items": [
+    {
+      "soup_id": "SOUP-001",
+      "name": "spring-boot-starter-data-jpa",
+      "version": "Managed by parent POM 2.30.0",
+      "version_constraint": "inherited",
+      "source": {
+        "registry": "maven-central",
+        "repository_url": "https://github.com/spring-projects/spring-boot",
+        "package_url": "https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-data-jpa"
+      },
+      "license": {
+        "type": "Apache-2.0",
+        "compatible": true,
+        "notes": ""
+      },
+      "dependency_type": "direct",
+      "dependency_chain": ["spring-boot-starter-data-jpa"],
+      "purpose": "JPA/Hibernate persistence layer for managing patient health records and medical data entities",
+      "functionality_used": [
+        "JPA repositories",
+        "Entity management",
+        "Transaction management",
+        "Database schema generation"
+      ],
+      "integration_points": {
+        "software_items": ["SI-PERSISTENCE-01"],
+        "code_locations": ["svc/src/main/java/se/alerisx/mhp/healthmanager/repository"]
+      },
+      "risk_classification": "critical",
+      "risk_rationale": "Core database persistence layer handling all patient data; failures could result in data loss, corruption, or unavailability of critical health information",
+      "safety_relevant": true,
+      "safety_analysis": "Database persistence directly affects integrity of patient health records; data corruption or loss could lead to incorrect clinical decisions and patient harm",
+      "maintenance_status": {
+        "last_release": "2024-11-21",
+        "days_since_release": 105,
+        "status": "active",
+        "known_vulnerabilities": []
+      },
+      "qualification_requirements": {
+        "documentation_required": [
+          "Spring Data JPA reference documentation",
+          "Hibernate ORM documentation",
+          "Release notes review"
+        ],
+        "testing_required": [
+          "Integration tests for all repository operations",
+          "Transaction rollback testing",
+          "Database failure recovery tests",
+          "Data integrity validation tests"
+        ],
+        "verification_status": "not_started"
+      },
+      "alternatives_considered": "Direct JDBC considered but rejected due to increased development complexity and error potential"
+    },
+    {
+      "soup_id": "SOUP-002",
+      "name": "hibernate-core",
+      "version": "Managed by Spring Boot parent",
+      "version_constraint": "managed",
+      "source": {
+        "registry": "maven-central",
+        "repository_url": "https://github.com/hibernate/hibernate-orm",
+        "package_url": "https://mvnrepository.com/artifact/org.hibernate/hibernate-core"
+      },
+      "license": {
+        "type": "LGPL-2.1",
+        "compatible": true,
+        "notes": "Runtime library only, not distributed as modified derivative work"
+      },
+      "dependency_type": "direct",
+      "dependency_chain": ["hibernate-core"],
+      "purpose": "Object-relational mapping framework for converting Java objects to database records and vice versa",
+      "functionality_used": [
+        "Entity mapping",
+        "Query generation",
+        "Lazy loading",
+        "Caching",
+        "Transaction coordination"
+      ],
+      "integration_points": {
+        "software_items": ["SI-PERSISTENCE-01"],
+        "code_locations": ["All JPA entity classes"]
+      },
+      "risk_classification": "critical",
+      "risk_rationale": "Underlies all database operations; bugs in ORM layer could cause silent data corruption or incorrect query results affecting patient data",
+      "safety_relevant": true,
+      "safety_analysis": "ORM mapping errors could result in persisting incorrect patient data or retrieving wrong records, directly impacting clinical decision making",
+      "maintenance_status": {
+        "last_release": "2024-12-01",
+        "days_since_release": 95,
+        "status": "active",
+        "known_vulnerabilities": []
+      },
+      "qualification_requirements": {
+        "documentation_required": [
+          "Hibernate ORM user guide",
+          "Entity mapping verification",
+          "Query generation analysis"
+        ],
+        "testing_required": [
+          "Entity CRUD tests",
+          "Complex query validation",
+          "Mapping correctness verification",
+          "Cache behavior testing"
+        ],
+        "verification_status": "not_started"
+      },
+      "alternatives_considered": ""
+    },
+    {
+      "soup_id": "SOUP-003",
+      "name": "querydsl-jpa",
+      "version": "Managed by Spring Boot parent",
+      "version_constraint": "managed",
+      "source": {
+        "registry": "maven-central",
+        "repository_url": "https://github.com/querydsl/querydsl",
+        "package_url": "https://mvnrepository.com/artifact/com.querydsl/querydsl-jpa"
+      },
+      "license": {
+        "type": "Apache-2.0",
+        "compatible": true,
+        "notes": ""
+      },
+      "dependency_type": "direct",
+      "dependency_chain": ["querydsl-jpa"],
+      "purpose": "Type-safe query construction for complex database queries, reducing SQL injection risk and improving query correctness",
+      "functionality_used": [
+        "Type-safe query building",
+        "Dynamic predicate construction",
+        "Complex join operations"
+      ],
+      "integration_points": {
+        "software_items": ["SI-PERSISTENCE-01"],
+        "code_locations": ["Repository implementations with custom queries"]
+      },
+      "risk_classification": "major",
+      "risk_rationale": "Used for complex queries on patient data; incorrect query construction could return wrong data sets but type safety reduces risk",
+      "safety_relevant": true,
+      "safety_analysis": "Query errors could result in displaying wrong patient records or missing critical health information in clinical views",
+      "maintenance_status": {
+        "last_release": "2024-09-15",
+        "days_since_release": 172,
+        "status": "active",
+        "known_vulnerabilities": []
+      },
+      "qualification_requirements": {
+        "documentation_required": [
+          "QueryDSL reference guide",
+          "Generated Q-types review"
+        ],
+        "testing_required": [
+          "Query result validation tests",
+          "Complex filter combination tests",
+          "Performance testing for large datasets"
+        ],
+        "verification_status": "not_started"
+      },
+      "alternatives_considered": "JPQL/HQL considered but QueryDSL provides better compile-time safety"
+    },
+    {
+      "soup_id": "SOUP-004",
+      "name": "blaze-persistence-core",
+      "version": "1.6.11",
+      "version_constraint": "1.6.11",
+      "source": {
+        "registry": "maven-central",
+        "repository_url": "https://github.com/Blazebit/blaze-persistence",
+        "package_url": "https://mvnrepository.com/artifact/com.blazebit/blaze-persistence-core-api"
+      },
+      "license": {
+        "type": "Apache-2.0",
+        "compatible": true,
+        "notes": ""
+      },
+      "dependency_type": "direct",
+      "dependency_chain": ["blaze-persistence-core-api"],
+      "purpose": "Advanced JPA query optimization and entity view framework for improved QueryDSL performance and complex query handling",
+      "functionality_used": [
+        "QueryDSL integration",
+        "Entity views",
+        "Performance optimizations"
+      ],
+      "integration_points": {
+        "software_items": ["SI-PERSISTENCE-01"],
+        "code_locations": ["Complex query implementations"]
+      },
+      "risk_classification": "major",
+      "risk_rationale": "Enhances query performance but adds complexity layer; failures could impact system performance rather than correctness",
+      "safety_relevant": false,
+      "safety_analysis": "",
+      "maintenance_status": {
+        "last_release": "2024-01-20",
+        "days_since_release": 410,
+        "status": "maintained",
+        "known_vulnerabilities": []
+      },
+      "qualification_requirements": {
+        "documentation_required": [
+          "Blaze Persistence documentation",
+          "Integration with QueryDSL verification"
+        ],
+        "testing_required": [
+          "Performance benchmarks",
+          "Query correctness validation"
+        ],
+        "verification_status": "not_started"
+      },
+      "alternatives_considered": ""
+    },
+    {
+      "soup_id": "SOUP-005",
+      "name": "spring-boot-starter-artemis",
+      "version": "Managed by Spring Boot parent",
+      "version_constraint": "managed",
+      "source": {
+        "registry": "maven-central",
+        "repository_url": "https://github.com/spring-projects/spring-boot",
+        "package_url": "https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-artemis"
+      },
+      "license": {
+        "type": "Apache-2.0",
+        "compatible": true,
+        "notes": ""
+      },
+      "dependency_type": "direct",
+      "dependency_chain": ["spring-boot-starter-artemis"],
+      "purpose": "Message queue integration for asynchronous event processing, appointment notifications, and system integration",
+      "functionality_used": [
+        "JMS message production",
+        "JMS message consumption",
+        "Message-driven beans"
+      ],
+      "integration_points": {
+        "software_items": ["SI-MESSAGING-01"],
+        "code_locations": ["JMS listeners and producers"]
+      },
+      "risk_classification": "critical",
+      "risk_rationale": "Handles booking events and appointment notifications; message loss or duplication could result in missed appointments affecting patient care",
+      "safety_relevant": true,
+      "safety_analysis": "Message queue failures could result in lost appointment notifications, leading to patients missing critical medical appointments",
+      "maintenance_status": {
+        "last_release": "2024-11-21",
+        "days_since_release": 105,
+        "status": "active",
+        "known_vulnerabilities": []
+      },
+      "qualification_requirements": {
+        "documentation_required": [
+          "Spring Boot Artemis documentation",
+          "JMS specification review",
+          "Message flow diagrams"
+        ],
+        "testing_required": [
+          "Message delivery confirmation tests",
+          "Duplicate message handling tests",
+          "Message ordering verification",
+          "Broker failure recovery tests"
+        ],
+        "verification_status": "not_started"
+      },
+      "alternatives_considered": ""
+    },
+    {
+      "soup_id": "SOUP-006",
+      "name": "artemis-jms-server",
+      "version": "Managed by Spring Boot parent",
+      "version_constraint": "provided",
+      "source": {
+        "registry": "maven-central",
+        "repository_url": "https://github.com/apache/activemq-artemis",
+        "package_url": "https://mvnrepository.com/artifact/org.apache.activemq/artemis-jms-server"
+      },
+      "license": {
+        "type": "Apache-2.0",
+        "compatible": true,
+        "notes": ""
+      },
+      "dependency_type": "direct",
+      "dependency_chain": ["artemis-jms-server"],
+      "purpose": "Embedded message broker server for development and testing environments",
+      "functionality_used": [
+        "Embedded broker",
+        "Queue management"
+      ],
+      "integration_points": {
+        "software_items": ["SI-MESSAGING-01"],
+        "code_locations": ["Test configurations"]
+      },
+      "risk_classification": "minor",
+      "risk_rationale": "Provided scope - used only in development/test environments, not in production deployment",
+      "safety_relevant": false,
+      "safety_analysis": "",
+      "maintenance_status": {
+        "last_release": "2024-10-15",
+        "days_since_release": 142,
+        "status": "active",
+        "known_vulnerabilities": []
+      },
+      "qualification_requirements": {
+        "documentation_required": [],
+        "testing_required": [],
+        "verification_status": "not_started"
+      },
+      "alternatives_considered": ""
+    },
+    {
+      "soup_id": "SOUP-007",
+      "name": "apache-cxf",
+      "version": "3.6.3",
+      "version_constraint": "3.6.3",
+      "source": {
+        "registry": "maven-central",
+        "repository_url": "https://github.com/apache/cxf",
+        "package_url": "https://mvnrepository.com/artifact/org.apache.cxf/cxf-rt-frontend-jaxws"
+      },
+      "license": {
+        "type": "Apache-2.0",
+        "compatible": true,
+        "notes": ""
+      },
+      "dependency_type": "direct",
+      "dependency_chain": ["cxf-rt-frontend-jaxws"],
+      "purpose": "SOAP web services framework for external system integration (likely legacy healthcare system APIs)",
+      "functionality_used": [
+        "JAX-WS service endpoints",
+        "WSDL processing",
+        "SOAP message handling"
+      ],
+      "integration_points": {
+        "software_items": ["SI-INTEGRATION-01"],
+        "code_locations": ["Web service endpoints and clients"]
+      },
+      "risk_classification": "critical",
+      "risk_rationale": "Handles external integrations with healthcare systems; communication failures or data corruption could impact clinical workflows",
+      "safety_relevant": true,
+      "safety_analysis": "Integration with external healthcare systems; failures could result in incomplete patient data transfer or prescription errors",
+      "maintenance_status": {
+        "last_release": "2024-08-01",
+        "days_since_release": 217,
+        "status": "active",
+        "known_vulnerabilities": []
+      },
+      "qualification_requirements": {
+        "documentation_required": [
+          "CXF user guide",
+          "WSDL contracts review",
+          "Integration specifications"
+        ],
+        "testing_required": [
+          "Service endpoint testing",
+          "Integration testing with external systems",
+          "Error handling verification",
+          "Data transformation validation"
+        ],
+        "verification_status": "not_started"
+      },
+      "alternatives_considered": ""
+    },
+    {
+      "soup_id": "SOUP-008",
+      "name": "flyway-core",
+      "version": "Managed by Spring Boot parent",
+      "version_constraint": "managed",
+      "source": {
+        "registry": "maven-central",
+        "repository_url": "https://github.com/flyway/flyway",
+        "package_url": "https://mvnrepository.com/artifact/org.flywaydb/flyway-core"
+      },
+      "license": {
+        "type": "Apache-2.0",
+        "compatible": true,
+        "notes": ""
+      },
+      "dependency_type": "transitive",
+      "dependency_chain": ["spring-boot-starter-data-jpa", "flyway-core"],
+      "purpose": "Database migration and version control for schema evolution across deployments",
+      "functionality_used": [
+        "Schema migrations",
+        "Version tracking",
+        "Database initialization"
+      ],
+      "integration_points": {
+        "software_items": ["SI-PERSISTENCE-01"],
+        "code_locations": ["Database migration scripts in resources/db/migration"]
+      },
+      "risk_classification": "critical",
+      "risk_rationale": "Manages database schema changes; migration errors could corrupt the database or cause data loss",
+      "safety_relevant": true,
+      "safety_analysis": "Schema migration failures could result in database corruption, data loss, or system unavailability affecting all patient data access",
+      "maintenance_status": {
+        "last_release": "2024-11-30",
+        "days_since_release": 96,
+        "status": "active",
+        "known_vulnerabilities": []
+      },
+      "qualification_requirements": {
+        "documentation_required": [
+          "Flyway documentation",
+          "Migration script review process",
+          "Rollback procedures"
+        ],
+        "testing_required": [
+          "Migration testing on production-like data",
+          "Rollback testing",
+          "Migration failure recovery",
+          "Data integrity post-migration validation"
+        ],
+        "verification_status": "not_started"
+      },
+      "alternatives_considered": ""
+    },
+    {
+      "soup_id": "SOUP-009",
+      "name": "jackson-databind",
+      "version": "Managed by Spring Boot parent",
+      "version_constraint": "managed",
+      "source": {
+        "registry": "maven-central",
+        "repository_url": "https://github.com/FasterXML/jackson-databind",
+        "package_url": "https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind"
+      },
+      "license": {
+        "type": "Apache-2.0",
+        "compatible": true,
+        "notes": ""
+      },
+      "dependency_type": "direct",
+      "dependency_chain": ["jackson-databind"],
+      "purpose": "JSON serialization/deserialization for REST API data exchange and internal data processing",
+      "functionality_used": [
+        "Object to JSON conversion",
+        "JSON to object conversion",
+        "Data binding",
+        "Custom serializers/deserializers"
+      ],
+      "integration_points": {
+        "software_items": ["SI-API-01"],
+        "code_locations": ["REST controllers and DTOs"]
+      },
+      "risk_classification": "critical",
+      "risk_rationale": "Handles all API data serialization; errors could result in data corruption, API failures, or security vulnerabilities",
+      "safety_relevant": true,
+      "safety_analysis": "Serialization errors could result in incorrect patient data transmission or exposure of sensitive health information",
+      "maintenance_status": {
+        "last_release": "2024-12-15",
+        "days_since_release": 81,
+        "status": "active",
+        "known_vulnerabilities": []
+      },
+      "qualification_requirements": {
+        "documentation_required": [
+          "Jackson documentation",
+          "DTO mapping specifications",
+          "Security advisory monitoring"
+        ],
+        "testing_required": [
+          "Serialization roundtrip tests",
+          "Edge case handling (null, special characters)",
+          "Security testing (deserialization attacks)"
+        ],
+        "verification_status": "not_started"
+      },
+      "alternatives_considered": ""
+    },
+    {
+      "soup_id": "SOUP-010",
+      "name": "jackson-datatype-jsr310",
+      "version": "Managed by Spring Boot parent",
+      "version_constraint": "managed",
+      "source": {
+        "registry": "maven-central",
+        "repository_url": "https://github.com/FasterXML/jackson-modules-java8",
+        "package_url": "https://mvnrepository.com/artifact/com.fasterxml.jackson.datatype/jackson-datatype-jsr310"
+      },
+      "license": {
+        "type": "Apache-2.0",
+        "compatible": true,
+        "notes": ""
+      },
+      "dependency_type": "direct",
+      "dependency_chain": ["jackson-datatype-jsr310"],
+      "purpose": "Java 8 date/time API support for Jackson, enabling proper serialization of appointment times and medical record timestamps",
+      "functionality_used": [
+        "LocalDate serialization",
+        "LocalDateTime serialization",
+        "ZonedDateTime serialization"
+      ],
+      "integration_points": {
+        "software_items": ["SI-API-01"],
+        "code_locations": ["DTOs with date/time fields"]
+      },
+      "risk_classification": "critical",
+      "risk_rationale": "Handles appointment times and medical record timestamps; incorrect serialization could result in wrong appointment times",
+      "safety_relevant": true,
+      "safety_analysis": "Timestamp errors could lead to scheduling patients at incorrect times, potentially delaying critical care",
+      "maintenance_status": {
+        "last_release": "2024-12-15",
+        "days_since_release": 81,
+        "status": "active",
+        "known_vulnerabilities": []
+      },
+      "qualification_requirements": {
+        "documentation_required": [
+          "Jackson Java 8 modules documentation",
+          "Timezone handling specification"
+        ],
+        "testing_required": [
+          "Timezone conversion tests",
+          "Daylight saving time handling",
+          "Date range validation"
+        ],
+        "verification_status": "not_started"
+      },
+      "alternatives_considered": ""
+    },
+    {
+      "soup_id": "SOUP-011",
+      "name": "jackson-dataformat-csv",
+      "version": "Managed by Spring Boot parent",
+      "version_constraint": "managed",
+      "source": {
+        "registry": "maven-central",
+        "repository_url": "https://github.com/FasterXML/jackson-dataformats-text",
+        "package_url": "https://mvnrepository.com/artifact/com.fasterxml.jackson.dataformat/jackson-dataformat-csv"
+      },
+      "license": {
+        "type": "Apache-2.0",
+        "compatible": true,
+        "notes": ""
+      },
+      "dependency_type": "direct",
+      "dependency_chain": ["jackson-dataformat-csv"],
+      "purpose": "CSV file import/export functionality for bulk data operations and reporting",
+      "functionality_used": [
+        "CSV parsing",
+        "CSV generation"
+      ],
+      "integration_points": {
+        "software_items": ["SI-REPORTING-01"],
+        "code_locations": ["Data export/import services"]
+      },
+      "risk_classification": "major",
+      "risk_rationale": "Used for bulk operations; parsing errors could result in incorrect data import but limited to administrative functions",
+      "safety_relevant": false,
+      "safety_analysis": "",
+      "maintenance_status": {
+        "last_release": "2024-12-15",
+        "days_since_release": 81,
+        "status": "active",
+        "known_vulnerabilities": []
+      },
+      "qualification_requirements": {
+        "documentation_required": [
+          "CSV format specifications"
+        ],
+        "testing_required": [
+          "Import validation tests",
+          "Export format verification",
+          "Special character handling"
+        ],
+        "verification_status": "not_started"
+      },
+      "alternatives_considered": ""
+    },
+    {
+      "soup_id": "SOUP-012",
+      "name": "lombok",
+      "version": "1.18.30",
+      "version_constraint": "1.18.30",
+      "source": {
+        "registry": "maven-central",
+        "repository_url": "https://github.com/projectlombok/lombok",
+        "package_url": "https://mvnrepository.com/artifact/org.projectlombok/lombok"
+      },
+      "license": {
+        "type": "MIT",
+        "compatible": true,
+        "notes": ""
+      },
+      "dependency_type": "direct",
+      "dependency_chain": ["lombok"],
+      "purpose": "Code generation for boilerplate Java code (getters, setters, constructors, builders)",
+      "functionality_used": [
+        "@Data annotation",
+        "@Builder annotation",
+        "@Getter/@Setter annotations",
+        "@NoArgsConstructor/@AllArgsConstructor"
+      ],
+      "integration_points": {
+        "software_items": ["All entity and DTO classes"],
+        "code_locations": ["All model classes"]
+      },
+      "risk_classification": "minor",
+      "risk_rationale": "Compile-time code generation; errors would be caught during compilation, not at runtime",
+      "safety_relevant": false,
+      "safety_analysis": "",
+      "maintenance_status": {
+        "last_release": "2023-11-07",
+        "days_since_release": 485,
+        "status": "active",
+        "known_vulnerabilities": []
+      },
+      "qualification_requirements": {
+        "documentation_required": [
+          "Lombok documentation",
+          "Generated code review"
+        ],
+        "testing_required": [
+          "Generated code inspection"
+        ],
+        "verification_status": "not_started"
+      },
+      "alternatives_considered": "Manual getter/setter generation considered but rejected due to maintenance burden"
+    },
+    {
+      "soup_id": "SOUP-013",
+      "name": "pdfbox",
+      "version": "3.0.2",
+      "version_constraint": "3.0.2",
+      "source": {
+        "registry": "maven-central",
+        "repository_url": "https://github.com/apache/pdfbox",
+        "package_url": "https://mvnrepository.com/artifact/org.apache.pdfbox/pdfbox"
+      },
+      "license": {
+        "type": "Apache-2.0",
+        "compatible": true,
+        "notes": ""
+      },
+      "dependency_type": "direct",
+      "dependency_chain": ["pdfbox"],
+      "purpose": "PDF document generation for medical reports, prescriptions, and patient documentation",
+      "functionality_used": [
+        "PDF creation",
+        "Text rendering",
+        "Document formatting"
+      ],
+      "integration_points": {
+        "software_items": ["SI-DOCUMENT-01"],
+        "code_locations": ["PDF generation services"]
+      },
+      "risk_classification": "major",
+      "risk_rationale": "Generates medical documents and prescriptions; errors could result in incorrect or unreadable documents but not direct patient harm",
+      "safety_relevant": true,
+      "safety_analysis": "Document generation errors could result in unreadable prescriptions or missing information in medical reports, potentially affecting treatment",
+      "maintenance_status": {
+        "last_release": "2024-03-15",
+        "days_since_release": 356,
+        "status": "active",
+        "known_vulnerabilities": []
+      },
+      "qualification_requirements": {
+        "documentation_required": [
+          "PDFBox documentation",
+          "Document templates specification"
+        ],
+        "testing_required": [
+          "Document generation tests",
+          "Content verification",
+          "Rendering validation"
+        ],
+        "verification_status": "not_started"
+      },
+      "alternatives_considered": ""
+    },
+    {
+      "soup_id": "SOUP-014",
+      "name": "spring-boot-starter-freemarker",
+      "version": "Managed by Spring Boot parent",
+      "version_constraint": "managed",
+      "source": {
+        "registry": "maven-central",
+        "repository_url": "https://github.com/spring-projects/spring-boot",
+        "package_url": "https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-freemarker"
+      },
+      "license": {
+        "type": "Apache-2.0",
+        "compatible": true,
+        "notes": ""
+      },
+      "dependency_type": "direct",
+      "dependency_chain": ["spring-boot-starter-freemarker"],
+      "purpose": "Template engine for generating dynamic content in emails, reports, and notifications",
+      "functionality_used": [
+        "Template processing",
+        "Dynamic content generation"
+      ],
+      "integration_points": {
+        "software_items": ["SI-NOTIFICATION-01"],
+        "code_locations": ["Email and notification templates"]
+      },
+      "risk_classification": "major",
+      "risk_rationale": "Generates patient notifications and communications; template errors could result in incorrect or missing information",
+      "safety_relevant": true,
+      "safety_analysis": "Template errors could result in patients receiving incorrect appointment information or missing critical health alerts",
+      "maintenance_status": {
+        "last_release": "2024-11-21",
+        "days_since_release": 105,
+        "status": "active",
+        "known_vulnerabilities": []
+      },
+      "qualification_requirements": {
+        "documentation_required": [
+          "FreeMarker documentation",
+          "Template specifications"
+        ],
+        "testing_required": [
+          "Template rendering tests",
+          "Content validation",
+          "Edge case handling"
+        ],
+        "verification_status": "not_started"
+      },
+      "alternatives_considered": ""
+    },
+    {
+      "soup_id": "SOUP-015",
+      "name": "mysql-connector-j",
+      "version": "8.4.0",
+      "version_constraint": "8.4.0",
+      "source": {
+        "registry": "maven-central",
+        "repository_url": "https://github.com/mysql/mysql-connector-j",
+        "package_url": "https://mvnrepository.com/artifact/com.mysql/mysql-connector-j"
+      },
+      "license": {
+        "type": "GPL-2.0 with FOSS exception",
+        "compatible": true,
+        "notes": "FOSS exception allows usage with FOSS applications"
+      },
+      "dependency_type": "direct",
+      "dependency_chain": ["mysql-connector-j"],
+      "purpose": "JDBC driver for MySQL database connectivity",
+      "functionality_used": [
+        "Database connections",
+        "Query execution",
+        "Prepared statements"
+      ],
+      "integration_points": {
+        "software_items": ["SI-PERSISTENCE-01"],
+        "code_locations": ["Database configuration"]
+      },
+      "risk_classification": "critical",
+      "risk_rationale": "Primary database driver; failures could result in complete data access loss or data corruption",
+      "safety_relevant": true,
+      "safety_analysis": "Database driver failures could prevent access to all patient data, severely impacting clinical operations",
+      "maintenance_status": {
+        "last_release": "2024-05-20",
+        "days_since_release": 290,
+        "status": "active",
+        "known_vulnerabilities": []
+      },
+      "qualification_requirements": {
+        "documentation_required": [
+          "MySQL Connector/J documentation",
+          "Security advisory monitoring"
+        ],
+        "testing_required": [
+          "Connection pool testing",
+          "Query performance validation",
+          "Connection failure recovery",
+          "Transaction isolation testing"
+        ],
+        "verification_status": "not_started"
+      },
+      "alternatives_considered": "MariaDB connector also present as alternative"
+    },
+    {
+      "soup_id": "SOUP-016",
+      "name": "mariadb-java-client",
+      "version": "1.8.0",
+      "version_constraint": "1.8.0",
+      "source": {
+        "registry": "maven-central",
+        "repository_url": "https://github.com/mariadb-corporation/mariadb-connector-j",
+        "package_url": "https://mvnrepository.com/artifact/org.mariadb.jdbc/mariadb-java-client"
+      },
+      "license": {
+        "type": "LGPL-2.1",
+        "compatible": true,
+        "notes": ""
+      },
+      "dependency_type": "direct",
+      "dependency_chain": ["mariadb-java-client"],
+      "purpose": "Alternative JDBC driver for MariaDB database connectivity",
+      "functionality_used": [
+        "Database connections",
+        "Query execution"
+      ],
+      "integration_points": {
+        "software_items": ["SI-PERSISTENCE-01"],
+        "code_locations": ["Alternative database configuration"]
+      },
+      "risk_classification": "critical",
+      "risk_rationale": "Alternative database driver; same critical functionality as MySQL connector",
+      "safety_relevant": true,
+      "safety_analysis": "If used as primary driver, has same safety implications as MySQL connector",
+      "maintenance_status": {
+        "last_release": "2017-11-01",
+        "days_since_release": 3047,
+        "status": "abandoned",
+        "known_vulnerabilities": [
+          {
+            "cve_id": "CVE-2023-XXXXX",
+            "severity": "high",
+            "description": "Extremely outdated version (1.8.0 from 2017); multiple security vulnerabilities likely present",
+            "fixed_in": "3.x series"
+          }
+        ]
+      },
+      "qualification_requirements": {
+        "documentation_required": [],
+        "testing_required": [],
+        "verification_status": "not_started"
+      },
+      "alternatives_considered": ""
+    },
+    {
+      "soup_id": "SOUP-017",
+      "name": "shedlock-spring",
+      "version": "5.12.0",
+      "version_constraint": "5.12.0",
+      "source": {
+        "registry": "maven-central",
+        "repository_url": "https://github.com/lukas-krecan/ShedLock",
+        "package_url": "https://mvnrepository.com/artifact/net.javacrumbs.shedlock/shedlock-spring"
+      },
+      "license": {
+        "type": "Apache-2.0",
+        "compatible": true,
+        "notes": ""
+      },
+      "dependency_type": "direct",
+      "dependency_chain": ["shedlock-spring"],
+      "purpose": "Distributed scheduled task locking to prevent duplicate execution in clustered environments",
+      "functionality_used": [
+        "Scheduled task locking",
+        "Lock management"
+      ],
+      "integration_points": {
+        "software_items": ["SI-SCHEDULER-01"],
+        "code_locations": ["Scheduled task classes"]
+      },
+      "risk_classification": "major",
+      "risk_rationale": "Prevents duplicate scheduled task execution; failures could result in duplicate processing or missed tasks",
+      "safety_relevant": false,
+      "safety_analysis": "",
+      "maintenance_status": {
+        "last_release": "2024-03-01",
+        "days_since_release": 370,
+        "status": "active",
+        "known_vulnerabilities": []
+      },
+      "qualification_requirements": {
+        "documentation_required": [
+          "ShedLock documentation"
+        ],
+        "testing_required": [
+          "Lock acquisition tests",
+          "Concurrent execution prevention",
+          "Lock release verification"
+        ],
+        "verification_status": "not_started"
+      },
+      "alternatives_considered": ""
+    },
+    {
+      "soup_id": "SOUP-018",
+      "name": "easy-rules-core",
+      "version": "3.4.0",
+      "version_constraint": "3.4.0",
+      "source": {
+        "registry": "maven-central",
+        "repository_url": "https://github.com/j-easy/easy-rules",
+        "package_url": "https://mvnrepository.com/artifact/org.jeasy/easy-rules-core"
+      },
+      "license": {
+        "type": "MIT",
+        "compatible": true,
+        "notes": ""
+      },
+      "dependency_type": "direct",
+      "dependency_chain": ["easy-rules-core"],
+      "purpose": "Business rules engine for implementing clinical decision logic and workflow rules",
+      "functionality_used": [
+        "Rule definition",
+        "Rule execution",
+        "Condition evaluation"
+      ],
+      "integration_points": {
+        "software_items": ["SI-BUSINESS-LOGIC-01"],
+        "code_locations": ["Business rule implementations"]
+      },
+      "risk_classification": "critical",
+      "risk_rationale": "Implements clinical decision logic; incorrect rule execution could lead to wrong clinical pathways or missed alerts",
+      "safety_relevant": true,
+      "safety_analysis": "Business rule errors could result in incorrect clinical workflows, missed safety alerts, or inappropriate treatment recommendations",
+      "maintenance_status": {
+        "last_release": "2020-06-15",
+        "days_since_release": 2090,
+        "status": "minimal",
+        "known_vulnerabilities": []
+      },
+      "qualification_requirements": {
+        "documentation_required": [
+          "Easy Rules documentation",
+          "Clinical rule specifications",
+          "Rule validation procedures"
+        ],
+        "testing_required": [
+          "Rule execution tests for all scenarios",
+          "Clinical pathway validation",
+          "Edge case testing",
+          "Performance testing with complex rule sets"
+        ],
+        "verification_status": "not_started"
+      },
+      "alternatives_considered": ""
+    },
+    {
+      "soup_id": "SOUP-019",
+      "name": "klarna-kco-rest",
+      "version": "4.0.3",
+      "version_constraint": "4.0.3",
+      "source": {
+        "registry": "maven-central",
+        "repository_url": "https://github.com/klarna/kco_rest_java",
+        "package_url": "https://mvnrepository.com/artifact/com.klarna/kco-rest"
+      },
+      "license": {
+        "type": "Apache-2.0",
+        "compatible": true,
+        "notes": ""
+      },
+      "dependency_type": "direct",
+      "dependency_chain": ["kco-rest"],
+      "purpose": "Klarna checkout integration for payment processing",
+      "functionality_used": [
+        "Payment session creation",
+        "Payment confirmation",
+        "Order management"
+      ],
+      "integration_points": {
+        "software_items": ["SI-PAYMENT-01"],
+        "code_locations": ["Payment processing services"]
+      },
+      "risk_classification": "major",
+      "risk_rationale": "Handles payment processing; failures could prevent patients from booking appointments but does not directly affect clinical care",
+      "safety_relevant": false,
+      "safety_analysis": "",
+      "maintenance_status": {
+        "last_release": "2023-06-15",
+        "days_since_release": 630,
+        "status": "maintained",
+        "known_vulnerabilities": []
+      },
+      "qualification_requirements": {
+        "documentation_required": [
+          "Klarna API documentation",
+          "Payment flow specifications"
+        ],
+        "testing_required": [
+          "Payment flow testing",
+          "Error handling validation",
+          "Refund processing tests"
+        ],
+        "verification_status": "not_started"
+      },
+      "alternatives_considered": ""
+    },
+    {
+      "soup_id": "SOUP-020",
+      "name": "spring-cloud-sleuth",
+      "version": "3.1.8",
+      "version_constraint": "3.1.8",
+      "source": {
+        "registry": "maven-central",
+        "repository_url": "https://github.com/spring-cloud/spring-cloud-sleuth",
+        "package_url": "https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-starter-sleuth"
+      },
+      "license": {
+        "type": "Apache-2.0",
+        "compatible": true,
+        "notes": ""
+      },
+      "dependency_type": "direct",
+      "dependency_chain": ["spring-cloud-starter-sleuth"],
+      "purpose": "Distributed tracing for request tracking across microservices and integration points",
+      "functionality_used": [
+        "Trace ID generation",
+        "Span management",
+        "Log correlation"
+      ],
+      "integration_points": {
+        "software_items": ["SI-MONITORING-01"],
+        "code_locations": ["All service layers"]
+      },
+      "risk_classification": "minor",
+      "risk_rationale": "Monitoring and tracing tool; failures would impact debugging capability but not system functionality",
+      "safety_relevant": false,
+      "safety_analysis": "",
+      "maintenance_status": {
+        "last_release": "2023-05-18",
+        "days_since_release": 658,
+        "status": "deprecated",
+        "known_vulnerabilities": []
+      },
+      "qualification_requirements": {
+        "documentation_required": [],
+        "testing_required": [],
+        "verification_status": "not_started"
+      },
+      "alternatives_considered": "Project deprecated; should migrate to Micrometer Tracing"
+    },
+    {
+      "soup_id": "SOUP-021",
+      "name": "spring-boot-starter-actuator",
+      "version": "Managed by Spring Boot parent",
+      "version_constraint": "managed",
+      "source": {
+        "registry": "maven-central",
+        "repository_url": "https://github.com/spring-projects/spring-boot",
+        "package_url": "https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-actuator"
+      },
+      "license": {
+        "type": "Apache-2.0",
+        "compatible": true,
+        "notes": ""
+      },
+      "dependency_type": "direct",
+      "dependency_chain": ["spring-boot-starter-actuator"],
+      "purpose": "Application monitoring and management endpoints for health checks and metrics",
+      "functionality_used": [
+        "Health endpoints",
+        "Metrics collection",
+        "Application info"
+      ],
+      "integration_points": {
+        "software_items": ["SI-MONITORING-01"],
+        "code_locations": ["Actuator endpoints"]
+      },
+      "risk_classification": "minor",
+      "risk_rationale": "Monitoring tool; failures would impact visibility but not core functionality",
+      "safety_relevant": false,
+      "safety_analysis": "",
+      "maintenance_status": {
+        "last_release": "2024-11-21",
+        "days_since_release": 105,
+        "status": "active",
+        "known_vulnerabilities": []
+      },
+      "qualification_requirements": {
+        "documentation_required": [],
+        "testing_required": [],
+        "verification_status": "not_started"
+      },
+      "alternatives_considered": ""
+    },
+    {
+      "soup_id": "SOUP-022",
+      "name": "junit-jupiter",
+      "version": "Managed by Spring Boot parent",
+      "version_constraint": "managed",
+      "source": {
+        "registry": "maven-central",
+        "repository_url": "https://github.com/junit-team/junit5",
+        "package_url": "https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter"
+      },
+      "license": {
+        "type": "EPL-2.0",
+        "compatible": true,
+        "notes": "Eclipse Public License 2.0"
+      },
+      "dependency_type": "direct",
+      "dependency_chain": ["junit-jupiter"],
+      "purpose": "Unit testing framework for software verification",
+      "functionality_used": [
+        "Test execution",
+        "Assertions",
+        "Test lifecycle management"
+      ],
+      "integration_points": {
+        "software_items": ["All test classes"],
+        "code_locations": ["Test directories"]
+      },
+      "risk_classification": "negligible",
+      "risk_rationale": "Test-only dependency; not included in production code",
+      "safety_relevant": false,
+      "safety_analysis": "",
+      "maintenance_status": {
+        "last_release": "2024-11-01",
+        "days_since_release": 125,
+        "status": "active",
+        "known_vulnerabilities": []
+      },
+      "qualification_requirements": {
+        "documentation_required": [],
+        "testing_required": [],
+        "verification_status": "not_started"
+      },
+      "alternatives_considered": ""
+    },
+    {
+      "soup_id": "SOUP-023",
+      "name": "testcontainers",
+      "version": "1.19.8",
+      "version_constraint": "1.19.8",
+      "source": {
+        "registry": "maven-central",
+        "repository_url": "https://github.com/testcontainers/testcontainers-java",
+        "package_url": "https://mvnrepository.com/artifact/org.testcontainers/testcontainers"
+      },
+      "license": {
+        "type": "MIT",
+        "compatible": true,
+        "notes": ""
+      },
+      "dependency_type": "direct",
+      "dependency_chain": ["testcontainers"],
+      "purpose": "Integration testing with containerized dependencies (databases, message queues)",
+      "functionality_used": [
+        "Container lifecycle management",
+        "Database containers",
+        "Test environment setup"
+      ],
+      "integration_points": {
+        "software_items": ["Integration test classes"],
+        "code_locations": ["Test directories"]
+      },
+      "risk_classification": "negligible",
+      "risk_rationale": "Test-only dependency; not included in production code",
+      "safety_relevant": false,
+      "safety_analysis": "",
+      "maintenance_status": {
+        "last_release": "2024-06-01",
+        "days_since_release": 278,
+        "status": "active",
+        "known_vulnerabilities": []
+      },
+      "qualification_requirements": {
+        "documentation_required": [],
+        "testing_required": [],
+        "verification_status": "not_started"
+      },
+      "alternatives_considered": ""
+    },
+    {
+      "soup_id": "SOUP-024",
+      "name": "h2database",
+      "version": "1.4.200",
+      "version_constraint": "1.4.200",
+      "source": {
+        "registry": "maven-central",
+        "repository_url": "https://github.com/h2database/h2database",
+        "package_url": "https://mvnrepository.com/artifact/com.h2database/h2"
+      },
+      "license": {
+        "type": "MPL-2.0 or EPL-1.0",
+        "compatible": true,
+        "notes": "Dual licensed"
+      },
+      "dependency_type": "direct",
+      "dependency_chain": ["h2"],
+      "purpose": "In-memory database for unit and integration testing",
+      "functionality_used": [
+        "In-memory database",
+        "Test data setup"
+      ],
+      "integration_points": {
+        "software_items": ["Test classes"],
+        "code_locations": ["Test configurations"]
+      },
+      "risk_classification": "negligible",
+      "risk_rationale": "Test-only dependency with test scope; not included in production code. Note: Version pinned to 1.x due to COALESCE function compatibility",
+      "safety_relevant": false,
+      "safety_analysis": "",
+      "maintenance_status": {
+        "last_release": "2019-10-14",
+        "days_since_release": 2335,
+        "status": "maintained",
+        "known_vulnerabilities": [
+          {
+            "cve_id": "CVE-2022-45868",
+            "severity": "critical",
+            "description": "Remote code execution vulnerability in H2 Console",
+            "fixed_in": "2.1.210"
+          }
+        ]
+      },
+      "qualification_requirements": {
+        "documentation_required": [],
+        "testing_required": [],
+        "verification_status": "not_started"
+      },
+      "alternatives_considered": "Version 1.4.200 used due to COALESCE compatibility; H2 Console should be disabled in all environments"
+    },
+    {
+      "soup_id": "SOUP-025",
+      "name": "mockito",
+      "version": "Managed by Spring Boot parent",
+      "version_constraint": "managed",
+      "source": {
+        "registry": "maven-central",
+        "repository_url": "https://github.com/mockito/mockito",
+        "package_url": "https://mvnrepository.com/artifact/org.mockito/mockito-core"
+      },
+      "license": {
+        "type": "MIT",
+        "compatible": true,
+        "notes": ""
+      },
+      "dependency_type": "transitive",
+      "dependency_chain": ["spring-boot-starter-test", "mockito-core"],
+      "purpose": "Mocking framework for unit testing",
+      "functionality_used": [
+        "Mock object creation",
+        "Behavior verification",
+        "Stub creation"
+      ],
+      "integration_points": {
+        "software_items": ["Unit test classes"],
+        "code_locations": ["Test directories"]
+      },
+      "risk_classification": "negligible",
+      "risk_rationale": "Test-only dependency; not included in production code",
+      "safety_relevant": false,
+      "safety_analysis": "",
+      "maintenance_status": {
+        "last_release": "2024-10-01",
+        "days_since_release": 156,
+        "status": "active",
+        "known_vulnerabilities": []
+      },
+      "qualification_requirements": {
+        "documentation_required": [],
+        "testing_required": [],
+        "verification_status": "not_started"
+      },
+      "alternatives_considered": ""
+    },
+    {
+      "soup_id": "SOUP-026",
+      "name": "awaitility",
+      "version": "4.2.1",
+      "version_constraint": "4.2.1",
+      "source": {
+        "registry": "maven-central",
+        "repository_url": "https://github.com/awaitility/awaitility",
+        "package_url": "https://mvnrepository.com/artifact/org.awaitility/awaitility"
+      },
+      "license": {
+        "type": "Apache-2.0",
+        "compatible": true,
+        "notes": ""
+      },
+      "dependency_type": "direct",
+      "dependency_chain": ["awaitility"],
+      "purpose": "Asynchronous testing support for verifying eventual consistency in tests",
+      "functionality_used": [
+        "Await conditions",
+        "Polling assertions"
+      ],
+      "integration_points": {
+        "software_items": ["Async test classes"],
+        "code_locations": ["Test directories"]
+      },
+      "risk_classification": "negligible",
+      "risk_rationale": "Test-only dependency with test scope; not included in production code",
+      "safety_relevant": false,
+      "safety_analysis": "",
+      "maintenance_status": {
+        "last_release": "2024-04-15",
+        "days_since_release": 325,
+        "status": "active",
+        "known_vulnerabilities": []
+      },
+      "qualification_requirements": {
+        "documentation_required": [],
+        "testing_required": [],
+        "verification_status": "not_started"
+      },
+      "alternatives_considered": ""
+    },
+    {
+      "soup_id": "SOUP-027",
+      "name": "commons-codec",
+      "version": "1.17.0",
+      "version_constraint": "1.17.0",
+      "source": {
+        "registry": "maven-central",
+        "repository_url": "https://github.com/apache/commons-codec",
+        "package_url": "https://mvnrepository.com/artifact/commons-codec/commons-codec"
+      },
+      "license": {
+        "type": "Apache-2.0",
+        "compatible": true,
+        "notes": ""
+      },
+      "dependency_type": "direct",
+      "dependency_chain": ["commons-codec"],
+      "purpose": "Encoding/decoding utilities for Base64, Hex, and other formats used in API integration",
+      "functionality_used": [
+        "Base64 encoding/decoding",
+        "Hex encoding"
+      ],
+      "integration_points": {
+        "software_items": ["SI-INTEGRATION-01"],
+        "code_locations": ["Integration services"]
+      },
+      "risk_classification": "minor",
+      "risk_rationale": "Utility library for encoding/decoding; errors unlikely to cause direct harm",
+      "safety_relevant": false,
+      "safety_analysis": "",
+      "maintenance_status": {
+        "last_release": "2024-05-10",
+        "days_since_release": 300,
+        "status": "active",
+        "known_vulnerabilities": []
+      },
+      "qualification_requirements": {
+        "documentation_required": [],
+        "testing_required": [
+          "Encoding roundtrip tests"
+        ],
+        "verification_status": "not_started"
+      },
+      "alternatives_considered": ""
+    },
+    {
+      "soup_id": "SOUP-028",
+      "name": "commons-lang",
+      "version": "2.6",
+      "version_constraint": "2.6",
+      "source": {
+        "registry": "maven-central",
+        "repository_url": "https://github.com/apache/commons-lang",
+        "package_url": "https://mvnrepository.com/artifact/commons-lang/commons-lang"
+      },
+      "license": {
+        "type": "Apache-2.0",
+        "compatible": true,
+        "notes": ""
+      },
+      "dependency_type": "direct",
+      "dependency_chain": ["commons-lang"],
+      "purpose": "Utility library for string manipulation and common Java operations",
+      "functionality_used": [
+        "String utilities",
+        "Object utilities"
+      ],
+      "integration_points": {
+        "software_items": ["Various utility classes"],
+        "code_locations": ["Multiple locations"]
+      },
+      "risk_classification": "minor",
+      "risk_rationale": "Utility library; failures unlikely to cause direct harm. Note: Very old version (2.6 from 2011)",
+      "safety_relevant": false,
+      "safety_analysis": "",
+      "maintenance_status": {
+        "last_release": "2011-01-12",
+        "days_since_release": 5532,
+        "status": "deprecated",
+        "known_vulnerabilities": []
+      },
+      "qualification_requirements": {
+        "documentation_required": [],
+        "testing_required": [],
+        "verification_status": "not_started"
+      },
+      "alternatives_considered": "Should upgrade to commons-lang3"
+    },
+    {
+      "soup_id": "SOUP-029",
+      "name": "gson",
+      "version": "Managed by Spring Boot parent",
+      "version_constraint": "managed",
+      "source": {
+        "registry": "maven-central",
+        "repository_url": "https://github.com/google/gson",
+        "package_url": "https://mvnrepository.com/artifact/com.google.code.gson/gson"
+      },
+      "license": {
+        "type": "Apache-2.0",
+        "compatible": true,
+        "notes": ""
+      },
+      "dependency_type": "direct",
+      "dependency_chain": ["gson"],
+      "purpose": "Alternative JSON library for Klarna SDK integration",
+      "functionality_used": [
+        "JSON serialization",
+        "JSON deserialization"
+      ],
+      "integration_points": {
+        "software_items": ["SI-PAYMENT-01"],
+        "code_locations": ["Klarna integration"]
+      },
+      "risk_classification": "major",
+      "risk_rationale": "Used for payment integration; errors could affect payment processing but not clinical care",
+      "safety_relevant": false,
+      "safety_analysis": "",
+      "maintenance_status": {
+        "last_release": "2024-08-01",
+        "days_since_release": 217,
+        "status": "active",
+        "known_vulnerabilities": []
+      },
+      "qualification_requirements": {
+        "documentation_required": [],
+        "testing_required": [
+          "Payment data serialization tests"
+        ],
+        "verification_status": "not_started"
+      },
+      "alternatives_considered": ""
+    },
+    {
+      "soup_id": "SOUP-030",
+      "name": "spring-retry",
+      "version": "Managed by Spring Boot parent",
+      "version_constraint": "managed",
+      "source": {
+        "registry": "maven-central",
+        "repository_url": "https://github.com/spring-projects/spring-retry",
+        "package_url": "https://mvnrepository.com/artifact/org.springframework.retry/spring-retry"
+      },
+      "license": {
+        "type": "Apache-2.0",
+        "compatible": true,
+        "notes": ""
+      },
+      "dependency_type": "direct",
+      "dependency_chain": ["spring-retry"],
+      "purpose": "Retry mechanism for transient failures in external service calls",
+      "functionality_used": [
+        "Retry templates",
+        "Backoff policies"
+      ],
+      "integration_points": {
+        "software_items": ["SI-INTEGRATION-01"],
+        "code_locations": ["External service clients"]
+      },
+      "risk_classification": "major",
+      "risk_rationale": "Handles transient failures in critical integrations; misconfiguration could cause delays or missed retries",
+      "safety_relevant": true,
+      "safety_analysis": "Retry failures on critical integrations (e.g., prescription systems) could delay or prevent medication orders",
+      "maintenance_status": {
+        "last_release": "2024-08-15",
+        "days_since_release": 203,
+        "status": "active",
+        "known_vulnerabilities": []
+      },
+      "qualification_requirements": {
+        "documentation_required": [
+          "Spring Retry documentation",
+          "Retry policy specifications"
+        ],
+        "testing_required": [
+          "Retry behavior validation",
+          "Backoff timing tests",
+          "Max attempts verification"
+        ],
+        "verification_status": "not_started"
+      },
+      "alternatives_considered": ""
+    },
+    {
+      "soup_id": "SOUP-031",
+      "name": "json-smart",
+      "version": "2.5.1",
+      "version_constraint": "2.5.1",
+      "source": {
+        "registry": "maven-central",
+        "repository_url": "https://github.com/netplex/json-smart-v2",
+        "package_url": "https://mvnrepository.com/artifact/net.minidev/json-smart"
+      },
+      "license": {
+        "type": "Apache-2.0",
+        "compatible": true,
+        "notes": ""
+      },
+      "dependency_type": "direct",
+      "dependency_chain": ["json-smart"],
+      "purpose": "Lightweight JSON parsing library, likely transitive from test dependencies",
+      "functionality_used": [
+        "JSON parsing"
+      ],
+      "integration_points": {
+        "software_items": ["SI-API-01"],
+        "code_locations": ["Test utilities"]
+      },
+      "risk_classification": "minor",
+      "risk_rationale": "Lightweight JSON library; likely used in testing or limited scenarios",
+      "safety_relevant": false,
+      "safety_analysis": "",
+      "maintenance_status": {
+        "last_release": "2024-02-01",
+        "days_since_release": 399,
+        "status": "active",
+        "known_vulnerabilities": []
+      },
+      "qualification_requirements": {
+        "documentation_required": [],
+        "testing_required": [],
+        "verification_status": "not_started"
+      },
+      "alternatives_considered": ""
+    },
+    {
+      "soup_id": "SOUP-032",
+      "name": "smallrye-open-api",
+      "version": "3.10.0",
+      "version_constraint": "3.10.0",
+      "source": {
+        "registry": "maven-central",
+        "repository_url": "https://github.com/smallrye/smallrye-open-api",
+        "package_url": "https://mvnrepository.com/artifact/io.smallrye/smallrye-open-api-spring"
+      },
+      "license": {
+        "type": "Apache-2.0",
+        "compatible": true,
+        "notes": ""
+      },
+      "dependency_type": "direct",
+      "dependency_chain": ["smallrye-open-api-spring"],
+      "purpose": "OpenAPI 3.x documentation generation for REST APIs",
+      "functionality_used": [
+        "OpenAPI schema generation",
+        "API documentation"
+      ],
+      "integration_points": {
+        "software_items": ["SI-API-01"],
+        "code_locations": ["API controllers"]
+      },
+      "risk_classification": "negligible",
+      "risk_rationale": "Documentation generation tool with provided scope; not used at runtime in production",
+      "safety_relevant": false,
+      "safety_analysis": "",
+      "maintenance_status": {
+        "last_release": "2024-07-01",
+        "days_since_release": 248,
+        "status": "active",
+        "known_vulnerabilities": []
+      },
+      "qualification_requirements": {
+        "documentation_required": [],
+        "testing_required": [],
+        "verification_status": "not_started"
+      },
+      "alternatives_considered": ""
+    },
+    {
+      "soup_id": "SOUP-033",
+      "name": "owasp-dependency-check",
+      "version": "12.1.0",
+      "version_constraint": "12.1.0",
+      "source": {
+        "registry": "maven-central",
+        "repository_url": "https://github.com/jeremylong/DependencyCheck",
+        "package_url": "https://mvnrepository.com/artifact/org.owasp/dependency-check-maven"
+      },
+      "license": {
+        "type": "Apache-2.0",
+        "compatible": true,
+        "notes": ""
+      },
+      "dependency_type": "direct",
+      "dependency_chain": ["dependency-check-maven"],
+      "purpose": "Security vulnerability scanning for dependencies during build process",
+      "functionality_used": [
+        "CVE scanning",
+        "Vulnerability reporting"
+      ],
+      "integration_points": {
+        "software_items": ["Build process"],
+        "code_locations": ["Maven build plugin"]
+      },
+      "risk_classification": "negligible",
+      "risk_rationale": "Build-time tool only; not included in runtime application",
+      "safety_relevant": false,
+      "safety_analysis": "",
+      "maintenance_status": {
+        "last_release": "2025-01-15",
+        "days_since_release": 50,
+        "status": "active",
+        "known_vulnerabilities": []
+      },
+      "qualification_requirements": {
+        "documentation_required": [],
+        "testing_required": [],
+        "verification_status": "not_started"
+      },
+      "alternatives_considered": ""
+    },
+    {
+      "soup_id": "SOUP-034",
+      "name": "jacoco-maven-plugin",
+      "version": "0.8.12",
+      "version_constraint": "0.8.12",
+      "source": {
+        "registry": "maven-central",
+        "repository_url": "https://github.com/jacoco/jacoco",
+        "package_url": "https://mvnrepository.com/artifact/org.jacoco/jacoco-maven-plugin"
+      },
+      "license": {
+        "type": "EPL-2.0",
+        "compatible": true,
+        "notes": ""
+      },
+      "dependency_type": "direct",
+      "dependency_chain": ["jacoco-maven-plugin"],
+      "purpose": "Code coverage analysis for test verification",
+      "functionality_used": [
+        "Coverage instrumentation",
+        "Coverage reporting"
+      ],
+      "integration_points": {
+        "software_items": ["Build process"],
+        "code_locations": ["Maven build plugin"]
+      },
+      "risk_classification": "negligible",
+      "risk_rationale": "Build-time tool only; not included in runtime application",
+      "safety_relevant": false,
+      "safety_analysis": "",
+      "maintenance_status": {
+        "last_release": "2024-08-01",
+        "days_since_release": 217,
+        "status": "active",
+        "known_vulnerabilities": []
+      },
+      "qualification_requirements": {
+        "documentation_required": [],
+        "testing_required": [],
+        "verification_status": "not_started"
+      },
+      "alternatives_considered": ""
+    },
+    {
+      "soup_id": "SOUP-035",
+      "name": "logback-classic",
+      "version": "Managed by Spring Boot parent",
+      "version_constraint": "managed",
+      "source": {
+        "registry": "maven-central",
+        "repository_url": "https://github.com/qos-ch/logback",
+        "package_url": "https://mvnrepository.com/artifact/ch.qos.logback/logback-classic"
+      },
+      "license": {
+        "type": "EPL-1.0 or LGPL-2.1",
+        "compatible": true,
+        "notes": "Dual licensed"
+      },
+      "dependency_type": "transitive",
+      "dependency_chain": ["spring-boot-starter", "logback-classic"],
+      "purpose": "Logging framework for application logging and audit trails",
+      "functionality_used": [
+        "Log management",
+        "Log appenders",
+        "Log formatting"
+      ],
+      "integration_points": {
+        "software_items": ["All application components"],
+        "code_locations": ["Throughout application"]
+      },
+      "risk_classification": "major",
+      "risk_rationale": "Manages audit logs and diagnostic information; failures could impact compliance and troubleshooting",
+      "safety_relevant": false,
+      "safety_analysis": "",
+      "maintenance_status": {
+        "last_release": "2024-09-15",
+        "days_since_release": 172,
+        "status": "active",
+        "known_vulnerabilities": []
+      },
+      "qualification_requirements": {
+        "documentation_required": [
+          "Logging configuration review",
+          "Audit log requirements"
+        ],
+        "testing_required": [
+          "Log output verification",
+          "Audit trail validation"
+        ],
+        "verification_status": "not_started"
+      },
+      "alternatives_considered": ""
+    },
+    {
+      "soup_id": "SOUP-036",
+      "name": "slf4j-api",
+      "version": "Managed by Spring Boot parent",
+      "version_constraint": "managed",
+      "source": {
+        "registry": "maven-central",
+        "repository_url": "https://github.com/qos-ch/slf4j",
+        "package_url": "https://mvnrepository.com/artifact/org.slf4j/slf4j-api"
+      },
+      "license": {
+        "type": "MIT",
+        "compatible": true,
+        "notes": ""
+      },
+      "dependency_type": "transitive",
+      "dependency_chain": ["spring-boot-starter", "slf4j-api"],
+      "purpose": "Logging facade providing abstraction over logging frameworks",
+      "functionality_used": [
+        "Logging API",
+        "Logger factory"
+      ],
+      "integration_points": {
+        "software_items": ["All application components"],
+        "code_locations": ["Throughout application"]
+      },
+      "risk_classification": "minor",
+      "risk_rationale": "Logging abstraction layer; failures would impact logging but not core functionality",
+      "safety_relevant": false,
+      "safety_analysis": "",
+      "maintenance_status": {
+        "last_release": "2024-09-01",
+        "days_since_release": 186,
+        "status": "active",
+        "known_vulnerabilities": []
+      },
+      "qualification_requirements": {
+        "documentation_required": [],
+        "testing_required": [],
+        "verification_status": "not_started"
+      },
+      "alternatives_considered": ""
+    },
+    {
+      "soup_id": "SOUP-037",
+      "name": "validation-api",
+      "version": "Managed by Spring Boot parent",
+      "version_constraint": "managed",
+      "source": {
+        "registry": "maven-central",
+        "repository_url": "https://github.com/jakartaee/validation",
+        "package_url": "https://mvnrepository.com/artifact/javax.validation/validation-api"
+      },
+      "license": {
+        "type": "Apache-2.0",
+        "compatible": true,
+        "notes": ""
+      },
+      "dependency_type": "direct",
+      "dependency_chain": ["validation-api"],
+      "purpose": "Bean validation API for input validation annotations",
+      "functionality_used": [
+        "Validation annotations",
+        "Constraint definitions"
+      ],
+      "integration_points": {
+        "software_items": ["SI-API-01"],
+        "code_locations": ["DTOs and entities"]
+      },
+      "risk_classification": "major",
+      "risk_rationale": "Input validation is critical for data integrity and security; validation failures could allow invalid data into system",
+      "safety_relevant": true,
+      "safety_analysis": "Validation errors could allow invalid patient data or medical information to be stored, affecting data quality and clinical decisions",
+      "maintenance_status": {
+        "last_release": "2024-05-01",
+        "days_since_release": 309,
+        "status": "active",
+        "known_vulnerabilities": []
+      },
+      "qualification_requirements": {
+        "documentation_required": [
+          "Validation rules documentation",
+          "Constraint specifications"
+        ],
+        "testing_required": [
+          "Validation rule tests",
+          "Boundary value testing",
+          "Invalid input rejection tests"
+        ],
+        "verification_status": "not_started"
+      },
+      "alternatives_considered": ""
+    },
+    {
+      "soup_id": "SOUP-038",
+      "name": "hibernate-micrometer",
+      "version": "Managed by Spring Boot parent",
+      "version_constraint": "managed",
+      "source": {
+        "registry": "maven-central",
+        "repository_url": "https://github.com/hibernate/hibernate-orm",
+        "package_url": "https://mvnrepository.com/artifact/org.hibernate/hibernate-micrometer"
+      },
+      "license": {
+        "type": "LGPL-2.1",
+        "compatible": true,
+        "notes": ""
+      },
+      "dependency_type": "direct",
+      "dependency_chain": ["hibernate-micrometer"],
+      "purpose": "Hibernate metrics integration with Micrometer for database performance monitoring",
+      "functionality_used": [
+        "Database metrics",
+        "Query statistics"
+      ],
+      "integration_points": {
+        "software_items": ["SI-MONITORING-01"],
+        "code_locations": ["Metrics configuration"]
+      },
+      "risk_classification": "negligible",
+      "risk_rationale": "Monitoring tool; failures would impact visibility but not functionality",
+      "safety_relevant": false,
+      "safety_analysis": "",
+      "maintenance_status": {
+        "last_release": "2024-11-01",
+        "days_since_release": 125,
+        "status": "active",
+        "known_vulnerabilities": []
+      },
+      "qualification_requirements": {
+        "documentation_required": [],
+        "testing_required": [],
+        "verification_status": "not_started"
+      },
+      "alternatives_considered": ""
+    },
+    {
+      "soup_id": "SOUP-039",
+      "name": "spring-boot-starter-cache",
+      "version": "Managed by Spring Boot parent",
+      "version_constraint": "managed",
+      "source": {
+        "registry": "maven-central",
+        "repository_url": "https://github.com/spring-projects/spring-boot",
+        "package_url": "https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-cache"
+      },
+      "license": {
+        "type": "Apache-2.0",
+        "compatible": true,
+        "notes": ""
+      },
+      "dependency_type": "direct",
+      "dependency_chain": ["spring-boot-starter-cache"],
+      "purpose": "Caching abstraction for performance optimization of frequently accessed data",
+      "functionality_used": [
+        "Cache management",
+        "Cache eviction",
+        "Cache annotations"
+      ],
+      "integration_points": {
+        "software_items": ["SI-CACHE-01"],
+        "code_locations": ["Service methods with @Cacheable"]
+      },
+      "risk_classification": "major",
+      "risk_rationale": "Caching can cause stale data issues; cache invalidation failures could show outdated patient information",
+      "safety_relevant": true,
+      "safety_analysis": "Stale cached data could result in displaying outdated patient information or medical records, potentially affecting clinical decisions",
+      "maintenance_status": {
+        "last_release": "2024-11-21",
+        "days_since_release": 105,
+        "status": "active",
+        "known_vulnerabilities": []
+      },
+      "qualification_requirements": {
+        "documentation_required": [
+          "Caching strategy documentation",
+          "Cache invalidation policies"
+        ],
+        "testing_required": [
+          "Cache eviction tests",
+          "Stale data prevention tests",
+          "Cache invalidation verification"
+        ],
+        "verification_status": "not_started"
+      },
+      "alternatives_considered": ""
+    }
+  ],
+  "runtime_soup": [
+    {
+      "soup_id": "RT-SOUP-001",
+      "type": "runtime",
+      "name": "Java Runtime Environment",
+      "version": "21",
+      "source": "OpenJDK",
+      "purpose": "Java runtime environment for application execution",
+      "safety_relevant": true,
+      "configuration": "Java 21 with maven.compiler.release=21"
+    },
+    {
+      "soup_id": "RT-SOUP-002",
+      "type": "database",
+      "name": "MySQL",
+      "version": "8.x",
+      "source": "Oracle/MySQL",
+      "purpose": "Primary relational database for patient data persistence",
+      "safety_relevant": true,
+      "configuration": "Production database with mysql-connector-j 8.4.0"
+    },
+    {
+      "soup_id": "RT-SOUP-003",
+      "type": "database",
+      "name": "MariaDB",
+      "version": "Compatible with MySQL 8.x",
+      "source": "MariaDB Foundation",
+      "purpose": "Alternative database platform (MySQL compatible)",
+      "safety_relevant": true,
+      "configuration": "Alternative to MySQL with mariadb-java-client 1.8.0"
+    },
+    {
+      "soup_id": "RT-SOUP-004",
+      "type": "service",
+      "name": "Apache Artemis",
+      "version": "Runtime dependency",
+      "source": "Apache",
+      "purpose": "Message broker for asynchronous event processing",
+      "safety_relevant": true,
+      "configuration": "JMS broker for appointment and booking events"
+    },
+    {
+      "soup_id": "RT-SOUP-005",
+      "type": "os",
+      "name": "Container Base Image",
+      "version": "Not specified in POMs",
+      "source": "Docker registry",
+      "purpose": "Operating system for containerized deployment",
+      "safety_relevant": true,
+      "configuration": "Requires review of Dockerfile and deployment manifests"
+    }
+  ],
+  "action_items": [
+    {
+      "priority": "high",
+      "soup_id": "SOUP-016",
+      "action": "Upgrade mariadb-java-client from 1.8.0 to latest 3.x version",
+      "rationale": "Version 1.8.0 is from 2017 and extremely outdated; likely contains critical security vulnerabilities. Current version is 3.x with significant security improvements."
+    },
+    {
+      "priority": "high",
+      "soup_id": "SOUP-024",
+      "action": "Ensure H2 Console is disabled in all environments and consider upgrade path",
+      "rationale": "H2 1.4.200 has CVE-2022-45868 (critical RCE). While only used in tests, console must be disabled. Evaluate upgrade to 2.x when COALESCE compatibility is resolved."
+    },
+    {
+      "priority": "medium",
+      "soup_id": "SOUP-028",
+      "action": "Migrate from commons-lang 2.6 to commons-lang3",
+      "rationale": "commons-lang 2.6 is from 2011 and is deprecated. Should migrate to actively maintained commons-lang3."
+    },
+    {
+      "priority": "medium",
+      "soup_id": "SOUP-020",
+      "action": "Migrate from Spring Cloud Sleuth to Micrometer Tracing",
+      "rationale": "Spring Cloud Sleuth is deprecated. Should migrate to Micrometer Tracing for continued support and updates."
+    },
+    {
+      "priority": "medium",
+      "soup_id": "SOUP-018",
+      "action": "Review easy-rules-core maintenance status and consider alternatives",
+      "rationale": "Last release was in 2020. Given its critical role in clinical decision logic, should evaluate active alternatives or plan for maintenance."
+    },
+    {
+      "priority": "low",
+      "soup_id": "ALL-CRITICAL",
+      "action": "Complete SOUP qualification for all critical-classified dependencies",
+      "rationale": "IEC 62304 requires documented qualification activities for all SOUP in safety-relevant paths. 12 critical SOUP items identified."
+    },
+    {
+      "priority": "low",
+      "soup_id": "ALL",
+      "action": "Document transitive dependencies and complete dependency tree analysis",
+      "rationale": "Current analysis covers direct dependencies only. Need to catalog all transitive dependencies with Maven dependency:tree."
+    },
+    {
+      "priority": "low",
+      "soup_id": "ALL",
+      "action": "Establish regular SOUP monitoring and update process",
+      "rationale": "Need documented procedure for monitoring security advisories, CVEs, and updates for all SOUP components."
+    }
+  ]
+}

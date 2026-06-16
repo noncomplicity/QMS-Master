@@ -35,7 +35,7 @@ This level provides the foundational understanding of the software's risk profil
   
 This connection forms part of the System Risk Analysis and should be interpreted in connection with related procedures and guidance such as:
 
-- [[System risks in AI-Based Medical Device Software]]
+- [System risks in AI-Based Medical Device Software](System%20risks%20in%20AI-Based%20Medical%20Device%20Software.md)
 - and other complementary process documents that address intended purpose, clinical context, and evidence determination.
 
 ## Contributing Factor Analysis

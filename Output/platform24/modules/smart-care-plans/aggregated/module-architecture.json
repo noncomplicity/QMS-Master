@@ -1,0 +1,307 @@
+{
+  "extraction_metadata": {
+    "aggregated_at": "2026-03-06T14:30:00Z",
+    "aggregator_version": "2.0",
+    "standard": "IEC 62304:2006+AMD1:2015",
+    "hierarchy": {
+      "level": "module",
+      "module_id": "smart-care-plans",
+      "module_name": "Smart Care Plans",
+      "parent_system": "platform24",
+      "child_items": ["health-manager"]
+    },
+    "source_extractions": [
+      {
+        "item_id": "health-manager",
+        "commit": "16e0273739eda65f73af5410323e1caf53362f16",
+        "extracted_at": "2026-03-06T15:00:00Z"
+      }
+    ]
+  },
+
+  "module_summary": {
+    "module_id": "smart-care-plans",
+    "module_name": "Smart Care Plans",
+    "description": "Clinical appointment and care workflow management module. Manages patient-practitioner encounters, appointment lifecycle, handovers, follow-ups, referrals, and escalation.",
+    "item_count": 1,
+    "interface_count": 5,
+    "external_dependency_count": 7
+  },
+
+  "items": [
+    {
+      "item_id": "health-manager",
+      "item_name": "Health Manager Service",
+      "description": "Core appointment and clinical workflow management service. Manages patient-practitioner appointment lifecycle, handovers, follow-ups, referrals, and escalation.",
+      "component_count": 10,
+      "primary_technology": "Java 21 / Spring Boot"
+    }
+  ],
+
+  "inter_item_interfaces": [],
+
+  "external_interfaces": [
+    {
+      "id": "MOD-SCP-EXT-001",
+      "name": "Appointment Management API",
+      "item_id": "health-manager",
+      "item_interface": "ITEM-HM-INT-001",
+      "target": "clinic-web, patient-app, booking-service",
+      "protocol": "REST",
+      "direction": "provided",
+      "description": "REST API for appointment CRUD, status updates, and lifecycle management"
+    },
+    {
+      "id": "MOD-SCP-EXT-002",
+      "name": "Clinic Listing API",
+      "item_id": "health-manager",
+      "item_interface": "ITEM-HM-INT-002",
+      "target": "clinic-web",
+      "protocol": "REST",
+      "direction": "provided",
+      "description": "REST API for clinic staff to view and manage appointment queues"
+    },
+    {
+      "id": "MOD-SCP-EXT-003",
+      "name": "Handover Events",
+      "item_id": "health-manager",
+      "item_interface": "ITEM-HM-INT-003",
+      "target": "notification-service, clinic-web",
+      "protocol": "JMS",
+      "direction": "provided",
+      "description": "JMS events for appointment handover status changes"
+    },
+    {
+      "id": "MOD-SCP-EXT-004",
+      "name": "Bookings Service",
+      "item_id": "health-manager",
+      "item_interface": "ITEM-HM-EXT-001",
+      "target": "bookings-service (Platform24)",
+      "protocol": "REST",
+      "direction": "consumed",
+      "description": "Booking slot availability and booking creation"
+    },
+    {
+      "id": "MOD-SCP-EXT-005",
+      "name": "Directory2 Service",
+      "item_id": "health-manager",
+      "item_interface": "ITEM-HM-EXT-002",
+      "target": "directory2-service (Platform24)",
+      "protocol": "REST",
+      "direction": "consumed",
+      "description": "Practitioner and patient information lookup"
+    },
+    {
+      "id": "MOD-SCP-EXT-006",
+      "name": "MeetingPlace Service",
+      "item_id": "health-manager",
+      "item_interface": "ITEM-HM-EXT-003",
+      "target": "meetingplace-service (Platform24)",
+      "protocol": "REST",
+      "direction": "consumed",
+      "description": "Video meeting and messaging integration"
+    },
+    {
+      "id": "MOD-SCP-EXT-007",
+      "name": "TakeCare EHR",
+      "item_id": "health-manager",
+      "item_interface": "ITEM-HM-EXT-004",
+      "target": "TakeCare (external EHR)",
+      "protocol": "HTTP/SOAP",
+      "direction": "consumed",
+      "description": "Electronic Health Record integration for Region Stockholm"
+    },
+    {
+      "id": "MOD-SCP-EXT-008",
+      "name": "Synchronized Booking Events",
+      "item_id": "health-manager",
+      "item_interface": "ITEM-HM-EXT-006",
+      "target": "bookings-service (Platform24)",
+      "protocol": "JMS",
+      "direction": "consumed",
+      "description": "Booking sync events from bookings service"
+    },
+    {
+      "id": "MOD-SCP-EXT-009",
+      "name": "MariaDB Database",
+      "item_id": "health-manager",
+      "item_interface": "ITEM-HM-EXT-007",
+      "target": "MariaDB cluster (infrastructure)",
+      "protocol": "JDBC",
+      "direction": "consumed",
+      "description": "Primary relational database for appointment and clinical data"
+    }
+  ],
+
+  "shared_infrastructure": [
+    {
+      "id": "MOD-SCP-INFRA-001",
+      "type": "database",
+      "name": "Health Manager Database",
+      "technology": "MariaDB 10.x",
+      "items_using": ["health-manager"],
+      "purpose": "Primary data store for appointments, episodes, handovers, clinical data",
+      "data_isolation": "schema"
+    },
+    {
+      "id": "MOD-SCP-INFRA-002",
+      "type": "queue",
+      "name": "Artemis JMS Broker",
+      "technology": "ActiveMQ Artemis (embedded)",
+      "items_using": ["health-manager"],
+      "purpose": "Async event processing for booking sync and clinical events",
+      "data_isolation": "namespace"
+    }
+  ],
+
+  "data_flows": [
+    {
+      "id": "MOD-SCP-FLOW-001",
+      "name": "Appointment Update Flow",
+      "description": "Patient/practitioner appointment status changes through the system",
+      "trigger": "REST API call to update appointment",
+      "path": [
+        {
+          "step": 1,
+          "item": "health-manager",
+          "component": "ITEM-HM-COMP-001 (Controllers)",
+          "action": "Receive and validate request",
+          "data_out": "UpdateAppointmentDTO"
+        },
+        {
+          "step": 2,
+          "item": "health-manager",
+          "component": "ITEM-HM-COMP-002 (Services)",
+          "action": "Apply business rules, state machine validation",
+          "data_out": "Appointment entity"
+        },
+        {
+          "step": 3,
+          "item": "health-manager",
+          "component": "ITEM-HM-COMP-003 (Repositories)",
+          "action": "Persist to database with optimistic locking",
+          "data_out": "Persisted Appointment"
+        }
+      ],
+      "validation_points": ["Request validation at controller", "State machine at service", "Optimistic lock at repository"],
+      "safety_impact": "high"
+    },
+    {
+      "id": "MOD-SCP-FLOW-002",
+      "name": "Handover Flow",
+      "description": "Appointment handover between practitioners",
+      "trigger": "Practitioner initiates handover",
+      "path": [
+        {
+          "step": 1,
+          "item": "health-manager",
+          "component": "ITEM-HM-COMP-001 (Controllers)",
+          "action": "Receive handover request",
+          "data_out": "HandoverDTO"
+        },
+        {
+          "step": 2,
+          "item": "health-manager",
+          "component": "ITEM-HM-COMP-002 (Services)",
+          "action": "Validate state transition, update handover status",
+          "data_out": "Handover entity"
+        },
+        {
+          "step": 3,
+          "item": "health-manager",
+          "component": "ITEM-HM-COMP-006 (JMS)",
+          "action": "Publish handover event",
+          "data_out": "AppointmentHandoverStatusEvent"
+        }
+      ],
+      "validation_points": ["State machine validation", "Practitioner authorization"],
+      "safety_impact": "high"
+    },
+    {
+      "id": "MOD-SCP-FLOW-003",
+      "name": "Booking Sync Flow",
+      "description": "Incoming booking events from external services",
+      "trigger": "JMS message from bookings-service",
+      "path": [
+        {
+          "step": 1,
+          "item": "health-manager",
+          "component": "ITEM-HM-COMP-006 (JMS Listeners)",
+          "action": "Receive and deserialize event",
+          "data_out": "SynchronizedBookingEvent"
+        },
+        {
+          "step": 2,
+          "item": "health-manager",
+          "component": "ITEM-HM-COMP-002 (Services)",
+          "action": "Process booking update",
+          "data_out": "Appointment entity"
+        },
+        {
+          "step": 3,
+          "item": "health-manager",
+          "component": "ITEM-HM-COMP-003 (Repositories)",
+          "action": "Persist to database",
+          "data_out": "Updated booking data"
+        }
+      ],
+      "validation_points": ["Event deserialization", "Duplicate detection"],
+      "safety_impact": "medium"
+    }
+  ],
+
+  "integration_concerns": [
+    {
+      "id": "MOD-SCP-CONCERN-001",
+      "type": "data_consistency",
+      "description": "JMS message loss could cause booking data inconsistency between health-manager and bookings-service",
+      "items_affected": ["health-manager"],
+      "interfaces_affected": ["MOD-SCP-EXT-008"],
+      "mitigation": "Dead letter queue with manual reconciliation process",
+      "verification_required": "Integration tests with JMS failure simulation"
+    },
+    {
+      "id": "MOD-SCP-CONCERN-002",
+      "type": "single_point_of_failure",
+      "description": "MariaDB database is single point of failure for all clinical data",
+      "items_affected": ["health-manager"],
+      "interfaces_affected": ["MOD-SCP-EXT-009"],
+      "mitigation": "Clustered deployment with read replicas and failover",
+      "verification_required": "Failover testing in staging environment"
+    }
+  ],
+
+  "traceability": {
+    "to_system_requirements": [],
+    "to_item_architectures": [
+      {
+        "module_element": "MOD-SCP-EXT-001",
+        "item_elements": ["ITEM-HM-INT-001"]
+      },
+      {
+        "module_element": "MOD-SCP-EXT-003",
+        "item_elements": ["ITEM-HM-INT-003"]
+      },
+      {
+        "module_element": "MOD-SCP-FLOW-001",
+        "item_elements": ["ITEM-HM-FLOW-001"]
+      },
+      {
+        "module_element": "MOD-SCP-FLOW-002",
+        "item_elements": ["ITEM-HM-FLOW-002"]
+      }
+    ],
+    "to_integration_tests": []
+  },
+
+  "gaps": [
+    {
+      "id": "MOD-SCP-GAP-001",
+      "type": "missing_integration_test",
+      "description": "No module-level integration tests defined (single item module)",
+      "affected_items": ["health-manager"],
+      "recommendation": "Add integration tests when additional items are added to module",
+      "priority": "low"
+    }
+  ]
+}

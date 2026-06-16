@@ -1,0 +1,179 @@
+{
+  "_template_instructions": {
+    "purpose": "Assess severity and probability for hazards identified during extraction",
+    "when_to_fill": "After gap analysis identifies hazards needing clinical assessment",
+    "how_to_use": "1. Copy to Output/<system>/system/defined/hazard-assessments.json, 2. Assess each hazard, 3. Remove _template_instructions",
+    "references": [
+      "ISO 14971:2019 clause 5.5 - Risk estimation",
+      "ISO 14971:2019 clause 6 - Risk evaluation"
+    ],
+    "notes": "Severity and probability should be assessed by someone with clinical domain knowledge"
+  },
+
+  "system_id": "<FILL: system identifier>",
+  "assessed_by": "<FILL: name, role, and qualifications>",
+  "assessment_date": "<FILL: ISO-8601 date>",
+  "risk_criteria_version": "<FILL: version of risk-criteria.json used>",
+
+  "hazard_assessments": [
+    {
+      "_instructions": "Copy this block for each hazard identified in extractions",
+
+      "hazard_id": "<FILL: from extraction, e.g., ITEM-HM-HAZ-001>",
+      "hazard_description": "<FILL: from extraction>",
+      "source_extraction": "<FILL: path to source file, e.g., items/health-manager/extracted/item-risk-contribution.json>",
+
+      "clinical_context": {
+        "affected_users": ["<FILL: who is affected>"],
+        "affected_workflow": "<FILL: what clinical workflow>",
+        "clinical_scenario": "<FILL: describe realistic scenario where this hazard leads to harm>"
+      },
+
+      "harm_analysis": {
+        "potential_harm": "<FILL: clinical description of harm>",
+        "harm_mechanism": "<FILL: how does the hazard lead to harm>",
+        "patient_population_at_risk": "<FILL: which patients could be harmed>",
+        "harm_reversibility": "<FILL: reversible / partially reversible / irreversible>"
+      },
+
+      "severity_assessment": {
+        "severity_level": "<FILL: S1-S5>",
+        "rationale": "<FILL: why this severity level>",
+        "worst_case_harm": "<FILL: worst realistic outcome>",
+        "most_likely_harm": "<FILL: most probable outcome if hazard occurs>"
+      },
+
+      "probability_assessment_before_controls": {
+        "probability_level": "<FILL: P1-P5>",
+        "rationale": "<FILL: why this probability level>",
+        "frequency_estimate": "<FILL: estimated frequency of occurrence>",
+        "contributing_factors": ["<FILL: factors that influence probability>"]
+      },
+
+      "initial_risk_evaluation": {
+        "risk_level": "<FILL: acceptable / alarp / unacceptable>",
+        "calculation": "<FILL: e.g., S3 x P3 = ALARP per risk matrix>"
+      },
+
+      "existing_controls": [
+        {
+          "control_id": "<FILL: from extraction, e.g., ITEM-HM-RC-001>",
+          "control_description": "<FILL: from extraction>",
+          "control_effectiveness": "<FILL: high / medium / low>",
+          "effectiveness_rationale": "<FILL: why this effectiveness level>"
+        }
+      ],
+
+      "probability_assessment_after_controls": {
+        "probability_level": "<FILL: P1-P5>",
+        "rationale": "<FILL: how controls reduce probability>",
+        "residual_frequency": "<FILL: estimated frequency after controls>"
+      },
+
+      "residual_risk_evaluation": {
+        "residual_risk_level": "<FILL: acceptable / alarp / unacceptable>",
+        "calculation": "<FILL: e.g., S3 x P2 = acceptable per risk matrix>",
+        "acceptability_decision": "<FILL: acceptable / acceptable_with_benefit / further_action_required>"
+      },
+
+      "benefit_risk_analysis": {
+        "_instructions": "Complete only if residual_risk_level is ALARP",
+        "required": "<FILL: true/false>",
+        "clinical_benefit": "<FILL: what benefit does this functionality provide>",
+        "benefit_justification": "<FILL: why benefit outweighs residual risk>",
+        "disclosure_required": "<FILL: true/false>",
+        "disclosure_text": "<FILL: text to include in IFU if disclosure required>"
+      },
+
+      "additional_controls_needed": {
+        "_instructions": "Complete if further_action_required",
+        "controls_proposed": [
+          {
+            "description": "<FILL: proposed control>",
+            "control_type": "<FILL: software_design / ui_design / training / etc>",
+            "expected_effectiveness": "<FILL: how much will this reduce risk>"
+          }
+        ]
+      }
+    }
+  ],
+
+  "example_completed_assessment": {
+    "_note": "This is an example - delete when using template",
+
+    "hazard_id": "ITEM-HM-HAZ-001",
+    "hazard_description": "Handover proposal to unavailable practitioner",
+    "source_extraction": "items/health-manager/extracted/item-risk-contribution.json",
+
+    "clinical_context": {
+      "affected_users": ["Healthcare practitioner", "Patient"],
+      "affected_workflow": "Patient handover between practitioners",
+      "clinical_scenario": "Practitioner initiates handover to a colleague who is unavailable (on leave, off shift). Patient care responsibility becomes unclear, leading to delayed follow-up."
+    },
+
+    "harm_analysis": {
+      "potential_harm": "Delayed patient care due to unclear responsibility",
+      "harm_mechanism": "Patient falls through the cracks - original practitioner thinks handover complete, target practitioner unaware",
+      "patient_population_at_risk": "Patients requiring continuity of care, especially those with ongoing conditions",
+      "harm_reversibility": "Reversible if detected in time"
+    },
+
+    "severity_assessment": {
+      "severity_level": "S3",
+      "rationale": "Delay in care could require additional medical intervention to address worsened condition",
+      "worst_case_harm": "Significant deterioration requiring hospitalization",
+      "most_likely_harm": "Delayed follow-up causing discomfort and anxiety"
+    },
+
+    "probability_assessment_before_controls": {
+      "probability_level": "P4",
+      "rationale": "Practitioners frequently hand over to colleagues; availability not always checked",
+      "frequency_estimate": "Could occur weekly across user base",
+      "contributing_factors": ["No availability check", "Async workflow", "Multiple practitioners"]
+    },
+
+    "initial_risk_evaluation": {
+      "risk_level": "alarp",
+      "calculation": "S3 x P4 = ALARP per risk matrix"
+    },
+
+    "existing_controls": [
+      {
+        "control_id": "ITEM-HM-RC-001",
+        "control_description": "State validation before handover",
+        "control_effectiveness": "medium",
+        "effectiveness_rationale": "Validates state but not practitioner availability"
+      }
+    ],
+
+    "probability_assessment_after_controls": {
+      "probability_level": "P3",
+      "rationale": "State validation reduces some error cases but availability gap remains",
+      "residual_frequency": "Monthly across user base"
+    },
+
+    "residual_risk_evaluation": {
+      "residual_risk_level": "alarp",
+      "calculation": "S3 x P3 = ALARP per risk matrix",
+      "acceptability_decision": "acceptable_with_benefit"
+    },
+
+    "benefit_risk_analysis": {
+      "required": true,
+      "clinical_benefit": "Enables efficient care coordination, reduces time to handover, maintains continuity of care",
+      "benefit_justification": "Manual handover processes are slower and more error-prone. Digital handover, even with this residual risk, improves overall care coordination.",
+      "disclosure_required": true,
+      "disclosure_text": "Users should verify target practitioner availability before initiating handover. System does not validate real-time availability."
+    },
+
+    "additional_controls_needed": {
+      "controls_proposed": [
+        {
+          "description": "Add practitioner availability indicator",
+          "control_type": "software_design",
+          "expected_effectiveness": "Would reduce probability to P2"
+        }
+      ]
+    }
+  }
+}

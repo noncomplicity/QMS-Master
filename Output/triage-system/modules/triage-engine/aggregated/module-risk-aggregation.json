@@ -1,0 +1,534 @@
+{
+  "aggregation_metadata": {
+    "module_id": "triage-engine",
+    "module_name": "Triage Engine",
+    "aggregated_at": "2026-03-06T21:00:00Z",
+    "aggregator_version": "3.0",
+    "standard": "IEC 62304:2006+AMD1:2015 / ISO 14971:2019",
+    "hierarchy": {
+      "level": "module",
+      "parent_system": "triage-system"
+    },
+    "source_items": [
+      {
+        "item_id": "interviewer4",
+        "item_name": "Interviewer Service",
+        "extraction_file": "items/interviewer4/extracted/item-risk-contribution.json"
+      },
+      {
+        "item_id": "rule-engine-module",
+        "item_name": "Rule Engine Module",
+        "extraction_file": "items/rule-engine-module/extracted/item-risk-contribution.json"
+      }
+    ]
+  },
+
+  "module_context": {
+    "id": "MOD-TRIAGE-ENGINE",
+    "name": "Triage Engine",
+    "description": "Core clinical decision logic module - conducts symptom interviews through the interviewer service and applies triage rules through the rule engine to determine patient urgency and care recommendations",
+    "safety_class": "B",
+    "safety_class_rationale": "Module that can contribute to hazardous situations through incorrect triage recommendations. Combines interview data collection with rule-based clinical decision support. Incorrect symptom collection or rule evaluation could lead to delayed care or inappropriate urgency levels, but clinical decisions still involve practitioner review."
+  },
+
+  "software_items": [
+    {
+      "id": "ITEM-INTERVIEWER4",
+      "name": "interviewer4",
+      "description": "Interview and questionnaire service responsible for collecting patient symptoms through guided questionnaires, executing branching logic, and managing interview state and answers",
+      "safety_class": "B",
+      "version": "0.0.0-SNAPSHOT",
+      "repository_url": "git@gitlab-p24:doktor24/services/interviewer4.git",
+      "technology_stack": ["Java 17", "Spring Boot 2.7.18", "Hibernate JPA", "MySQL", "Apache Artemis JMS"],
+      "deployment_type": "microservice"
+    },
+    {
+      "id": "ITEM-REM",
+      "name": "rule-engine-module",
+      "description": "Generic rule engine that evaluates clinical triage rules to determine patient urgency, care recommendations, and appointment prioritization",
+      "safety_class": "B",
+      "version": "0.0-SNAPSHOT",
+      "repository_url": "git@gitlab-p24:doktor24/system-configuration/modules/rule-engine-module.git",
+      "technology_stack": ["Java 17", "Maven", "Jackson", "Guava", "Micrometer"],
+      "deployment_type": "library"
+    }
+  ],
+
+  "core_functionalities": [
+    {
+      "id": "CF-TE-001",
+      "name": "Symptom Interview Conduct",
+      "description": "Guides patients through structured questionnaires to collect symptom data, medical history, and clinical context",
+      "software_items": ["ITEM-INTERVIEWER4"],
+      "failure_modes": ["MOD-TE-FM-001", "MOD-TE-FM-002", "MOD-TE-FM-003"]
+    },
+    {
+      "id": "CF-TE-002",
+      "name": "Interview State Management",
+      "description": "Maintains interview progress, answers, and state across sessions including locking and expiration",
+      "software_items": ["ITEM-INTERVIEWER4"],
+      "failure_modes": ["MOD-TE-FM-004", "MOD-TE-FM-005"]
+    },
+    {
+      "id": "CF-TE-003",
+      "name": "External Data Integration",
+      "description": "Imports patient medical history from HealthData service for clinical context",
+      "software_items": ["ITEM-INTERVIEWER4"],
+      "failure_modes": ["MOD-TE-FM-006"]
+    },
+    {
+      "id": "CF-TE-004",
+      "name": "Clinical Rule Evaluation",
+      "description": "Evaluates declarative triage rules against patient attributes to determine urgency and care recommendations",
+      "software_items": ["ITEM-REM"],
+      "failure_modes": ["MOD-TE-FM-007", "MOD-TE-FM-008"]
+    },
+    {
+      "id": "CF-TE-005",
+      "name": "Rule Package Management",
+      "description": "Loads, validates, and updates clinical rule packages from object storage",
+      "software_items": ["ITEM-REM"],
+      "failure_modes": ["MOD-TE-FM-009", "MOD-TE-FM-010"]
+    },
+    {
+      "id": "CF-TE-006",
+      "name": "Interview to Rule Engine Data Transfer",
+      "description": "Exports completed interview data to rule engine for triage decision",
+      "software_items": ["ITEM-INTERVIEWER4", "ITEM-REM"],
+      "failure_modes": ["MOD-TE-FM-011"]
+    }
+  ],
+
+  "module_hazards": [
+    {
+      "id": "MOD-TE-HAZ-001",
+      "description": "Interview flow logic error causes critical questions to be skipped",
+      "contributing_items": ["ITEM-INTERVIEWER4"],
+      "contributing_hazards": ["ITEM-INTERVIEWER4-HAZ-001"],
+      "potential_harm": "Patient fails to report critical symptoms leading to incorrect triage level or missed urgent conditions",
+      "severity_contribution": "serious",
+      "cross_item_impact": "Incomplete interview data passed to rule engine produces incorrect recommendations"
+    },
+    {
+      "id": "MOD-TE-HAZ-002",
+      "description": "Patient answers lost or corrupted during save",
+      "contributing_items": ["ITEM-INTERVIEWER4"],
+      "contributing_hazards": ["ITEM-INTERVIEWER4-HAZ-002", "ITEM-INTERVIEWER4-HAZ-003"],
+      "potential_harm": "Clinical data loss results in incomplete patient assessment and potentially unsafe triage decisions",
+      "severity_contribution": "serious",
+      "cross_item_impact": "Missing answers cause rule engine to produce recommendations based on incomplete data"
+    },
+    {
+      "id": "MOD-TE-HAZ-003",
+      "description": "Interview data passed to rule engine is incomplete or malformed",
+      "contributing_items": ["ITEM-INTERVIEWER4", "ITEM-REM"],
+      "contributing_hazards": ["ITEM-INTERVIEWER4-HAZ-006", "ITEM-REM-HAZ-003"],
+      "potential_harm": "Rule engine receives incomplete data and produces incorrect triage recommendation",
+      "severity_contribution": "critical",
+      "cross_item_impact": "Primary cross-item hazard - data integrity between interview and rule engine is critical"
+    },
+    {
+      "id": "MOD-TE-HAZ-004",
+      "description": "Rule condition evaluates incorrectly due to expression error",
+      "contributing_items": ["ITEM-REM"],
+      "contributing_hazards": ["ITEM-REM-HAZ-001", "ITEM-REM-HAZ-002"],
+      "potential_harm": "Patient receives incorrect triage recommendation leading to delayed care or unnecessary escalation",
+      "severity_contribution": "serious",
+      "cross_item_impact": "Affects all patients processed by the affected rule"
+    },
+    {
+      "id": "MOD-TE-HAZ-005",
+      "description": "Clinical rule packages fail to load or update",
+      "contributing_items": ["ITEM-REM"],
+      "contributing_hazards": ["ITEM-REM-HAZ-007", "ITEM-REM-HAZ-011"],
+      "potential_harm": "System operates with outdated or missing triage rules, potentially providing obsolete clinical guidance",
+      "severity_contribution": "critical",
+      "cross_item_impact": "Affects all patients until rules are restored"
+    },
+    {
+      "id": "MOD-TE-HAZ-006",
+      "description": "Rules execute in incorrect order overriding critical decisions",
+      "contributing_items": ["ITEM-REM"],
+      "contributing_hazards": ["ITEM-REM-HAZ-006"],
+      "potential_harm": "Patient receives conflicting or incorrect care recommendation as critical rules are overridden",
+      "severity_contribution": "serious",
+      "cross_item_impact": "Systemic issue affecting rule package interaction"
+    },
+    {
+      "id": "MOD-TE-HAZ-007",
+      "description": "External medical history unavailable for interview",
+      "contributing_items": ["ITEM-INTERVIEWER4"],
+      "contributing_hazards": ["ITEM-INTERVIEWER4-HAZ-005"],
+      "potential_harm": "Interview proceeds without patient's medication/condition history, leading to incomplete assessment",
+      "severity_contribution": "serious",
+      "cross_item_impact": "Affects interview quality and downstream rule evaluation"
+    },
+    {
+      "id": "MOD-TE-HAZ-008",
+      "description": "Unauthorized access to patient interview data",
+      "contributing_items": ["ITEM-INTERVIEWER4"],
+      "contributing_hazards": ["ITEM-INTERVIEWER4-HAZ-007"],
+      "potential_harm": "Privacy breach, GDPR violation, or malicious actor views/modifies patient health data",
+      "severity_contribution": "serious",
+      "cross_item_impact": "Affects patient confidentiality across system"
+    }
+  ],
+
+  "failure_modes": [
+    {
+      "id": "MOD-TE-FM-001",
+      "name": "Questionnaire executor state machine failure",
+      "category": "software_defect",
+      "software_item_id": "ITEM-INTERVIEWER4",
+      "core_functionality_id": "CF-TE-001",
+      "contributes_to_hazards": ["MOD-TE-HAZ-001"],
+      "effect_on_module": "Interview cannot proceed, patient stuck or receives irrelevant questions",
+      "effect_on_system": "Patient cannot complete triage, incomplete data affects downstream services",
+      "source_failure_modes": ["ITEM-INTERVIEWER4-FM-001"]
+    },
+    {
+      "id": "MOD-TE-FM-002",
+      "name": "Answer persistence transaction rollback",
+      "category": "data_integrity",
+      "software_item_id": "ITEM-INTERVIEWER4",
+      "core_functionality_id": "CF-TE-001",
+      "contributes_to_hazards": ["MOD-TE-HAZ-002"],
+      "effect_on_module": "Answer not saved, patient sees previous answer or error",
+      "effect_on_system": "Interview data inconsistent, retry required",
+      "source_failure_modes": ["ITEM-INTERVIEWER4-FM-002"]
+    },
+    {
+      "id": "MOD-TE-FM-003",
+      "name": "Answer filtering algorithm removes valid answers",
+      "category": "software_defect",
+      "software_item_id": "ITEM-INTERVIEWER4",
+      "core_functionality_id": "CF-TE-001",
+      "contributes_to_hazards": ["MOD-TE-HAZ-002"],
+      "effect_on_module": "Valid patient answers removed from answer list",
+      "effect_on_system": "Incomplete data passed to rule engine, potential under-triage",
+      "source_failure_modes": ["ITEM-INTERVIEWER4-FM-008"]
+    },
+    {
+      "id": "MOD-TE-FM-004",
+      "name": "Concurrent interview modification race condition",
+      "category": "synchronization_error",
+      "software_item_id": "ITEM-INTERVIEWER4",
+      "core_functionality_id": "CF-TE-002",
+      "contributes_to_hazards": ["MOD-TE-HAZ-002"],
+      "effect_on_module": "Lost updates or inconsistent state between concurrent accesses",
+      "effect_on_system": "Patient or practitioner sees stale data",
+      "source_failure_modes": ["ITEM-INTERVIEWER4-FM-006"]
+    },
+    {
+      "id": "MOD-TE-FM-005",
+      "name": "Interview expiration during active session",
+      "category": "configuration_error",
+      "software_item_id": "ITEM-INTERVIEWER4",
+      "core_functionality_id": "CF-TE-002",
+      "contributes_to_hazards": ["MOD-TE-HAZ-001"],
+      "effect_on_module": "Interview marked expired while patient actively answering",
+      "effect_on_system": "Patient forced to restart, progress lost",
+      "source_failure_modes": ["ITEM-INTERVIEWER4-FM-009"]
+    },
+    {
+      "id": "MOD-TE-FM-006",
+      "name": "External health data service unavailable",
+      "category": "external_dependency",
+      "software_item_id": "ITEM-INTERVIEWER4",
+      "core_functionality_id": "CF-TE-003",
+      "contributes_to_hazards": ["MOD-TE-HAZ-007"],
+      "effect_on_module": "Import data fails, interview may fail or proceed without medical history",
+      "effect_on_system": "Interview lacks clinical context, affects rule evaluation",
+      "source_failure_modes": ["ITEM-INTERVIEWER4-FM-003"]
+    },
+    {
+      "id": "MOD-TE-FM-007",
+      "name": "Expression evaluation exception during rule condition check",
+      "category": "software_defect",
+      "software_item_id": "ITEM-REM",
+      "core_functionality_id": "CF-TE-004",
+      "contributes_to_hazards": ["MOD-TE-HAZ-004"],
+      "effect_on_module": "Rule evaluation aborted, RuleEngineFaults thrown",
+      "effect_on_system": "Triage process interrupted, no recommendation produced",
+      "source_failure_modes": ["ITEM-REM-FM-001"]
+    },
+    {
+      "id": "MOD-TE-FM-008",
+      "name": "Mandatory attribute validation failure",
+      "category": "data_integrity",
+      "software_item_id": "ITEM-REM",
+      "core_functionality_id": "CF-TE-004",
+      "contributes_to_hazards": ["MOD-TE-HAZ-003"],
+      "effect_on_module": "Rule engine cannot execute, no output produced",
+      "effect_on_system": "Triage cannot proceed, patient redirected to manual triage",
+      "source_failure_modes": ["ITEM-REM-FM-002"]
+    },
+    {
+      "id": "MOD-TE-FM-009",
+      "name": "Object storage unavailable during rule loading",
+      "category": "external_dependency",
+      "software_item_id": "ITEM-REM",
+      "core_functionality_id": "CF-TE-005",
+      "contributes_to_hazards": ["MOD-TE-HAZ-005"],
+      "effect_on_module": "Rule repository initialization fails, service cannot start",
+      "effect_on_system": "Triage service unavailable, all patients must use fallback path",
+      "source_failure_modes": ["ITEM-REM-FM-005"]
+    },
+    {
+      "id": "MOD-TE-FM-010",
+      "name": "Rule package YAML parsing failure",
+      "category": "configuration_error",
+      "software_item_id": "ITEM-REM",
+      "core_functionality_id": "CF-TE-005",
+      "contributes_to_hazards": ["MOD-TE-HAZ-005"],
+      "effect_on_module": "Specific rule package not loaded, functionality unavailable",
+      "effect_on_system": "Affected partners/functions unavailable until fix deployed",
+      "source_failure_modes": ["ITEM-REM-FM-006"]
+    },
+    {
+      "id": "MOD-TE-FM-011",
+      "name": "Interview result serialization failure",
+      "category": "data_integrity",
+      "software_item_id": "ITEM-INTERVIEWER4",
+      "core_functionality_id": "CF-TE-006",
+      "contributes_to_hazards": ["MOD-TE-HAZ-003"],
+      "effect_on_module": "Interview data cannot be exported to rule engine",
+      "effect_on_system": "Triage cannot complete, patient must restart or use manual triage",
+      "source_failure_modes": ["ITEM-INTERVIEWER4-FM-005"]
+    }
+  ],
+
+  "module_risk_controls": [
+    {
+      "id": "MOD-TE-RC-001",
+      "description": "Answer timestamp and index-based ordering ensures chronological consistency",
+      "control_type": "protective_measure",
+      "mitigates": ["MOD-TE-HAZ-002"],
+      "implementation": "Answer entities have auto-generated indices and timestamps for deterministic ordering",
+      "verification_status": "verified",
+      "source_controls": ["ITEM-INTERVIEWER4-RC-001"]
+    },
+    {
+      "id": "MOD-TE-RC-002",
+      "description": "Database transaction management ensures atomic answer saves",
+      "control_type": "protective_measure",
+      "mitigates": ["MOD-TE-HAZ-002"],
+      "implementation": "Spring @Transactional annotations ensure atomic saves with rollback on exception",
+      "verification_status": "partial",
+      "source_controls": ["ITEM-INTERVIEWER4-RC-002"]
+    },
+    {
+      "id": "MOD-TE-RC-003",
+      "description": "Interview access control enforces patient-practitioner relationship",
+      "control_type": "protective_measure",
+      "mitigates": ["MOD-TE-HAZ-008"],
+      "implementation": "JWT validation and role-based access control with @Secured annotations",
+      "verification_status": "verified",
+      "source_controls": ["ITEM-INTERVIEWER4-RC-003"]
+    },
+    {
+      "id": "MOD-TE-RC-004",
+      "description": "Required import validation blocks interview without critical data",
+      "control_type": "protective_measure",
+      "mitigates": ["MOD-TE-HAZ-007"],
+      "implementation": "Throws IllegalStateException if required external data import fails",
+      "verification_status": "verified",
+      "source_controls": ["ITEM-INTERVIEWER4-RC-004"]
+    },
+    {
+      "id": "MOD-TE-RC-005",
+      "description": "Mandatory attribute validation enforced at rule engine input",
+      "control_type": "protective_measure",
+      "mitigates": ["MOD-TE-HAZ-003", "MOD-TE-HAZ-004"],
+      "implementation": "RuleEngine.assertInput() validates all mandatory attributes before execution",
+      "verification_status": "verified",
+      "source_controls": ["ITEM-REM-RC-003"]
+    },
+    {
+      "id": "MOD-TE-RC-006",
+      "description": "Expression syntax validation catches runtime evaluation errors",
+      "control_type": "protective_measure",
+      "mitigates": ["MOD-TE-HAZ-004"],
+      "implementation": "Try-catch in RuleEngine.when() converts ExecutionError to RuleEngineFaults with context",
+      "verification_status": "verified",
+      "source_controls": ["ITEM-REM-RC-001"]
+    },
+    {
+      "id": "MOD-TE-RC-007",
+      "description": "Rule package validation at load time",
+      "control_type": "protective_measure",
+      "mitigates": ["MOD-TE-HAZ-005", "MOD-TE-HAZ-006"],
+      "implementation": "RuleVerifier validates rule syntax, duplicate IDs, type compatibility before deployment",
+      "verification_status": "verified",
+      "source_controls": ["ITEM-REM-RC-004", "ITEM-REM-RC-007"]
+    },
+    {
+      "id": "MOD-TE-RC-008",
+      "description": "Output validation after each rule execution",
+      "control_type": "protective_measure",
+      "mitigates": ["MOD-TE-HAZ-004"],
+      "implementation": "attributeRegistry.validate(output) called after each rule to ensure consistency",
+      "verification_status": "verified",
+      "source_controls": ["ITEM-REM-RC-006"]
+    },
+    {
+      "id": "MOD-TE-RC-009",
+      "description": "Metrics and monitoring for rule execution failures",
+      "control_type": "information_for_safety",
+      "mitigates": ["MOD-TE-HAZ-005"],
+      "implementation": "Micrometer metrics for load failures and execution errors",
+      "verification_status": "verified",
+      "source_controls": ["ITEM-REM-RC-013"]
+    },
+    {
+      "id": "MOD-TE-RC-010",
+      "description": "Audit logging of interview events",
+      "control_type": "information_for_safety",
+      "mitigates": ["MOD-TE-HAZ-002", "MOD-TE-HAZ-008"],
+      "implementation": "JMS events published for interview lifecycle for audit trail",
+      "verification_status": "partial",
+      "source_controls": ["ITEM-INTERVIEWER4-RC-007"]
+    }
+  ],
+
+  "module_risk_controls_required_upstream": [
+    {
+      "id": "MOD-TE-RC-UP-001",
+      "description": "Clinical validation of questionnaire content and branching logic",
+      "rationale": "Software validates syntax but cannot assess clinical appropriateness of questions or triage rules",
+      "recommended_level": "system",
+      "control_type": "inherent_safety",
+      "mitigates": ["MOD-TE-HAZ-001", "MOD-TE-HAZ-004"]
+    },
+    {
+      "id": "MOD-TE-RC-UP-002",
+      "description": "System-level monitoring for interview completion and failure patterns",
+      "rationale": "Module-level logging exists but system aggregation needed to detect patterns",
+      "recommended_level": "system",
+      "control_type": "information_for_safety",
+      "mitigates": ["MOD-TE-HAZ-001", "MOD-TE-HAZ-002", "MOD-TE-HAZ-005"]
+    },
+    {
+      "id": "MOD-TE-RC-UP-003",
+      "description": "End-to-end data integrity validation between interview and rule engine",
+      "rationale": "Module boundaries prevent cross-service validation at component level",
+      "recommended_level": "system",
+      "control_type": "protective_measure",
+      "mitigates": ["MOD-TE-HAZ-003"]
+    },
+    {
+      "id": "MOD-TE-RC-UP-004",
+      "description": "Graceful degradation when rule engine unavailable",
+      "rationale": "Module throws exceptions but system must implement fallback triage path",
+      "recommended_level": "system",
+      "control_type": "protective_measure",
+      "mitigates": ["MOD-TE-HAZ-005"]
+    },
+    {
+      "id": "MOD-TE-RC-UP-005",
+      "description": "Practitioner training on rule engine limitations and manual triage procedures",
+      "rationale": "Software cannot ensure practitioners understand automated triage limitations",
+      "recommended_level": "system",
+      "control_type": "information_for_safety",
+      "mitigates": ["MOD-TE-HAZ-004", "MOD-TE-HAZ-005"]
+    }
+  ],
+
+  "cross_item_interfaces": [
+    {
+      "id": "MOD-TE-IF-001",
+      "name": "Interview Result Export to Rule Engine",
+      "from_item": "ITEM-INTERVIEWER4",
+      "to_item": "ITEM-REM",
+      "interface_type": "data_transfer",
+      "safety_impact": "CRITICAL: Primary data flow for triage decision. Malformed or incomplete data causes incorrect triage level.",
+      "data_exchanged": "InterviewResult containing patient answers, symptoms, medical history",
+      "failure_handling": "Serialization errors logged, rule engine receives data and validates mandatory attributes"
+    },
+    {
+      "id": "MOD-TE-IF-002",
+      "name": "Object Storage for Rule Packages",
+      "from_item": "external",
+      "to_item": "ITEM-REM",
+      "interface_type": "configuration",
+      "safety_impact": "Rule packages loaded from object storage. Failure prevents rule updates or service startup.",
+      "data_exchanged": "YAML rule package definitions, attribute schemas",
+      "failure_handling": "Automatic retry via ObjectStorageRetryingRestClient, service fails to start if persistent"
+    },
+    {
+      "id": "MOD-TE-IF-003",
+      "name": "HealthData Import",
+      "from_item": "external",
+      "to_item": "ITEM-INTERVIEWER4",
+      "interface_type": "data_import",
+      "safety_impact": "Medical history import for interview context. Failure means interview proceeds without critical patient data.",
+      "data_exchanged": "Patient medications, conditions, allergies",
+      "failure_handling": "Required imports fail fast, optional imports logged and skipped"
+    },
+    {
+      "id": "MOD-TE-IF-004",
+      "name": "JMS Interview Events",
+      "from_item": "ITEM-INTERVIEWER4",
+      "to_item": "external",
+      "interface_type": "events",
+      "safety_impact": "Interview lifecycle events for downstream services and audit. Failure delays notifications.",
+      "data_exchanged": "Interview created, answered, locked, cancelled events",
+      "failure_handling": "Artemis built-in redelivery, DLQ for poison messages"
+    }
+  ],
+
+  "module_verification_gaps": [
+    {
+      "id": "MOD-TE-GAP-001",
+      "type": "cross_item_integration",
+      "description": "No integration test verifying interview result data integrity when exported to rule engine",
+      "affected_hazards": ["MOD-TE-HAZ-003"],
+      "priority": "critical",
+      "recommendation": "Add end-to-end test that creates interview, answers questions, locks, exports, and validates rule engine receives complete data"
+    },
+    {
+      "id": "MOD-TE-GAP-002",
+      "type": "cross_item_integration",
+      "description": "Rule package ordering and interaction testing incomplete",
+      "affected_hazards": ["MOD-TE-HAZ-006"],
+      "priority": "high",
+      "recommendation": "Add integration tests verifying rule package interaction with clinical review of outcomes"
+    },
+    {
+      "id": "MOD-TE-GAP-003",
+      "type": "missing_failure_test",
+      "description": "No test for database transaction rollback during answer save",
+      "affected_hazards": ["MOD-TE-HAZ-002"],
+      "priority": "high",
+      "recommendation": "Add test simulating transaction failure and verify rollback leaves interview consistent"
+    },
+    {
+      "id": "MOD-TE-GAP-004",
+      "type": "unverified_interface",
+      "description": "HealthData service failure handling not fully tested",
+      "affected_hazards": ["MOD-TE-HAZ-007"],
+      "priority": "medium",
+      "recommendation": "Add integration tests with mock HealthData returning errors"
+    },
+    {
+      "id": "MOD-TE-GAP-005",
+      "type": "unverified_interface",
+      "description": "Object storage failure and recovery scenarios not tested with actual remote storage",
+      "affected_hazards": ["MOD-TE-HAZ-005"],
+      "priority": "high",
+      "recommendation": "Add fault injection tests for ObjectStorageClient failures"
+    }
+  ],
+
+  "aggregation_summary": {
+    "total_item_hazards": 22,
+    "module_hazards": 8,
+    "total_item_failure_modes": 24,
+    "module_failure_modes": 11,
+    "total_item_controls": 23,
+    "module_controls": 10,
+    "total_verification_gaps": 14,
+    "critical_cross_item_interfaces": 1,
+    "notes": "The primary safety concern is data integrity between interviewer4 and rule-engine-module. The InterviewResult export is the critical integration point that requires end-to-end validation."
+  }
+}

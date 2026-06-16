@@ -1,0 +1,529 @@
+{
+  "extraction_metadata": {
+    "aggregated_at": "2026-03-06T14:40:00Z",
+    "aggregator_version": "2.0",
+    "standard": "IEC 62304:2006+AMD1:2015 / ISO 14971:2019",
+    "hierarchy": {
+      "level": "module",
+      "module_id": "smart-care-plans",
+      "module_name": "Smart Care Plans",
+      "parent_system": "platform24",
+      "child_items": ["health-manager"]
+    },
+    "source_extractions": [
+      {
+        "item_id": "health-manager",
+        "commit": "16e0273739eda65f73af5410323e1caf53362f16",
+        "extracted_at": "2026-03-06T15:45:00Z"
+      }
+    ]
+  },
+
+  "module_summary": {
+    "module_id": "smart-care-plans",
+    "total_hazards": 7,
+    "item_hazards": 7,
+    "cross_item_hazards": 0,
+    "total_controls": 9,
+    "uncontrolled_hazards": 0,
+    "control_gaps": 4
+  },
+
+  "module_hazards": [
+    {
+      "id": "MOD-SCP-HAZ-001",
+      "description": "Unauthorized access to patient appointment data",
+      "hazard_type": "item",
+      "contributing_items": [
+        {
+          "item_id": "health-manager",
+          "item_hazard_id": "ITEM-HM-HAZ-001",
+          "contribution": "Primary source - REST API authentication/authorization"
+        }
+      ],
+      "potential_harm": "Privacy breach, patient confidentiality violation",
+      "severity_contribution": "serious",
+      "severity_rationale": "Patient data exposure violates GDPR and medical confidentiality requirements",
+      "cascade_path": {
+        "exists": false,
+        "path": [],
+        "amplification": null
+      },
+      "source": {
+        "files": [
+          "health-manager/svc/src/main/java/se/alerisx/mhp/manager/controller/v1/AppointmentController.java:45-120"
+        ],
+        "interfaces": ["MOD-SCP-EXT-001"]
+      }
+    },
+    {
+      "id": "MOD-SCP-HAZ-002",
+      "description": "Patient appointment data corruption or loss",
+      "hazard_type": "item",
+      "contributing_items": [
+        {
+          "item_id": "health-manager",
+          "item_hazard_id": "ITEM-HM-HAZ-002",
+          "contribution": "Primary source - Database persistence layer"
+        }
+      ],
+      "potential_harm": "Lost clinical context, incorrect treatment decisions based on missing data",
+      "severity_contribution": "serious",
+      "severity_rationale": "Missing appointment data could lead to treatment continuity issues",
+      "cascade_path": {
+        "exists": false,
+        "path": [],
+        "amplification": null
+      },
+      "source": {
+        "files": [
+          "health-manager/svc/src/main/java/se/alerisx/mhp/manager/service/impl/UpdateAppointmentServiceImpl.java:1-500"
+        ],
+        "interfaces": ["MOD-SCP-EXT-009"]
+      }
+    },
+    {
+      "id": "MOD-SCP-HAZ-003",
+      "description": "Handover to unavailable or incorrect practitioner",
+      "hazard_type": "item",
+      "contributing_items": [
+        {
+          "item_id": "health-manager",
+          "item_hazard_id": "ITEM-HM-HAZ-003",
+          "contribution": "Primary source - Handover service logic"
+        }
+      ],
+      "potential_harm": "Delayed patient care, patient assigned to wrong specialist",
+      "severity_contribution": "serious",
+      "severity_rationale": "Care continuity depends on correct handover execution",
+      "cascade_path": {
+        "exists": false,
+        "path": [],
+        "amplification": null
+      },
+      "source": {
+        "files": [
+          "health-manager/svc/src/main/java/se/alerisx/mhp/manager/service/impl/AppointmentHandoverServiceImpl.java:1-300"
+        ],
+        "interfaces": ["MOD-SCP-EXT-003"]
+      }
+    },
+    {
+      "id": "MOD-SCP-HAZ-004",
+      "description": "Critical appointment not escalated in time",
+      "hazard_type": "item",
+      "contributing_items": [
+        {
+          "item_id": "health-manager",
+          "item_hazard_id": "ITEM-HM-HAZ-004",
+          "contribution": "Primary source - Escalation rules engine"
+        }
+      ],
+      "potential_harm": "Delayed emergency care, patient deterioration",
+      "severity_contribution": "critical",
+      "severity_rationale": "Escalation failure could result in delayed emergency response",
+      "cascade_path": {
+        "exists": false,
+        "path": [],
+        "amplification": null
+      },
+      "source": {
+        "files": [
+          "health-manager/modules/escalator/src/main/java/"
+        ],
+        "interfaces": []
+      }
+    },
+    {
+      "id": "MOD-SCP-HAZ-005",
+      "description": "Follow-up notification not sent to patient",
+      "hazard_type": "item",
+      "contributing_items": [
+        {
+          "item_id": "health-manager",
+          "item_hazard_id": "ITEM-HM-HAZ-005",
+          "contribution": "Primary source - Scheduled notification jobs"
+        }
+      ],
+      "potential_harm": "Patient misses follow-up, condition worsens",
+      "severity_contribution": "serious",
+      "severity_rationale": "Missed follow-up could delay necessary care",
+      "cascade_path": {
+        "exists": false,
+        "path": [],
+        "amplification": null
+      },
+      "source": {
+        "files": [
+          "health-manager/svc/src/main/java/se/alerisx/mhp/manager/service/impl/FollowUpMessageNotificationScheduler.java:1-100"
+        ],
+        "interfaces": []
+      }
+    },
+    {
+      "id": "MOD-SCP-HAZ-006",
+      "description": "Appointment scheduled at incorrect time due to timezone error",
+      "hazard_type": "item",
+      "contributing_items": [
+        {
+          "item_id": "health-manager",
+          "item_hazard_id": "ITEM-HM-HAZ-006",
+          "contribution": "Primary source - Date/time serialization"
+        }
+      ],
+      "potential_harm": "Patient misses appointment, delayed care",
+      "severity_contribution": "minor",
+      "severity_rationale": "Appointment can typically be rescheduled",
+      "cascade_path": {
+        "exists": false,
+        "path": [],
+        "amplification": null
+      },
+      "source": {
+        "files": [
+          "health-manager/dto/src/main/java/se/alerisx/mhp/manager/dto/AppointmentDTO.java"
+        ],
+        "interfaces": ["MOD-SCP-EXT-001"]
+      }
+    },
+    {
+      "id": "MOD-SCP-HAZ-007",
+      "description": "JMS message loss causing appointment data inconsistency",
+      "hazard_type": "item",
+      "contributing_items": [
+        {
+          "item_id": "health-manager",
+          "item_hazard_id": "ITEM-HM-HAZ-007",
+          "contribution": "Primary source - JMS event listeners"
+        }
+      ],
+      "potential_harm": "Booking data out of sync across services, double-booking",
+      "severity_contribution": "serious",
+      "severity_rationale": "Data inconsistency could cause scheduling conflicts",
+      "cascade_path": {
+        "exists": true,
+        "path": ["bookings-service", "health-manager"],
+        "amplification": "Data inconsistency spreads to dependent services"
+      },
+      "source": {
+        "files": [
+          "health-manager/svc/src/main/java/se/alerisx/mhp/manager/listener/SynchronizedBookingListener.java:1-100"
+        ],
+        "interfaces": ["MOD-SCP-EXT-008"]
+      }
+    }
+  ],
+
+  "cross_item_hazards": [],
+
+  "risk_controls": {
+    "from_items": [
+      {
+        "id": "MOD-SCP-RC-ITEM-001",
+        "source_item": "health-manager",
+        "source_control_id": "ITEM-HM-RC-001",
+        "description": "JWT-based authentication and role-based authorization",
+        "control_type": "inherent_safety",
+        "mitigates": ["MOD-SCP-HAZ-001"],
+        "implementation": "Spring Security with JWT validation, role-based access checks via @PreAuthorize",
+        "verification_status": "verified",
+        "verification_evidence": "AppointmentControllerTest.java - should reject unauthorized request"
+      },
+      {
+        "id": "MOD-SCP-RC-ITEM-002",
+        "source_item": "health-manager",
+        "source_control_id": "ITEM-HM-RC-002",
+        "description": "Database transaction management with rollback on failure",
+        "control_type": "protective_measure",
+        "mitigates": ["MOD-SCP-HAZ-002"],
+        "implementation": "Spring @Transactional with default rollback on RuntimeException",
+        "verification_status": "verified",
+        "verification_evidence": "UpdateAppointmentServiceImplTest.java - should rollback on exception"
+      },
+      {
+        "id": "MOD-SCP-RC-ITEM-003",
+        "source_item": "health-manager",
+        "source_control_id": "ITEM-HM-RC-003",
+        "description": "Optimistic locking for concurrent modification detection",
+        "control_type": "protective_measure",
+        "mitigates": ["MOD-SCP-HAZ-002", "MOD-SCP-HAZ-003"],
+        "implementation": "JPA @Version annotation on entities, OptimisticLockException handling",
+        "verification_status": "partial",
+        "verification_evidence": "No explicit test coverage"
+      },
+      {
+        "id": "MOD-SCP-RC-ITEM-004",
+        "source_item": "health-manager",
+        "source_control_id": "ITEM-HM-RC-004",
+        "description": "Handover state machine validation",
+        "control_type": "inherent_safety",
+        "mitigates": ["MOD-SCP-HAZ-003"],
+        "implementation": "State transition validation before handover operations",
+        "verification_status": "verified",
+        "verification_evidence": "AppointmentHandoverServiceIT.java - should reject invalid state transition"
+      },
+      {
+        "id": "MOD-SCP-RC-ITEM-005",
+        "source_item": "health-manager",
+        "source_control_id": "ITEM-HM-RC-005",
+        "description": "Escalation rule validation and logging",
+        "control_type": "protective_measure",
+        "mitigates": ["MOD-SCP-HAZ-004"],
+        "implementation": "Rule evaluation logging, default escalation on rule engine failure",
+        "verification_status": "verified",
+        "verification_evidence": "modules/escalator/src/test/java/"
+      },
+      {
+        "id": "MOD-SCP-RC-ITEM-006",
+        "source_item": "health-manager",
+        "source_control_id": "ITEM-HM-RC-006",
+        "description": "ShedLock distributed locking for scheduled tasks",
+        "control_type": "protective_measure",
+        "mitigates": ["MOD-SCP-HAZ-005"],
+        "implementation": "Database-backed distributed lock ensures exactly-once execution",
+        "verification_status": "partial",
+        "verification_evidence": "No cluster environment tests"
+      },
+      {
+        "id": "MOD-SCP-RC-ITEM-007",
+        "source_item": "health-manager",
+        "source_control_id": "ITEM-HM-RC-007",
+        "description": "JSR-310 date/time handling with explicit timezone",
+        "control_type": "inherent_safety",
+        "mitigates": ["MOD-SCP-HAZ-006"],
+        "implementation": "Use of LocalDateTime/ZonedDateTime, Jackson JSR-310 module",
+        "verification_status": "verified",
+        "verification_evidence": "DTO serialization tests"
+      },
+      {
+        "id": "MOD-SCP-RC-ITEM-008",
+        "source_item": "health-manager",
+        "source_control_id": "ITEM-HM-RC-008",
+        "description": "JMS dead letter queue for failed message processing",
+        "control_type": "protective_measure",
+        "mitigates": ["MOD-SCP-HAZ-007"],
+        "implementation": "Artemis DLQ configuration, message retry with backoff",
+        "verification_status": "partial",
+        "verification_evidence": "No failure scenario tests"
+      },
+      {
+        "id": "MOD-SCP-RC-ITEM-009",
+        "source_item": "health-manager",
+        "source_control_id": "ITEM-HM-RC-009",
+        "description": "Clinical audit logging for all patient data access",
+        "control_type": "information_for_safety",
+        "mitigates": ["MOD-SCP-HAZ-001", "MOD-SCP-HAZ-002"],
+        "implementation": "AuditLoggingService captures all clinical data operations",
+        "verification_status": "partial",
+        "verification_evidence": "No completeness tests"
+      }
+    ],
+
+    "module_level": [],
+
+    "required_upstream": [
+      {
+        "id": "MOD-SCP-RC-UP-001",
+        "description": "Practitioner training on handover workflow",
+        "control_type": "information_for_safety",
+        "source_items": ["health-manager"],
+        "mitigates": ["MOD-SCP-HAZ-003"],
+        "recommended_implementation": "training",
+        "rationale": "Software validates state transitions but cannot prevent incorrect clinical decisions"
+      },
+      {
+        "id": "MOD-SCP-RC-UP-002",
+        "description": "Monitoring alerts for escalation failures",
+        "control_type": "protective_measure",
+        "source_items": ["health-manager"],
+        "mitigates": ["MOD-SCP-HAZ-004"],
+        "recommended_implementation": "infrastructure",
+        "rationale": "Software logs failures but organizational response required"
+      },
+      {
+        "id": "MOD-SCP-RC-UP-003",
+        "description": "JMS broker high availability configuration",
+        "control_type": "inherent_safety",
+        "source_items": ["health-manager"],
+        "mitigates": ["MOD-SCP-HAZ-007"],
+        "recommended_implementation": "infrastructure",
+        "rationale": "Message durability depends on infrastructure configuration"
+      }
+    ]
+  },
+
+  "failure_modes": [
+    {
+      "id": "MOD-SCP-FM-001",
+      "component": "health-manager/ITEM-HM-COMP-002",
+      "failure_mode": "Service throws uncaught exception",
+      "effect_on_module": "Transaction rollback, HTTP 500 response",
+      "effect_on_system": "Caller receives error, must retry or handle failure",
+      "detection_mechanism": "Exception logging, monitoring alerts",
+      "recovery_mechanism": "Automatic retry by client, manual intervention for persistent issues",
+      "source_item_fm": "ITEM-HM-FM-001"
+    },
+    {
+      "id": "MOD-SCP-FM-002",
+      "component": "health-manager/ITEM-HM-COMP-006",
+      "failure_mode": "JMS listener processing timeout",
+      "effect_on_module": "Message requeued, potential duplicate processing",
+      "effect_on_system": "Data inconsistency between services",
+      "detection_mechanism": "Message age monitoring, DLQ monitoring",
+      "recovery_mechanism": "Manual DLQ processing, deduplication in downstream consumers",
+      "source_item_fm": "ITEM-HM-FM-002"
+    },
+    {
+      "id": "MOD-SCP-FM-003",
+      "component": "health-manager/ITEM-HM-COMP-003",
+      "failure_mode": "Database connection exhaustion",
+      "effect_on_module": "Connection timeout, request failures",
+      "effect_on_system": "Service degradation, potential cascade to dependent services",
+      "detection_mechanism": "Connection pool monitoring, health checks",
+      "recovery_mechanism": "Connection pool auto-recovery, pod restart if persistent",
+      "source_item_fm": "ITEM-HM-FM-003"
+    },
+    {
+      "id": "MOD-SCP-FM-004",
+      "component": "health-manager/ITEM-HM-COMP-007",
+      "failure_mode": "Rules engine evaluation error",
+      "effect_on_module": "Appointment not escalated or incorrectly escalated",
+      "effect_on_system": "Clinical workflow disruption, potential patient safety impact",
+      "detection_mechanism": "Rule evaluation logging, escalation audit trail",
+      "recovery_mechanism": "Manual escalation review, rule correction",
+      "source_item_fm": "ITEM-HM-FM-004"
+    }
+  ],
+
+  "interface_risk_assessment": [
+    {
+      "interface_id": "MOD-SCP-EXT-001",
+      "interface_name": "Appointment Management API",
+      "source_item": "health-manager",
+      "target_item": "external consumers",
+      "failure_scenarios": [
+        {
+          "scenario": "interface_unavailable",
+          "likelihood": "unlikely",
+          "impact": "Clinic and patient apps cannot manage appointments",
+          "existing_handling": "Load balancer failover, health checks",
+          "residual_concern": "Temporary service disruption"
+        },
+        {
+          "scenario": "auth_failure",
+          "likelihood": "rare",
+          "impact": "Unauthorized access attempts blocked",
+          "existing_handling": "JWT validation, 401/403 responses",
+          "residual_concern": "None - controlled by design"
+        }
+      ],
+      "overall_risk_level": "medium",
+      "mitigation_adequacy": "adequate"
+    },
+    {
+      "interface_id": "MOD-SCP-EXT-008",
+      "interface_name": "Synchronized Booking Events",
+      "source_item": "bookings-service",
+      "target_item": "health-manager",
+      "failure_scenarios": [
+        {
+          "scenario": "data_corruption",
+          "likelihood": "rare",
+          "impact": "Booking data inconsistency",
+          "existing_handling": "DLQ, manual reconciliation",
+          "residual_concern": "Manual intervention required"
+        },
+        {
+          "scenario": "interface_unavailable",
+          "likelihood": "unlikely",
+          "impact": "Messages queue up, eventual consistency delayed",
+          "existing_handling": "Message persistence, retry",
+          "residual_concern": "Temporary data lag"
+        }
+      ],
+      "overall_risk_level": "medium",
+      "mitigation_adequacy": "needs_improvement"
+    },
+    {
+      "interface_id": "MOD-SCP-EXT-009",
+      "interface_name": "MariaDB Database",
+      "source_item": "health-manager",
+      "target_item": "MariaDB cluster",
+      "failure_scenarios": [
+        {
+          "scenario": "interface_unavailable",
+          "likelihood": "rare",
+          "impact": "Complete service unavailability",
+          "existing_handling": "Clustered deployment, read replicas, failover",
+          "residual_concern": "Brief failover window"
+        },
+        {
+          "scenario": "data_corruption",
+          "likelihood": "very rare",
+          "impact": "Data integrity issues",
+          "existing_handling": "Transaction rollback, backups",
+          "residual_concern": "Requires point-in-time recovery"
+        }
+      ],
+      "overall_risk_level": "high",
+      "mitigation_adequacy": "adequate"
+    }
+  ],
+
+  "control_gaps": [
+    {
+      "id": "MOD-SCP-GAP-001",
+      "type": "unverified_control",
+      "description": "Optimistic locking (MOD-SCP-RC-ITEM-003) lacks explicit test coverage",
+      "affected_hazards": ["MOD-SCP-HAZ-002", "MOD-SCP-HAZ-003"],
+      "affected_items": ["health-manager"],
+      "recommended_action": "Add concurrent modification test scenarios",
+      "recommended_level": "item",
+      "priority": "medium"
+    },
+    {
+      "id": "MOD-SCP-GAP-002",
+      "type": "unverified_control",
+      "description": "ShedLock (MOD-SCP-RC-ITEM-006) lacks cluster environment tests",
+      "affected_hazards": ["MOD-SCP-HAZ-005"],
+      "affected_items": ["health-manager"],
+      "recommended_action": "Add multi-instance scheduling tests",
+      "recommended_level": "item",
+      "priority": "medium"
+    },
+    {
+      "id": "MOD-SCP-GAP-003",
+      "type": "unverified_control",
+      "description": "JMS DLQ (MOD-SCP-RC-ITEM-008) lacks failure scenario tests",
+      "affected_hazards": ["MOD-SCP-HAZ-007"],
+      "affected_items": ["health-manager"],
+      "recommended_action": "Add JMS failure simulation tests",
+      "recommended_level": "item",
+      "priority": "high"
+    },
+    {
+      "id": "MOD-SCP-GAP-004",
+      "type": "unverified_control",
+      "description": "Audit logging (MOD-SCP-RC-ITEM-009) lacks completeness verification",
+      "affected_hazards": ["MOD-SCP-HAZ-001", "MOD-SCP-HAZ-002"],
+      "affected_items": ["health-manager"],
+      "recommended_action": "Add audit coverage tests for all clinical operations",
+      "recommended_level": "item",
+      "priority": "medium"
+    }
+  ],
+
+  "traceability": {
+    "to_system_hazards": [],
+    "to_item_hazards": [
+      {"module_hazard_id": "MOD-SCP-HAZ-001", "item_hazard_ids": ["ITEM-HM-HAZ-001"]},
+      {"module_hazard_id": "MOD-SCP-HAZ-002", "item_hazard_ids": ["ITEM-HM-HAZ-002"]},
+      {"module_hazard_id": "MOD-SCP-HAZ-003", "item_hazard_ids": ["ITEM-HM-HAZ-003"]},
+      {"module_hazard_id": "MOD-SCP-HAZ-004", "item_hazard_ids": ["ITEM-HM-HAZ-004"]},
+      {"module_hazard_id": "MOD-SCP-HAZ-005", "item_hazard_ids": ["ITEM-HM-HAZ-005"]},
+      {"module_hazard_id": "MOD-SCP-HAZ-006", "item_hazard_ids": ["ITEM-HM-HAZ-006"]},
+      {"module_hazard_id": "MOD-SCP-HAZ-007", "item_hazard_ids": ["ITEM-HM-HAZ-007"]}
+    ],
+    "to_integration_tests": []
+  }
+}

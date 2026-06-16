@@ -1,0 +1,349 @@
+{
+  "extraction_metadata": {
+    "aggregated_at": "2026-03-06T16:00:00Z",
+    "aggregator_version": "2.0",
+    "standard": "IEC 62304:2006+AMD1:2015",
+    "hierarchy": {
+      "level": "system",
+      "system_id": "platform24",
+      "system_name": "Platform24 Health Software",
+      "child_modules": ["smart-care-plans"]
+    },
+    "source_aggregations": [
+      {
+        "module_id": "smart-care-plans",
+        "aggregated_at": "2026-03-06T14:30:00Z",
+        "items": ["health-manager"]
+      }
+    ]
+  },
+
+  "system_summary": {
+    "system_id": "platform24",
+    "system_name": "Platform24 Health Software",
+    "version": "1.0.0",
+    "safety_class": "B",
+    "description": "Digital healthcare platform for patient-practitioner encounters. Manages patient appointment lifecycle, clinical handovers, follow-ups, referrals, and care escalation workflows.",
+    "module_count": 1,
+    "item_count": 1,
+    "external_interface_count": 9,
+    "inter_module_interface_count": 0
+  },
+
+  "modules": [
+    {
+      "module_id": "smart-care-plans",
+      "module_name": "Smart Care Plans",
+      "description": "Clinical appointment and care workflow management module. Manages patient-practitioner encounters, appointment lifecycle, handovers, follow-ups, referrals, and escalation.",
+      "item_count": 1,
+      "items": ["health-manager"],
+      "primary_function": "Appointment lifecycle and clinical workflow management",
+      "safety_class": "B"
+    }
+  ],
+
+  "inter_module_interfaces": [],
+
+  "external_system_interfaces": [
+    {
+      "id": "SYS-P24-EXT-001",
+      "name": "Patient-Facing APIs",
+      "module_id": "smart-care-plans",
+      "module_interfaces": ["MOD-SCP-EXT-001"],
+      "target": "patient-app, clinic-web, booking-service",
+      "protocol": "REST",
+      "direction": "provided",
+      "description": "REST APIs for appointment management consumed by patient and practitioner applications",
+      "data_classification": "PHI",
+      "authentication": "JWT"
+    },
+    {
+      "id": "SYS-P24-EXT-002",
+      "name": "Platform24 Internal Services",
+      "module_id": "smart-care-plans",
+      "module_interfaces": ["MOD-SCP-EXT-004", "MOD-SCP-EXT-005", "MOD-SCP-EXT-006"],
+      "target": "bookings-service, directory2-service, meetingplace-service",
+      "protocol": "REST",
+      "direction": "consumed",
+      "description": "Internal Platform24 services for booking, user directory, and video conferencing",
+      "data_classification": "PHI",
+      "authentication": "service-to-service JWT"
+    },
+    {
+      "id": "SYS-P24-EXT-003",
+      "name": "External EHR Integration",
+      "module_id": "smart-care-plans",
+      "module_interfaces": ["MOD-SCP-EXT-007"],
+      "target": "TakeCare (Region Stockholm EHR)",
+      "protocol": "HTTP/SOAP",
+      "direction": "consumed",
+      "description": "Electronic Health Record integration for clinical data exchange",
+      "data_classification": "PHI",
+      "authentication": "Certificate-based"
+    },
+    {
+      "id": "SYS-P24-EXT-004",
+      "name": "Event Bus",
+      "module_id": "smart-care-plans",
+      "module_interfaces": ["MOD-SCP-EXT-003", "MOD-SCP-EXT-008"],
+      "target": "notification-service, bookings-service",
+      "protocol": "JMS",
+      "direction": "bidirectional",
+      "description": "Asynchronous event messaging for booking sync and clinical events",
+      "data_classification": "PHI",
+      "authentication": "Broker authentication"
+    },
+    {
+      "id": "SYS-P24-EXT-005",
+      "name": "Persistence Layer",
+      "module_id": "smart-care-plans",
+      "module_interfaces": ["MOD-SCP-EXT-009"],
+      "target": "MariaDB cluster",
+      "protocol": "JDBC",
+      "direction": "consumed",
+      "description": "Primary relational database for clinical data persistence",
+      "data_classification": "PHI",
+      "authentication": "Database credentials"
+    }
+  ],
+
+  "system_data_flows": [
+    {
+      "id": "SYS-P24-FLOW-001",
+      "name": "Patient Appointment Request",
+      "description": "End-to-end flow from patient appointment request to practitioner assignment",
+      "trigger": "Patient initiates appointment request via patient-app",
+      "path": [
+        {
+          "step": 1,
+          "boundary": "system",
+          "component": "patient-app",
+          "action": "User submits appointment request",
+          "data_out": "AppointmentRequest"
+        },
+        {
+          "step": 2,
+          "boundary": "system",
+          "module": "smart-care-plans",
+          "component": "health-manager (MOD-SCP-EXT-001)",
+          "action": "Receive and validate request",
+          "data_out": "Validated AppointmentDTO"
+        },
+        {
+          "step": 3,
+          "boundary": "internal",
+          "module": "smart-care-plans",
+          "component": "health-manager (Services)",
+          "action": "Create appointment, assign to queue",
+          "data_out": "Appointment entity"
+        },
+        {
+          "step": 4,
+          "boundary": "system",
+          "module": "smart-care-plans",
+          "component": "health-manager (MOD-SCP-EXT-005)",
+          "action": "Persist to database",
+          "data_out": "Persisted Appointment"
+        }
+      ],
+      "modules_involved": ["smart-care-plans"],
+      "interfaces_involved": ["SYS-P24-EXT-001", "SYS-P24-EXT-005"],
+      "safety_impact": "high",
+      "validation_points": ["Request validation", "Authorization", "Data persistence"]
+    },
+    {
+      "id": "SYS-P24-FLOW-002",
+      "name": "Clinical Handover",
+      "description": "Appointment handover between practitioners for care continuity",
+      "trigger": "Practitioner initiates handover via clinic-web",
+      "path": [
+        {
+          "step": 1,
+          "boundary": "system",
+          "component": "clinic-web",
+          "action": "Practitioner initiates handover",
+          "data_out": "HandoverRequest"
+        },
+        {
+          "step": 2,
+          "boundary": "system",
+          "module": "smart-care-plans",
+          "component": "health-manager (MOD-SCP-EXT-001)",
+          "action": "Validate handover request",
+          "data_out": "HandoverDTO"
+        },
+        {
+          "step": 3,
+          "boundary": "internal",
+          "module": "smart-care-plans",
+          "component": "health-manager (Services)",
+          "action": "Validate state machine, update handover",
+          "data_out": "Handover entity"
+        },
+        {
+          "step": 4,
+          "boundary": "system",
+          "module": "smart-care-plans",
+          "component": "health-manager (MOD-SCP-EXT-003)",
+          "action": "Publish handover event",
+          "data_out": "AppointmentHandoverStatusEvent"
+        }
+      ],
+      "modules_involved": ["smart-care-plans"],
+      "interfaces_involved": ["SYS-P24-EXT-001", "SYS-P24-EXT-004"],
+      "safety_impact": "high",
+      "validation_points": ["State machine validation", "Practitioner authorization"]
+    },
+    {
+      "id": "SYS-P24-FLOW-003",
+      "name": "Escalation Workflow",
+      "description": "Automated escalation of appointments requiring urgent attention",
+      "trigger": "Scheduled escalation job or appointment status change",
+      "path": [
+        {
+          "step": 1,
+          "boundary": "internal",
+          "module": "smart-care-plans",
+          "component": "health-manager (Scheduler)",
+          "action": "Trigger escalation evaluation",
+          "data_out": "Appointments to evaluate"
+        },
+        {
+          "step": 2,
+          "boundary": "internal",
+          "module": "smart-care-plans",
+          "component": "health-manager (Escalator)",
+          "action": "Apply escalation rules",
+          "data_out": "Escalation decision"
+        },
+        {
+          "step": 3,
+          "boundary": "internal",
+          "module": "smart-care-plans",
+          "component": "health-manager (Services)",
+          "action": "Update appointment priority",
+          "data_out": "Updated Appointment"
+        }
+      ],
+      "modules_involved": ["smart-care-plans"],
+      "interfaces_involved": ["SYS-P24-EXT-005"],
+      "safety_impact": "critical",
+      "validation_points": ["Rule evaluation logging", "Default escalation on failure"]
+    }
+  ],
+
+  "deployment_architecture": {
+    "deployment_model": "Kubernetes",
+    "environment": "Cloud (AWS/Azure)",
+    "high_availability": true,
+    "modules_deployment": [
+      {
+        "module_id": "smart-care-plans",
+        "items": [
+          {
+            "item_id": "health-manager",
+            "replicas": "2+",
+            "resources": "Standard compute",
+            "scaling": "Horizontal pod autoscaler"
+          }
+        ],
+        "infrastructure": [
+          {
+            "type": "database",
+            "name": "MariaDB",
+            "deployment": "Managed cluster with replicas"
+          },
+          {
+            "type": "message_broker",
+            "name": "ActiveMQ Artemis",
+            "deployment": "Embedded in service"
+          }
+        ]
+      }
+    ]
+  },
+
+  "security_architecture": {
+    "authentication": {
+      "method": "JWT-based",
+      "provider": "Platform24 Identity Service",
+      "token_validation": "Asymmetric key validation"
+    },
+    "authorization": {
+      "method": "Role-based access control (RBAC)",
+      "enforcement": "Spring Security @PreAuthorize"
+    },
+    "data_protection": {
+      "encryption_at_rest": "Database-level encryption",
+      "encryption_in_transit": "TLS 1.2+",
+      "phi_handling": "GDPR/Patient Data Act compliant"
+    },
+    "audit": {
+      "mechanism": "Centralized audit logging",
+      "coverage": "All PHI access operations",
+      "retention": "As per regulatory requirements"
+    }
+  },
+
+  "integration_concerns": [
+    {
+      "id": "SYS-P24-CONCERN-001",
+      "type": "external_dependency",
+      "description": "TakeCare EHR integration is synchronous and could impact system availability",
+      "modules_affected": ["smart-care-plans"],
+      "interfaces_affected": ["SYS-P24-EXT-003"],
+      "mitigation": "Circuit breaker pattern, graceful degradation",
+      "verification_required": "Failover testing, degradation behavior tests"
+    },
+    {
+      "id": "SYS-P24-CONCERN-002",
+      "type": "data_consistency",
+      "description": "Event-driven booking sync could have eventual consistency delays",
+      "modules_affected": ["smart-care-plans"],
+      "interfaces_affected": ["SYS-P24-EXT-004"],
+      "mitigation": "DLQ monitoring, manual reconciliation process",
+      "verification_required": "Consistency verification tests"
+    }
+  ],
+
+  "traceability": {
+    "to_system_requirements": [],
+    "to_module_architectures": [
+      {
+        "system_element": "SYS-P24-EXT-001",
+        "module_elements": ["MOD-SCP-EXT-001", "MOD-SCP-EXT-002"]
+      },
+      {
+        "system_element": "SYS-P24-EXT-004",
+        "module_elements": ["MOD-SCP-EXT-003", "MOD-SCP-EXT-008"]
+      },
+      {
+        "system_element": "SYS-P24-FLOW-001",
+        "module_elements": ["MOD-SCP-FLOW-001"]
+      },
+      {
+        "system_element": "SYS-P24-FLOW-002",
+        "module_elements": ["MOD-SCP-FLOW-002"]
+      }
+    ]
+  },
+
+  "gaps": [
+    {
+      "id": "SYS-P24-ARCH-GAP-001",
+      "type": "single_module_system",
+      "description": "System currently has only one module - architecture may need expansion for planned items",
+      "affected_modules": ["smart-care-plans"],
+      "recommendation": "Document inter-module interfaces when appointment-api and notification-service are integrated",
+      "priority": "low"
+    },
+    {
+      "id": "SYS-P24-ARCH-GAP-002",
+      "type": "missing_interface_documentation",
+      "description": "External EHR integration (TakeCare) interface specification not fully documented",
+      "affected_modules": ["smart-care-plans"],
+      "recommendation": "Complete SOAP interface specification document",
+      "priority": "medium"
+    }
+  ]
+}

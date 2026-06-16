@@ -39,8 +39,8 @@ This procedure applies to all changes within the QMS and technical documentation
 
 ### 5. Procedure
 For detailed work instructions follow:
-- [[QMS Git Work Instruction — Developer CLI]]
-- [[Assets/QMS Git Work Instruction — GitHub Web Interface]]
+- [QMS Git Work Instruction — Developer CLI](QMS%20Git%20Work%20Instruction%20—%20Developer%20CLI.md)
+- [QMS Git Work Instruction — GitHub Web Interface](QMS%20Git%20Work%20Instruction%20—%20GitHub%20Web%20Interface.md)
 
 #### 5.1 Change Initiation
 
@@ -73,11 +73,11 @@ The Change Board verifies that the change was implemented as planned and that al
 
 #### 5.4 Post-Implementation Review
 
-For significant or high-risk changes, a post-implementation review shall be conducted to confirm that the change achieved its intended outcome and did not introduce new issues. Any residual risks are documented and managed per the [[Risk Management Procedure]].
+For significant or high-risk changes, a post-implementation review shall be conducted to confirm that the change achieved its intended outcome and did not introduce new issues. Any residual risks are documented and managed per the [Risk Management Procedure](Risk%20Management%20Procedure.md).
 
 ### 6. Records
 
-All change records shall be maintained per the [[Record Control Procedure]], including:
+All change records shall be maintained per the [Record Control Procedure](Record%20Control%20Procedure.md), including:
 
 - Change Request (CR)
 - Change Impact Assessment (CIA)

@@ -1,0 +1,887 @@
+{
+  "extraction_metadata": {
+    "repository": "git@gitlab-p24:doktor24/system-configuration/modules/rule-engine-module.git",
+    "commit": "89ddaa716380acf8e3ef177bf26f30a2fcf02b70",
+    "extracted_at": "2026-03-06T19:47:00Z",
+    "extractor_version": "3.0",
+    "standard": "IEC 62304:2006+AMD1:2015 / ISO 14971:2019",
+    "hierarchy": {
+      "level": "item",
+      "item_id": "rule-engine-module",
+      "item_name": "Rule Engine Module",
+      "parent_module": "triage-engine",
+      "parent_system": "triage-system"
+    }
+  },
+
+  "software_item": {
+    "id": "ITEM-REM",
+    "name": "rule-engine-module",
+    "description": "Generic rule engine that evaluates clinical triage rules to determine patient urgency, care recommendations, and appointment prioritization. Executes declarative YAML-based rules against patient attributes to produce clinical outcomes.",
+    "safety_class": "B",
+    "safety_class_rationale": "Software that can contribute to hazardous situations (incorrect triage recommendations, wrong urgency levels) but is not the sole cause of harm. Clinical decisions depend on multiple factors including practitioner review and patient self-reporting. However, incorrect rule evaluation could lead to delayed care or inappropriate care levels.",
+    "version": "0.0-SNAPSHOT",
+    "repository_url": "git@gitlab-p24:doktor24/system-configuration/modules/rule-engine-module.git",
+    "technology_stack": [
+      "Java 17",
+      "Maven",
+      "Jackson (YAML/JSON parsing)",
+      "Guava",
+      "Micrometer (metrics)",
+      "JUnit 5",
+      "Expression Parser (se.platform24.expressions)"
+    ],
+    "deployment_type": "library"
+  },
+
+  "item_risk_contribution": {
+    "item_id": "rule-engine-module",
+
+    "hazard_contributions": [
+      {
+        "id": "ITEM-REM-HAZ-001",
+        "description": "Rule condition evaluates incorrectly due to expression syntax error or type mismatch",
+        "cause": "Rule expression contains invalid syntax, references non-existent attributes, or performs invalid type operations (e.g., mathematical operations on strings)",
+        "potential_harm": "Patient receives incorrect triage recommendation (too urgent or not urgent enough), leading to delayed care for serious conditions or unnecessary emergency care for minor conditions",
+        "severity_contribution": "serious",
+        "affected_functions": [
+          "RuleEngine.when()",
+          "RuleEngine.execute()",
+          "Expression.evaluate()"
+        ],
+        "source": {
+          "files": [
+            "core/src/main/java/se/platform24/rules/engine/RuleEngine.java:86-97"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-REM-HAZ-002",
+        "description": "Rule outcome modifies immutable clinical attribute",
+        "cause": "Rule attempts to modify an attribute marked as immutable (e.g., patient age, urgency level already set) after it has been initialized",
+        "potential_harm": "Clinical decision inconsistency where critical patient attributes are unexpectedly changed, leading to incorrect care recommendations",
+        "severity_contribution": "serious",
+        "affected_functions": [
+          "RuleEngine.executeOutcomes()",
+          "RuleOutcome.Operator.execute()"
+        ],
+        "source": {
+          "files": [
+            "core/src/main/java/se/platform24/rules/engine/RuleEngine.java:74-84"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-REM-HAZ-003",
+        "description": "Mandatory patient attribute missing from input",
+        "cause": "Input data does not include required clinical attributes (e.g., patient age, symptoms, urgency level) needed for safe rule evaluation",
+        "potential_harm": "Rule engine cannot execute safely, defaults to incorrect recommendation, or fails silently allowing patient to proceed without proper triage",
+        "severity_contribution": "critical",
+        "affected_functions": [
+          "RuleEngine.assertInput()",
+          "AttributeRegistry.validate()"
+        ],
+        "source": {
+          "files": [
+            "core/src/main/java/se/platform24/rules/engine/RuleEngine.java:54-72"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-REM-HAZ-004",
+        "description": "Rule outcome uses incorrect operator for attribute type",
+        "cause": "Rule definition uses invalid operator for attribute base type (e.g., APPEND on integer, COPY with type mismatch)",
+        "potential_harm": "Rule execution fails or produces malformed output, resulting in missing or corrupted clinical recommendations",
+        "severity_contribution": "serious",
+        "affected_functions": [
+          "RuleOutcome.validateOutcome()",
+          "RuleOutcome.Operator.validate()"
+        ],
+        "source": {
+          "files": [
+            "core/src/main/java/se/platform24/rules/domain/RuleOutcome.java:122-144",
+            "core/src/main/java/se/platform24/rules/domain/RuleOutcome.java:229-235"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-REM-HAZ-005",
+        "description": "Attribute value violates defined constraints",
+        "cause": "Input or rule outcome produces value outside allowed range (e.g., priority > max, disallowed string value) or violates type constraints",
+        "potential_harm": "Clinical data integrity compromised, downstream systems receive invalid values causing processing failures or incorrect care routing",
+        "severity_contribution": "serious",
+        "affected_functions": [
+          "AttributeRegistryImpl.validate()",
+          "AttributeType.validate()"
+        ],
+        "source": {
+          "files": [
+            "core/src/main/java/se/platform24/rules/registry/impl/AttributeRegistryImpl.java:196-221"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-REM-HAZ-006",
+        "description": "Rules execute in incorrect order due to package sequencing",
+        "cause": "Multiple rule packages executed in wrong sequence, causing later rules to override critical clinical decisions made by earlier rules",
+        "potential_harm": "Patient receives conflicting or incorrect care recommendation as critical triage rules are overridden by less specific rules",
+        "severity_contribution": "serious",
+        "affected_functions": [
+          "AbstractRuleRepository.executePackages()",
+          "RuleEngine.execute()"
+        ],
+        "source": {
+          "files": [
+            "core/src/main/java/se/platform24/rules/engine/RuleEngine.java:26-47"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-REM-HAZ-007",
+        "description": "Remote rule repository fails to load or update rules",
+        "cause": "Object storage unavailable, network failure, or corrupted rule YAML files prevent loading of current clinical rules",
+        "potential_harm": "System operates with outdated or missing triage rules, potentially providing obsolete clinical guidance or failing to execute",
+        "severity_contribution": "critical",
+        "affected_functions": [
+          "RemotePartnerRuleRepository.loadSystem()",
+          "RemotePartnerRuleRepository.loadPartner()",
+          "RemotePartnerRuleRepository.onSystemUpdate()"
+        ],
+        "source": {
+          "files": [
+            "core/src/main/java/se/platform24/rules/registry/impl/RemotePartnerRuleRepository.java:166-184",
+            "core/src/main/java/se/platform24/rules/registry/impl/RemotePartnerRuleRepository.java:233-241"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-REM-HAZ-008",
+        "description": "Rule definition contains duplicate rule IDs within package",
+        "cause": "Rule package YAML contains multiple rules with same ID, causing ambiguity in rule execution and testing",
+        "potential_harm": "Unpredictable rule execution where wrong version of rule executes, leading to incorrect clinical outcomes",
+        "severity_contribution": "serious",
+        "affected_functions": [
+          "RuleVerifier.validate()"
+        ],
+        "source": {
+          "files": [
+            "core/src/main/java/se/platform24/rules/engine/RuleVerifier.java:25-52"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-REM-HAZ-009",
+        "description": "String template expressions fail to resolve or contain invalid syntax",
+        "cause": "Dynamic text templates reference non-existent attributes or contain malformed expressions, failing at runtime during text generation",
+        "potential_harm": "Patient or practitioner receives incomplete or malformed care instructions (e.g., 'Contact {provider.name:}' instead of actual provider name)",
+        "severity_contribution": "minor",
+        "affected_functions": [
+          "StringTemplates.processStrings()",
+          "RuleOutcome.validateOutcome()"
+        ],
+        "source": {
+          "files": [
+            "core/src/main/java/se/platform24/rules/domain/RuleOutcome.java:89-120"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-REM-HAZ-010",
+        "description": "COPY operator copies from non-existent or null attribute",
+        "cause": "Rule uses COPY operator to copy value from attribute that is not present in current context or is null",
+        "potential_harm": "Clinical attribute cleared when it should have been populated, resulting in missing urgency level, priority, or care instructions",
+        "severity_contribution": "serious",
+        "affected_functions": [
+          "RuleOutcome.Operator.COPY"
+        ],
+        "source": {
+          "files": [
+            "core/src/main/java/se/platform24/rules/domain/RuleOutcome.java:154-163"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-REM-HAZ-011",
+        "description": "Rule verification fails but execution proceeds with invalid rules",
+        "cause": "Rule validation errors are logged but not enforced, allowing syntactically invalid rules to be deployed and executed",
+        "potential_harm": "Runtime failures during patient triage, causing service interruption or execution with undefined behavior",
+        "severity_contribution": "critical",
+        "affected_functions": [
+          "RuleVerifier.validate()",
+          "RemotePartnerRuleRepository.loadRules()"
+        ],
+        "source": {
+          "files": [
+            "core/src/main/java/se/platform24/rules/registry/impl/RemotePartnerRuleRepository.java:126-138"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-REM-HAZ-012",
+        "description": "Type conversion fails for attribute values",
+        "cause": "Attribute value in input data or rule outcome cannot be converted to expected type (e.g., string '23a' to integer)",
+        "potential_harm": "Rule execution fails or produces unexpected results due to type mismatch, leading to incomplete triage or incorrect recommendations",
+        "severity_contribution": "serious",
+        "affected_functions": [
+          "AttributeRegistryImpl.convert()",
+          "AttributeType.toValue()"
+        ],
+        "source": {
+          "files": [
+            "core/src/main/java/se/platform24/rules/registry/impl/AttributeRegistryImpl.java:224-236"
+          ]
+        }
+      }
+    ],
+
+    "risk_controls_implemented": [
+      {
+        "id": "ITEM-REM-RC-001",
+        "description": "Expression syntax validation catches runtime evaluation errors",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-REM-HAZ-001"],
+        "implementation": "RuleEngine.when() wraps expression evaluation in try-catch, converts ExecutionError to RuleEngineFaults with rule ID context",
+        "verification_status": "verified",
+        "verification_evidence": {
+          "test_file": "core/src/test/java/se/platform24/rules/engine/RuleEngineTest.java",
+          "test_function": "expressionError()"
+        },
+        "source": {
+          "files": [
+            "core/src/main/java/se/platform24/rules/engine/RuleEngine.java:86-97"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-REM-RC-002",
+        "description": "Immutable attribute protection prevents modification after initialization",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-REM-HAZ-002"],
+        "implementation": "RuleEngine.executeOutcomes() checks AttributeRegistry.isImmutable() before allowing field modification, throws RuleEngineFaults if attempted",
+        "verification_status": "verified",
+        "verification_evidence": {
+          "test_file": "core/src/test/java/se/platform24/rules/engine/RuleEngineTest.java",
+          "test_function": "setImmutableField()"
+        },
+        "source": {
+          "files": [
+            "core/src/main/java/se/platform24/rules/engine/RuleEngine.java:78-80"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-REM-RC-003",
+        "description": "Mandatory attribute validation enforced at input",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-REM-HAZ-003"],
+        "implementation": "RuleEngine.assertInput() validates all mandatory attributes are present using AttributeRegistry.getMandatoryAttributes(), collects faults and throws before execution",
+        "verification_status": "verified",
+        "verification_evidence": {
+          "test_file": "core/src/test/java/se/platform24/rules/domain/RuleVerifierTest.java",
+          "test_function": "verifies mandatory attributes"
+        },
+        "source": {
+          "files": [
+            "core/src/main/java/se/platform24/rules/engine/RuleEngine.java:64-71"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-REM-RC-004",
+        "description": "Operator-type compatibility validation at rule load time",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-REM-HAZ-004"],
+        "implementation": "RuleOutcome.validateOutcome() checks operator.validate(baseType) and operator.validate(valueType) ensuring operator supports attribute type, fails fast before runtime",
+        "verification_status": "verified",
+        "verification_evidence": {
+          "test_file": "core/src/test/java/se/platform24/rules/domain/RuleOutcomeTest.java",
+          "test_function": "operator validation tests"
+        },
+        "source": {
+          "files": [
+            "core/src/main/java/se/platform24/rules/domain/RuleOutcome.java:122-144"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-REM-RC-005",
+        "description": "Constraint validation on attribute values",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-REM-HAZ-005"],
+        "implementation": "AttributeRegistryImpl.validate() checks all constraints (allowedValues, min/max) on both input and output values, throws RuleEngineFaults for violations",
+        "verification_status": "verified",
+        "verification_evidence": {
+          "test_file": "core/src/test/java/se/platform24/rules/domain/attribute/value/AttributeMapTest.java",
+          "test_function": "constraint validation tests"
+        },
+        "source": {
+          "files": [
+            "core/src/main/java/se/platform24/rules/registry/impl/AttributeRegistryImpl.java:196-221",
+            "core/src/main/java/se/platform24/rules/engine/RuleEngine.java:39"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-REM-RC-006",
+        "description": "Output validation after each rule execution",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-REM-HAZ-005", "ITEM-REM-HAZ-006"],
+        "implementation": "RuleEngine.execute() calls attributeRegistry.validate(output) after each rule execution, ensuring accumulated output remains valid throughout chain",
+        "verification_status": "verified",
+        "verification_evidence": {
+          "test_file": "core/src/test/java/se/platform24/rules/engine/RuleEngineTest.java",
+          "test_function": "basicTest(), testComplexExpression_*()"
+        },
+        "source": {
+          "files": [
+            "core/src/main/java/se/platform24/rules/engine/RuleEngine.java:39"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-REM-RC-007",
+        "description": "Duplicate rule ID detection at package validation",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-REM-HAZ-008"],
+        "implementation": "RuleVerifier.validate() maintains Set of rule IDs, adds Fault for duplicates, prevents ambiguous rule execution",
+        "verification_status": "verified",
+        "verification_evidence": {
+          "test_file": "core/src/test/java/se/platform24/rules/engine/RuleVerifierTest.java",
+          "test_function": "duplicate ID test"
+        },
+        "source": {
+          "files": [
+            "core/src/main/java/se/platform24/rules/engine/RuleVerifier.java:35-48"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-REM-RC-008",
+        "description": "String template validation at rule load time",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-REM-HAZ-009"],
+        "implementation": "RuleOutcome.validateOutcome() recursively validates all string templates in outcome values using StringTemplates.validate(), checks attribute existence",
+        "verification_status": "verified",
+        "verification_evidence": {
+          "test_file": "core/src/test/java/se/platform24/rules/strings/StringTemplatesTest.java",
+          "test_function": "template validation tests"
+        },
+        "source": {
+          "files": [
+            "core/src/main/java/se/platform24/rules/domain/RuleOutcome.java:89-120"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-REM-RC-009",
+        "description": "COPY operator null handling clears destination field",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-REM-HAZ-010"],
+        "implementation": "COPY operator checks if source attribute is null and removes destination field (context.remove(field)) rather than failing, documented behavior",
+        "verification_status": "verified",
+        "verification_evidence": {
+          "test_file": "core/src/test/java/se/platform24/rules/domain/RuleOutcomeTest.java",
+          "test_function": "COPY null source test"
+        },
+        "source": {
+          "files": [
+            "core/src/main/java/se/platform24/rules/domain/RuleOutcome.java:154-163"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-REM-RC-010",
+        "description": "Type conversion with fault context propagation",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-REM-HAZ-012"],
+        "implementation": "AttributeRegistryImpl.convert() wraps AttributeType.toValue() in try-catch, appends attribute ID to fault subject for traceable error reporting",
+        "verification_status": "verified",
+        "verification_evidence": {
+          "test_file": "core/src/test/java/se/platform24/rules/mapping/RuleOutcomeMapperTest.java",
+          "test_function": "type conversion error tests"
+        },
+        "source": {
+          "files": [
+            "core/src/main/java/se/platform24/rules/registry/impl/AttributeRegistryImpl.java:224-236"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-REM-RC-011",
+        "description": "Default value initialization for missing optional attributes",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-REM-HAZ-003"],
+        "implementation": "RuleEngine.assertInput() populates default values from AttributeRegistry for missing non-mandatory attributes before validation, ensures complete input context",
+        "verification_status": "verified",
+        "verification_evidence": {
+          "test_file": "core/src/test/java/se/platform24/rules/engine/RuleEngineTest.java",
+          "test_function": "tests using attributes with defaults"
+        },
+        "source": {
+          "files": [
+            "core/src/main/java/se/platform24/rules/engine/RuleEngine.java:58-62"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-REM-RC-012",
+        "description": "COPY operator type compatibility validation",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-REM-HAZ-004", "ITEM-REM-HAZ-010"],
+        "implementation": "RuleOutcome.validateCopy() verifies source and destination attribute types match before allowing COPY, prevents silent type mismatches",
+        "verification_status": "verified",
+        "verification_evidence": {
+          "test_file": "core/src/test/java/se/platform24/rules/engine/RuleEngineTest.java",
+          "test_function": "copyErrorWhenWrongValueType()"
+        },
+        "source": {
+          "files": [
+            "core/src/main/java/se/platform24/rules/domain/RuleOutcome.java:75-87"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-REM-RC-013",
+        "description": "Metrics and monitoring for rule execution failures",
+        "control_type": "information_for_safety",
+        "mitigates": ["ITEM-REM-HAZ-007", "ITEM-REM-HAZ-011"],
+        "implementation": "RemotePartnerRuleRepository reports load failures via Micrometer metrics (rules.load.failure counter per package/partner), enables operational monitoring",
+        "verification_status": "verified",
+        "verification_evidence": {
+          "test_file": "core/src/test/java/se/platform24/rules/registry/impl/RemotePartnerRuleRepositoryTest.java",
+          "test_function": "metrics tests"
+        },
+        "source": {
+          "files": [
+            "core/src/main/java/se/platform24/rules/registry/impl/RemotePartnerRuleRepository.java:140-154"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-REM-RC-014",
+        "description": "Fault aggregation provides comprehensive error reporting",
+        "control_type": "information_for_safety",
+        "mitigates": ["ITEM-REM-HAZ-001", "ITEM-REM-HAZ-004", "ITEM-REM-HAZ-005"],
+        "implementation": "RuleEngineFaults supports multiple faults with subject context (fault.type, fault.subject, fault.message), enables tracing errors to specific rule/field/package",
+        "verification_status": "verified",
+        "verification_evidence": {
+          "test_file": "core/src/test/java/se/platform24/rules/engine/RuleEngineFaults*.java",
+          "test_function": "fault aggregation tests"
+        },
+        "source": {
+          "files": [
+            "core/src/main/java/se/platform24/rules/engine/RuleEngineFaults.java:14-96"
+          ]
+        }
+      }
+    ],
+
+    "risk_controls_required_upstream": [
+      {
+        "id": "ITEM-REM-RC-UP-001",
+        "description": "Clinical validation of rule packages before deployment",
+        "rationale": "Rule engine validates syntax and types but cannot validate clinical correctness (e.g., 'if fever > 38C recommend call112' vs. 'if fever > 39C recommend call112'). Medical review required.",
+        "recommended_level": "system",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-REM-HAZ-006", "ITEM-REM-HAZ-011"]
+      },
+      {
+        "id": "ITEM-REM-RC-UP-002",
+        "description": "Operational monitoring and alerting for rule execution failures",
+        "rationale": "Rule engine provides metrics but cannot respond to failures. System-level monitoring must detect rule load failures, execution errors, and trigger fallback procedures.",
+        "recommended_level": "system",
+        "control_type": "information_for_safety",
+        "mitigates": ["ITEM-REM-HAZ-007", "ITEM-REM-HAZ-011"]
+      },
+      {
+        "id": "ITEM-REM-RC-UP-003",
+        "description": "Rule package versioning and rollback capability",
+        "rationale": "Rule engine loads rules from object storage but does not manage versions or rollback. System must track rule versions and support rollback if new rules cause issues.",
+        "recommended_level": "system",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-REM-HAZ-007", "ITEM-REM-HAZ-011"]
+      },
+      {
+        "id": "ITEM-REM-RC-UP-004",
+        "description": "Practitioner training on rule engine limitations and fallback procedures",
+        "rationale": "Rule engine failures may require manual triage. Practitioners must be trained to recognize when automated triage fails and how to perform manual assessment.",
+        "recommended_level": "system",
+        "control_type": "information_for_safety",
+        "mitigates": ["ITEM-REM-HAZ-001", "ITEM-REM-HAZ-003", "ITEM-REM-HAZ-007", "ITEM-REM-HAZ-011"]
+      },
+      {
+        "id": "ITEM-REM-RC-UP-005",
+        "description": "Integration testing of rule packages in clinical context",
+        "rationale": "Unit tests validate individual packages but cannot verify correct integration with other triage system components (patient-ui, actions-module). End-to-end testing required at module level.",
+        "recommended_level": "module",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-REM-HAZ-006", "ITEM-REM-HAZ-011"]
+      },
+      {
+        "id": "ITEM-REM-RC-UP-006",
+        "description": "Graceful degradation when rule execution fails",
+        "rationale": "Rule engine throws RuleEngineFaults but cannot implement fallback logic. Calling services must handle failures and provide safe defaults or escalation paths.",
+        "recommended_level": "module",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-REM-HAZ-001", "ITEM-REM-HAZ-003", "ITEM-REM-HAZ-007", "ITEM-REM-HAZ-011", "ITEM-REM-HAZ-012"]
+      }
+    ],
+
+    "failure_modes": [
+      {
+        "id": "ITEM-REM-FM-001",
+        "name": "Expression evaluation exception during rule condition check",
+        "category": "software_defect",
+        "component": "RuleEngine.when()",
+        "effect_on_software_item": "Rule evaluation aborted, RuleEngineFaults thrown with rule ID and error message",
+        "effect_on_system": "Triage process interrupted, calling service must handle exception or patient receives no recommendation",
+        "detection_mechanism": "Exception caught in RuleEngine.when(), logged with rule ID context, metrics incremented",
+        "recovery_mechanism": "Calling service must catch RuleEngineFaults and implement fallback (e.g., escalate to practitioner, use conservative default)",
+        "related_hazards": ["ITEM-REM-HAZ-001"],
+        "source": {
+          "files": [
+            "core/src/main/java/se/platform24/rules/engine/RuleEngine.java:86-97"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-REM-FM-002",
+        "name": "Mandatory attribute validation failure",
+        "category": "data_integrity",
+        "component": "RuleEngine.assertInput()",
+        "effect_on_software_item": "RuleEngineFaults thrown before any rule execution, no output produced",
+        "effect_on_system": "Triage cannot proceed, patient stuck in interview flow or redirected to manual triage",
+        "detection_mechanism": "RuleEngine.assertInput() validates all mandatory attributes, collects missing attributes as faults",
+        "recovery_mechanism": "Calling service must ensure all mandatory attributes populated before calling rule engine, or implement fallback triage path",
+        "related_hazards": ["ITEM-REM-HAZ-003"],
+        "source": {
+          "files": [
+            "core/src/main/java/se/platform24/rules/engine/RuleEngine.java:64-71"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-REM-FM-003",
+        "name": "Immutable field modification attempted",
+        "category": "software_defect",
+        "component": "RuleEngine.executeOutcomes()",
+        "effect_on_software_item": "RuleEngineFaults thrown immediately when immutable field modification detected, rule execution stops",
+        "effect_on_system": "Partial triage results, patient may receive incomplete recommendations or require manual intervention",
+        "detection_mechanism": "AttributeRegistry.isImmutable() checked before field modification, exception thrown with field name",
+        "recovery_mechanism": "Rule package must be corrected and redeployed, incident logged for clinical review",
+        "related_hazards": ["ITEM-REM-HAZ-002"],
+        "source": {
+          "files": [
+            "core/src/main/java/se/platform24/rules/engine/RuleEngine.java:78-80"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-REM-FM-004",
+        "name": "Attribute constraint violation",
+        "category": "data_integrity",
+        "component": "AttributeRegistryImpl.validate()",
+        "effect_on_software_item": "RuleEngineFaults thrown with constraint violation details (min/max/allowedValues), execution stopped",
+        "effect_on_system": "Triage interrupted, potentially mid-execution with partial results",
+        "detection_mechanism": "Validation after each rule execution, checks all constraints on modified attributes",
+        "recovery_mechanism": "Depends on when violation occurs: input validation (reject input), output validation (rollback to previous state, log incident)",
+        "related_hazards": ["ITEM-REM-HAZ-005"],
+        "source": {
+          "files": [
+            "core/src/main/java/se/platform24/rules/registry/impl/AttributeRegistryImpl.java:196-221"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-REM-FM-005",
+        "name": "Object storage unavailable during rule loading",
+        "category": "external_dependency",
+        "component": "RemotePartnerRuleRepository.loadSystem()",
+        "effect_on_software_item": "ObjectStorageException thrown, rule repository initialization fails, service cannot start",
+        "effect_on_system": "Triage service unavailable, all patients must use fallback triage path or service is down",
+        "detection_mechanism": "ObjectStorageClient.getObject() throws exception, logged as error, metrics incremented",
+        "recovery_mechanism": "Service restart with retry logic, automatic retry by ObjectStorageRetryingRestClient, manual intervention if persistent",
+        "related_hazards": ["ITEM-REM-HAZ-007"],
+        "source": {
+          "files": [
+            "core/src/main/java/se/platform24/rules/registry/impl/RemotePartnerRuleRepository.java:166-184"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-REM-FM-006",
+        "name": "Rule package YAML parsing failure",
+        "category": "configuration_error",
+        "component": "RulesMapper.readRulesFromString()",
+        "effect_on_software_item": "IOException or RuleEngineFaults thrown, specific rule package not loaded",
+        "effect_on_system": "Triage functionality depending on that package unavailable, may fall back to system rules or fail",
+        "detection_mechanism": "Exception logged during loadRules(), metrics counter incremented for package",
+        "recovery_mechanism": "Package load failure logged but other packages continue loading, affected partners/functions unavailable until fix deployed",
+        "related_hazards": ["ITEM-REM-HAZ-007", "ITEM-REM-HAZ-011"],
+        "source": {
+          "files": [
+            "core/src/main/java/se/platform24/rules/registry/impl/RemotePartnerRuleRepository.java:126-138"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-REM-FM-007",
+        "name": "Rule verification detects invalid rule syntax",
+        "category": "configuration_error",
+        "component": "RuleVerifier.validate()",
+        "effect_on_software_item": "RuleEngineFaults thrown with all validation failures (duplicate IDs, invalid operators, type mismatches)",
+        "effect_on_system": "Rule package rejected, not loaded into repository, clinical functionality unavailable",
+        "detection_mechanism": "RuleVerifier accumulates all faults, provides detailed error report",
+        "recovery_mechanism": "Rule package must be corrected and redeployed, clinical team notified of missing functionality",
+        "related_hazards": ["ITEM-REM-HAZ-008", "ITEM-REM-HAZ-011"],
+        "source": {
+          "files": [
+            "core/src/main/java/se/platform24/rules/engine/RuleVerifier.java:25-52"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-REM-FM-008",
+        "name": "Type conversion failure for attribute value",
+        "category": "data_integrity",
+        "component": "AttributeRegistryImpl.convert()",
+        "effect_on_software_item": "RuleEngineFaults thrown with attribute ID and conversion error details",
+        "effect_on_system": "Triage process fails, patient data not processed correctly",
+        "detection_mechanism": "AttributeType.toValue() catches conversion errors, RuleEngineFaults appends subject context",
+        "recovery_mechanism": "Input data correction required or rule package fix needed, manual triage as fallback",
+        "related_hazards": ["ITEM-REM-HAZ-012"],
+        "source": {
+          "files": [
+            "core/src/main/java/se/platform24/rules/registry/impl/AttributeRegistryImpl.java:224-236"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-REM-FM-009",
+        "name": "String template resolution failure",
+        "category": "software_defect",
+        "component": "StringTemplates.processStrings()",
+        "effect_on_software_item": "Template uses default value or produces malformed text, logged but execution continues",
+        "effect_on_system": "Patient/practitioner receives incomplete or generic text instead of personalized message (minor clinical impact)",
+        "detection_mechanism": "Template validation at rule load catches most issues, runtime fallback to default values",
+        "recovery_mechanism": "Default values used, incident logged for review, user sees generic text",
+        "related_hazards": ["ITEM-REM-HAZ-009"],
+        "source": {
+          "files": [
+            "core/src/main/java/se/platform24/rules/domain/RuleOutcome.java:89-120"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-REM-FM-010",
+        "name": "Rule update event processing failure",
+        "category": "communication_failure",
+        "component": "RemotePartnerRuleRepository.onSystemUpdate()",
+        "effect_on_software_item": "New rules not loaded, service continues with old rules, error logged",
+        "effect_on_system": "Triage uses outdated clinical rules until manual intervention or service restart",
+        "detection_mechanism": "Exception caught in update handler, logged as error, metrics incremented",
+        "recovery_mechanism": "Service continues with existing rules, operations team alerted via metrics, manual reload or restart required",
+        "related_hazards": ["ITEM-REM-HAZ-007"],
+        "source": {
+          "files": [
+            "core/src/main/java/se/platform24/rules/registry/impl/RemotePartnerRuleRepository.java:233-241"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-REM-FM-011",
+        "name": "Multiple rule packages execute in conflicting order",
+        "category": "software_defect",
+        "component": "AbstractRuleRepository.executePackages()",
+        "effect_on_software_item": "All packages execute successfully but later packages override critical clinical decisions from earlier packages",
+        "effect_on_system": "Patient receives incorrect recommendation due to rule interaction, not detectable by engine",
+        "detection_mechanism": "No automatic detection - requires clinical review of rule interactions and package ordering",
+        "recovery_mechanism": "Package execution order must be carefully designed, documented, and tested in integration tests",
+        "related_hazards": ["ITEM-REM-HAZ-006"],
+        "source": {
+          "files": [
+            "core/src/main/java/se/platform24/rules/engine/RuleEngine.java:32-40"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-REM-FM-012",
+        "name": "COPY operator source attribute is null or missing",
+        "category": "software_defect",
+        "component": "RuleOutcome.Operator.COPY",
+        "effect_on_software_item": "Destination field cleared (removed from context) instead of being populated",
+        "effect_on_system": "Clinical attribute unexpectedly missing from output (e.g., priority cleared instead of copied from urgency)",
+        "detection_mechanism": "Documented behavior - COPY with null source clears destination, validated in output",
+        "recovery_mechanism": "Rule logic must ensure source exists before COPY, or handle missing destination in downstream processing",
+        "related_hazards": ["ITEM-REM-HAZ-010"],
+        "source": {
+          "files": [
+            "core/src/main/java/se/platform24/rules/domain/RuleOutcome.java:154-163"
+          ]
+        }
+      }
+    ],
+
+    "interfaces_with_safety_impact": [
+      {
+        "id": "ITEM-REM-IF-001",
+        "interface": "ObjectStorageClient (rule and attribute loading)",
+        "type": "REST",
+        "direction": "outbound",
+        "safety_impact": "If object storage unavailable or returns corrupted data, rule engine cannot load clinical rules, causing triage service unavailability or execution with outdated/invalid rules",
+        "failure_handling": "ObjectStorageRetryingRestClient provides automatic retry, ObjectStorageException thrown on persistent failure, service initialization fails, metrics incremented",
+        "timeout": "Configured in ObjectStorageRetryingRestClient (not visible in this module)",
+        "retry_policy": "Automatic retry via ObjectStorageRetryingRestClient",
+        "source": {
+          "files": [
+            "core/src/main/java/se/platform24/rules/registry/impl/RemotePartnerRuleRepository.java:43-81",
+            "core/src/main/java/se/platform24/rules/registry/impl/RemotePartnerRuleRepository.java:255-259"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-REM-IF-002",
+        "interface": "ObjectStorageUpdateEventListener (rule update notifications)",
+        "type": "JMS",
+        "direction": "inbound",
+        "safety_impact": "If update events fail to deliver or process, service continues using outdated clinical rules after rule updates are deployed, potentially providing obsolete medical guidance",
+        "failure_handling": "Exception in event handler logged but does not crash service, old rules remain active, metrics incremented for load failure",
+        "timeout": "Not specified in code",
+        "retry_policy": "No automatic retry - relies on JMS redelivery or manual intervention",
+        "source": {
+          "files": [
+            "core/src/main/java/se/platform24/rules/registry/impl/RemotePartnerRuleRepository.java:77-80",
+            "core/src/main/java/se/platform24/rules/registry/impl/RemotePartnerRuleRepository.java:233-253"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-REM-IF-003",
+        "interface": "Expression Parser (se.platform24.expressions)",
+        "type": "library",
+        "direction": "outbound",
+        "safety_impact": "If expression parser has bugs or crashes, rule conditions may evaluate incorrectly or throw unexpected exceptions, causing triage to fail or produce wrong recommendations",
+        "failure_handling": "Expression.evaluate() exceptions caught in RuleEngine.when(), converted to RuleEngineFaults with rule context, execution stopped",
+        "timeout": "N/A (synchronous library call)",
+        "retry_policy": "No retry - failures are fatal for that execution",
+        "source": {
+          "files": [
+            "core/src/main/java/se/platform24/rules/engine/RuleEngine.java:86-97"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-REM-IF-004",
+        "interface": "MeterRegistry (Micrometer metrics)",
+        "type": "library",
+        "direction": "outbound",
+        "safety_impact": "If metrics collection fails, operational visibility lost but triage functionality unaffected. Failure to detect rule load errors or execution problems may delay response to issues.",
+        "failure_handling": "Metrics calls are optional (meterRegistry null-checked), failures do not interrupt rule processing",
+        "timeout": "N/A (synchronous library call)",
+        "retry_policy": "No retry - metrics are best-effort",
+        "source": {
+          "files": [
+            "core/src/main/java/se/platform24/rules/registry/impl/RemotePartnerRuleRepository.java:140-164"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-REM-IF-005",
+        "interface": "AttributeRegistry (attribute schema and validation)",
+        "type": "library",
+        "direction": "bidirectional",
+        "safety_impact": "If attribute registry has incorrect type definitions or constraint configurations, validation may incorrectly accept invalid data or reject valid data, leading to wrong triage outcomes or service failures",
+        "failure_handling": "AttributeRegistry loaded from YAML at startup, validation errors cause service initialization failure, no runtime recovery",
+        "timeout": "N/A (in-memory operations)",
+        "retry_policy": "No retry - configuration errors require deployment fix",
+        "source": {
+          "files": [
+            "core/src/main/java/se/platform24/rules/engine/RuleEngine.java:24",
+            "core/src/main/java/se/platform24/rules/registry/impl/AttributeRegistryImpl.java:51-56"
+          ]
+        }
+      }
+    ],
+
+    "verification_gaps": [
+      {
+        "id": "ITEM-REM-GAP-001",
+        "type": "untested_control",
+        "description": "Rule package ordering and interaction testing incomplete - no tests verify clinical correctness when multiple packages modify same attributes sequentially",
+        "affected_items": ["ITEM-REM-RC-006", "ITEM-REM-HAZ-006"],
+        "priority": "high",
+        "recommendation": "Add integration tests that verify rule package interaction scenarios (e.g., system rules + partner rules, multiple packages setting urgency) with clinical review of expected outcomes"
+      },
+      {
+        "id": "ITEM-REM-GAP-002",
+        "type": "unverified_interface",
+        "description": "Object storage failure and recovery scenarios not fully tested - tests use local file system, not actual remote storage with failure injection",
+        "affected_items": ["ITEM-REM-IF-001", "ITEM-REM-IF-002", "ITEM-REM-HAZ-007"],
+        "priority": "high",
+        "recommendation": "Add fault injection tests for ObjectStorageClient failures (timeouts, corrupted data, partial reads) and verify metric reporting and retry behavior"
+      },
+      {
+        "id": "ITEM-REM-GAP-003",
+        "type": "missing_failure_test",
+        "description": "Concurrent rule update scenarios not tested - no verification of behavior when rules updated during active execution",
+        "affected_items": ["ITEM-REM-IF-002", "ITEM-REM-HAZ-007"],
+        "priority": "medium",
+        "recommendation": "Add concurrency tests for rule updates during execution, verify thread-safety of rule repository and absence of race conditions"
+      },
+      {
+        "id": "ITEM-REM-GAP-004",
+        "type": "untested_control",
+        "description": "Metrics reporting accuracy not verified - tests exist but don't verify correct metric values and labels for all failure scenarios",
+        "affected_items": ["ITEM-REM-RC-013"],
+        "priority": "medium",
+        "recommendation": "Enhance metric tests to verify exact counter increments, gauge values, and tag correctness for all load failure and execution time scenarios"
+      },
+      {
+        "id": "ITEM-REM-GAP-005",
+        "type": "unverified_interface",
+        "description": "Expression parser edge cases and error modes not comprehensively tested - reliance on external library without verification of all error paths",
+        "affected_items": ["ITEM-REM-IF-003", "ITEM-REM-HAZ-001"],
+        "priority": "medium",
+        "recommendation": "Add tests for expression parser edge cases (division by zero, null dereference, type errors) and verify all error modes are handled correctly"
+      },
+      {
+        "id": "ITEM-REM-GAP-006",
+        "type": "missing_failure_test",
+        "description": "Partial rule execution failure scenarios not tested - what happens when rule 5 of 10 fails mid-execution",
+        "affected_items": ["ITEM-REM-HAZ-006", "ITEM-REM-FM-003", "ITEM-REM-FM-004"],
+        "priority": "high",
+        "recommendation": "Add tests for mid-execution failures (immutable violation, constraint violation) and verify output state, error reporting, and no partial state corruption"
+      },
+      {
+        "id": "ITEM-REM-GAP-007",
+        "type": "untested_control",
+        "description": "String template default value handling not fully tested - edge cases with nested templates, missing attributes in complex expressions",
+        "affected_items": ["ITEM-REM-RC-008", "ITEM-REM-HAZ-009"],
+        "priority": "low",
+        "recommendation": "Expand string template tests to cover nested templates, chained attribute references, and default value propagation in complex scenarios"
+      }
+    ]
+  },
+
+  "aggregation_hints": {
+    "cross_item_interfaces": [
+      "RuleRepository.executePackage() - called by actions-module to execute triage rules",
+      "AttributeMap input/output - shared data structure with patient-ui and interviewer services",
+      "RuleEngineFaults - exception propagated to calling services for error handling",
+      "ObjectStorageClient - shared dependency with other modules for configuration loading"
+    ],
+    "shared_hazards": [
+      "Object storage unavailable - affects all modules loading configuration from object-storage",
+      "Attribute type definition mismatches - if patient-ui and rule-engine have different type schemas",
+      "Mandatory attribute missing - if upstream services don't populate required fields",
+      "Expression evaluation errors - if expression syntax allowed in multiple modules not consistent"
+    ],
+    "system_level_controls_needed": [
+      "End-to-end clinical validation of rule packages before production deployment",
+      "System-level monitoring dashboard aggregating metrics from rule-engine, actions-module, patient-ui",
+      "Graceful degradation strategy when rule engine unavailable (manual triage fallback)",
+      "Rule package version control and rollback procedures",
+      "Clinical incident review process for rule execution errors affecting patient care"
+    ]
+  }
+}

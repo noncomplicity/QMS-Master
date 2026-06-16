@@ -1,0 +1,772 @@
+{
+  "extraction_metadata": {
+    "repository": "git@gitlab-p24:doktor24/services/object-storage.git",
+    "commit": "721c87688b40f359d0faae556640ef47337214e6",
+    "extracted_at": "2026-03-06T20:00:00Z",
+    "extractor_version": "3.0",
+    "standard": "IEC 62304:2006+AMD1:2015 / ISO 14971:2019",
+    "hierarchy": {
+      "level": "item",
+      "item_id": "object-storage",
+      "item_name": "Object Storage Service",
+      "parent_module": "infrastructure",
+      "parent_system": "triage-system"
+    }
+  },
+
+  "software_item": {
+    "id": "ITEM-OS",
+    "name": "object-storage",
+    "description": "File storage service for arbitrary objects (images, documents, text files) with AES-256 encryption at rest, organized into buckets with label-based metadata queries",
+    "safety_class": "A",
+    "safety_class_rationale": "Supporting infrastructure component that stores configuration and non-clinical files. Does not directly process clinical data or make clinical decisions. Failure affects system availability but not immediate patient safety. Classification may change if clinical data is stored.",
+    "version": "1.0.0",
+    "repository_url": "git@gitlab-p24:doktor24/services/object-storage.git",
+    "technology_stack": ["Go 1.26", "Echo v4", "MariaDB/MySQL", "AES-256-GCM", "ActiveMQ/STOMP", "ZeroMQ", "Prometheus"],
+    "deployment_type": "microservice"
+  },
+
+  "item_risk_contribution": {
+    "item_id": "object-storage",
+
+    "hazard_contributions": [
+      {
+        "id": "ITEM-OS-HAZ-001",
+        "description": "Encrypted object stored with corrupted or incorrect data encryption key",
+        "cause": "Database transaction succeeds for metadata but DEK is not properly linked to ciphertext, or encryption key generation fails silently",
+        "potential_harm": "Permanent data loss - object becomes unrecoverable as correct decryption key is unavailable",
+        "severity_contribution": "minor",
+        "affected_functions": ["CreateObject", "Encrypt"],
+        "source": {
+          "files": ["internal/services/object/service.go:49-83", "internal/services/cipher/service.go:30-54"]
+        }
+      },
+      {
+        "id": "ITEM-OS-HAZ-002",
+        "description": "Key encryption key (KEK) exposed or leaked through logs or error messages",
+        "cause": "KEK stored in memory could be exposed through error messages, logging, or memory dumps",
+        "potential_harm": "All stored objects compromised - attacker with KEK can decrypt all data encryption keys and thus all objects",
+        "severity_contribution": "serious",
+        "affected_functions": ["Decrypt", "Encrypt"],
+        "source": {
+          "files": ["internal/models/encryption_keys.go:34-85", "internal/services/cipher/service.go:24-78"]
+        }
+      },
+      {
+        "id": "ITEM-OS-HAZ-003",
+        "description": "Object metadata saved but object file write fails",
+        "cause": "Database transaction commits but filesystem write fails due to disk full, permission error, or timeout",
+        "potential_harm": "Data inconsistency - metadata exists but object is missing, leading to 404 errors when object is retrieved",
+        "severity_contribution": "minor",
+        "affected_functions": ["saveObject"],
+        "source": {
+          "files": ["internal/services/object/service.go:150-173", "internal/repository/object_repository.go:56-74"]
+        }
+      },
+      {
+        "id": "ITEM-OS-HAZ-004",
+        "description": "Unauthorized access to objects due to authentication bypass",
+        "cause": "Basic auth credentials not validated, access control middleware misconfigured, or permission checks bypassed",
+        "potential_harm": "Confidential configuration or clinical data exposed to unauthorized users",
+        "severity_contribution": "serious",
+        "affected_functions": ["AccessController.Check"],
+        "source": {
+          "files": ["pkg/httputil/middlewares/accesscontrol.go:22-40", "internal/api/buckets/buckets.go:31-73"]
+        }
+      },
+      {
+        "id": "ITEM-OS-HAZ-005",
+        "description": "Filesystem timeout causes incomplete write or delete operations",
+        "cause": "Filesystem operation exceeds configured timeout (default 5s), context cancelled mid-operation",
+        "potential_harm": "Partial file writes or orphaned files - data corruption or resource exhaustion over time",
+        "severity_contribution": "minor",
+        "affected_functions": ["Save", "Delete", "Find"],
+        "source": {
+          "files": ["internal/repository/object_repository.go:56-98", "internal/config/config.go:59-67"]
+        }
+      },
+      {
+        "id": "ITEM-OS-HAZ-006",
+        "description": "SQL injection through label parameters in metadata queries",
+        "cause": "Label values not properly escaped in dynamically constructed SQL queries (LIKE clauses with user input)",
+        "potential_harm": "Database compromise - attacker could read/modify arbitrary data, extract encryption keys from database",
+        "severity_contribution": "critical",
+        "affected_functions": ["FindByLabels", "FindDistinctByLabel"],
+        "source": {
+          "files": ["internal/repository/object_metadata_repository.go:253-359"]
+        }
+      },
+      {
+        "id": "ITEM-OS-HAZ-007",
+        "description": "Incorrect decryption key used for object retrieval",
+        "cause": "Database query returns wrong metadata record, or KEK ID mismatch not caught",
+        "potential_harm": "Decryption failure returns corrupted data to caller - could cause downstream processing errors",
+        "severity_contribution": "minor",
+        "affected_functions": ["GetObject", "Decrypt"],
+        "source": {
+          "files": ["internal/services/object/service.go:86-110", "internal/services/cipher/service.go:58-78"]
+        }
+      },
+      {
+        "id": "ITEM-OS-HAZ-008",
+        "description": "Database connection failure during critical operation",
+        "cause": "MariaDB unavailable, network partition, connection pool exhausted",
+        "potential_harm": "Service unavailable - dependent services cannot store/retrieve configuration, impacting overall system function",
+        "severity_contribution": "minor",
+        "affected_functions": ["Save", "Find", "Delete (metadata)"],
+        "source": {
+          "files": ["internal/repository/object_metadata_repository.go:40-184"]
+        }
+      },
+      {
+        "id": "ITEM-OS-HAZ-009",
+        "description": "Cache returns stale or corrupted object data",
+        "cause": "Cache eviction race condition, corruption in BigCache, or cache not invalidated on update",
+        "potential_harm": "Stale configuration delivered to services - could cause incorrect system behavior",
+        "severity_contribution": "minor",
+        "affected_functions": ["Find (with cache)"],
+        "source": {
+          "files": ["internal/repository/object_repository.go:101-133"]
+        }
+      },
+      {
+        "id": "ITEM-OS-HAZ-010",
+        "description": "Insufficient error handling exposes internal system details",
+        "cause": "Error messages include file paths, SQL queries, or internal state information",
+        "potential_harm": "Information disclosure assists attackers in system reconnaissance",
+        "severity_contribution": "minor",
+        "affected_functions": ["EchoErrorHandler"],
+        "source": {
+          "files": ["pkg/httputil/errors.go:33-112"]
+        }
+      },
+      {
+        "id": "ITEM-OS-HAZ-011",
+        "description": "Notification service failure prevents audit trail",
+        "cause": "ActiveMQ/ZeroMQ connection fails, message serialization error",
+        "potential_harm": "Object creation events not logged - loss of audit trail for compliance and security monitoring",
+        "severity_contribution": "minor",
+        "affected_functions": ["CreateObject -> Notify"],
+        "source": {
+          "files": ["internal/services/object/service.go:77-80"]
+        }
+      },
+      {
+        "id": "ITEM-OS-HAZ-012",
+        "description": "Rollback failure leaves orphaned object file after metadata error",
+        "cause": "DeleteObject fails during rollback in saveObject error path",
+        "potential_harm": "Disk space exhaustion from orphaned encrypted files over time",
+        "severity_contribution": "negligible",
+        "affected_functions": ["saveObject"],
+        "source": {
+          "files": ["internal/services/object/service.go:158-167"]
+        }
+      }
+    ],
+
+    "risk_controls_implemented": [
+      {
+        "id": "ITEM-OS-RC-001",
+        "description": "AES-256-GCM encryption for all objects at rest with per-object unique DEKs",
+        "control_type": "inherent_safety",
+        "mitigates": ["ITEM-OS-HAZ-004"],
+        "implementation": "Each object encrypted with unique 256-bit AES key using GCM mode. DEK never reused. KEK stored separately from database.",
+        "verification_status": "verified",
+        "verification_evidence": {
+          "test_file": "internal/services/cipher/service_test.go",
+          "test_function": "TestCipherService"
+        },
+        "source": {
+          "files": ["pkg/crypto/cipher.go:41-54", "internal/services/cipher/service.go:30-54"]
+        }
+      },
+      {
+        "id": "ITEM-OS-RC-002",
+        "description": "KEK stored only in memory, never persisted to database",
+        "control_type": "inherent_safety",
+        "mitigates": ["ITEM-OS-HAZ-002"],
+        "implementation": "KEK loaded from Kubernetes secret at startup, stored in unexported field to prevent accidental logging",
+        "verification_status": "verified",
+        "verification_evidence": {
+          "test_file": "internal/models/encryption_keys_test.go",
+          "test_function": "TestKeyEncryptionKey"
+        },
+        "source": {
+          "files": ["internal/models/encryption_keys.go:34-36"]
+        }
+      },
+      {
+        "id": "ITEM-OS-RC-003",
+        "description": "KEK ID mismatch detection prevents wrong key usage",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-OS-HAZ-007"],
+        "implementation": "Decrypt function validates KEK ID matches DEK before attempting decryption",
+        "verification_status": "verified",
+        "verification_evidence": {
+          "test_file": "internal/models/encryption_keys_test.go",
+          "test_function": "TestDecryptWithWrongKey"
+        },
+        "source": {
+          "files": ["internal/models/encryption_keys.go:66-68"]
+        }
+      },
+      {
+        "id": "ITEM-OS-RC-004",
+        "description": "Cryptographically secure random number generator for DEK generation",
+        "control_type": "inherent_safety",
+        "mitigates": ["ITEM-OS-HAZ-001"],
+        "implementation": "Uses crypto/rand.Read for DEK generation, ensuring no key reuse or predictability",
+        "verification_status": "verified",
+        "verification_evidence": {
+          "test_file": "pkg/crypto/cipher_test.go",
+          "test_function": "TestGenerateAESKey"
+        },
+        "source": {
+          "files": ["pkg/crypto/cipher.go:19-27", "pkg/crypto/cipher.go:29-39"]
+        }
+      },
+      {
+        "id": "ITEM-OS-RC-005",
+        "description": "Rollback mechanism deletes orphaned object file if metadata save fails",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-OS-HAZ-003"],
+        "implementation": "saveObject attempts DeleteObject if ObjectMetadataRepo.Save fails, logs error if rollback fails",
+        "verification_status": "partial",
+        "verification_evidence": {},
+        "source": {
+          "files": ["internal/services/object/service.go:158-170"]
+        }
+      },
+      {
+        "id": "ITEM-OS-RC-006",
+        "description": "Basic authentication required for all API endpoints",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-OS-HAZ-004"],
+        "implementation": "AccessController middleware checks BasicAuth credentials before allowing resource access",
+        "verification_status": "partial",
+        "verification_evidence": {},
+        "source": {
+          "files": ["pkg/httputil/middlewares/accesscontrol.go:22-40"]
+        }
+      },
+      {
+        "id": "ITEM-OS-RC-007",
+        "description": "Resource-based permission checks using Allower interface",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-OS-HAZ-004"],
+        "implementation": "Each endpoint specifies required permission (Read/Create/Delete) and resources",
+        "verification_status": "unverified",
+        "verification_evidence": {},
+        "source": {
+          "files": ["internal/api/buckets/buckets.go:38-72"]
+        }
+      },
+      {
+        "id": "ITEM-OS-RC-008",
+        "description": "Filesystem operation timeout prevents indefinite blocking",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-OS-HAZ-005"],
+        "implementation": "All filesystem operations wrapped in context.WithTimeout (default 5s configurable)",
+        "verification_status": "verified",
+        "verification_evidence": {
+          "test_file": "internal/repository/object_repository_test.go",
+          "test_function": "TestFileSystemTimeout"
+        },
+        "source": {
+          "files": ["internal/repository/object_repository.go:61-73"]
+        }
+      },
+      {
+        "id": "ITEM-OS-RC-009",
+        "description": "Parameterized SQL queries for metadata operations",
+        "control_type": "inherent_safety",
+        "mitigates": ["ITEM-OS-HAZ-006"],
+        "implementation": "Direct queries use ? placeholders and db.QueryContext/ExecContext with args",
+        "verification_status": "partial",
+        "verification_evidence": {},
+        "source": {
+          "files": ["internal/repository/object_metadata_repository.go:37-62"]
+        }
+      },
+      {
+        "id": "ITEM-OS-RC-010",
+        "description": "Label value escaping for LIKE clauses in dynamic queries",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-OS-HAZ-006"],
+        "implementation": "escapeString function replaces SQL metacharacters before query construction",
+        "verification_status": "unverified",
+        "verification_evidence": {},
+        "source": {
+          "files": ["internal/repository/object_metadata_repository.go:312-320"]
+        }
+      },
+      {
+        "id": "ITEM-OS-RC-011",
+        "description": "Caching with TTL to reduce filesystem load and improve performance",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-OS-HAZ-008"],
+        "implementation": "BigCache with configurable TTL (default 60min) and size limit (default 200MB), graceful degradation on cache failure",
+        "verification_status": "partial",
+        "verification_evidence": {},
+        "source": {
+          "files": ["internal/repository/object_repository.go:107-128", "internal/config/config.go:69-92"]
+        }
+      },
+      {
+        "id": "ITEM-OS-RC-012",
+        "description": "Structured error handling with error ID and status codes",
+        "control_type": "information_for_safety",
+        "mitigates": ["ITEM-OS-HAZ-010"],
+        "implementation": "httputil.Error wraps errors with unique ID, HTTP status, generic message. Internal error details not exposed to client.",
+        "verification_status": "partial",
+        "verification_evidence": {},
+        "source": {
+          "files": ["pkg/httputil/errors.go:15-112"]
+        }
+      },
+      {
+        "id": "ITEM-OS-RC-013",
+        "description": "Error logging for notification failures does not block object creation",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-OS-HAZ-011"],
+        "implementation": "CreateObject returns error if Notify fails, ensuring client is aware of audit trail gap",
+        "verification_status": "unverified",
+        "verification_evidence": {},
+        "source": {
+          "files": ["internal/services/object/service.go:77-80"]
+        }
+      },
+      {
+        "id": "ITEM-OS-RC-014",
+        "description": "Bucket configuration validates required labels on object creation",
+        "control_type": "protective_measure",
+        "mitigates": [],
+        "implementation": "Bucket.AssertLabels validates that all required labels are present before object is stored",
+        "verification_status": "verified",
+        "verification_evidence": {
+          "test_file": "internal/models/bucket_test.go",
+          "test_function": "TestBucketLabelValidation"
+        },
+        "source": {
+          "files": ["internal/services/object/service.go:55-58"]
+        }
+      },
+      {
+        "id": "ITEM-OS-RC-015",
+        "description": "Cache invalidation on delete prevents serving deleted objects",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-OS-HAZ-009"],
+        "implementation": "Delete operation removes entry from cache, logs warning on failure",
+        "verification_status": "partial",
+        "verification_evidence": {},
+        "source": {
+          "files": ["internal/repository/object_repository.go:91-94"]
+        }
+      },
+      {
+        "id": "ITEM-OS-RC-016",
+        "description": "Prometheus metrics for filesystem and database operations",
+        "control_type": "information_for_safety",
+        "mitigates": ["ITEM-OS-HAZ-005", "ITEM-OS-HAZ-008"],
+        "implementation": "Latency histograms and success/error counters for all repository operations",
+        "verification_status": "unverified",
+        "verification_evidence": {},
+        "source": {
+          "files": ["internal/repository/object_repository.go:57-73", "internal/repository/object_metadata_repository.go:40-60"]
+        }
+      }
+    ],
+
+    "risk_controls_required_upstream": [
+      {
+        "id": "ITEM-OS-RC-UP-001",
+        "description": "Kubernetes secret rotation policy for KEKs",
+        "rationale": "Object-storage service cannot rotate its own KEK - requires orchestration-level coordination",
+        "recommended_level": "system",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-OS-HAZ-002"]
+      },
+      {
+        "id": "ITEM-OS-RC-UP-002",
+        "description": "User permission management and credential lifecycle",
+        "rationale": "Service validates credentials but does not manage user creation, roles, or revocation",
+        "recommended_level": "system",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-OS-HAZ-004"]
+      },
+      {
+        "id": "ITEM-OS-RC-UP-003",
+        "description": "Database backup and recovery procedures",
+        "rationale": "Service cannot implement its own database backup strategy - requires system-level DBA procedures",
+        "recommended_level": "system",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-OS-HAZ-001", "ITEM-OS-HAZ-008"]
+      },
+      {
+        "id": "ITEM-OS-RC-UP-004",
+        "description": "Monitoring and alerting on filesystem capacity",
+        "rationale": "Service logs metrics but cannot implement alerting or capacity planning - requires system monitoring",
+        "recommended_level": "system",
+        "control_type": "information_for_safety",
+        "mitigates": ["ITEM-OS-HAZ-005", "ITEM-OS-HAZ-012"]
+      },
+      {
+        "id": "ITEM-OS-RC-UP-005",
+        "description": "Network security controls and TLS enforcement",
+        "rationale": "Service implements application-level auth but cannot enforce network-level security policies",
+        "recommended_level": "system",
+        "control_type": "inherent_safety",
+        "mitigates": ["ITEM-OS-HAZ-004"]
+      },
+      {
+        "id": "ITEM-OS-RC-UP-006",
+        "description": "Audit log aggregation and retention policy",
+        "rationale": "Service emits notification events but cannot guarantee delivery or retention - requires system-level log management",
+        "recommended_level": "system",
+        "control_type": "information_for_safety",
+        "mitigates": ["ITEM-OS-HAZ-011"]
+      }
+    ],
+
+    "failure_modes": [
+      {
+        "id": "ITEM-OS-FM-001",
+        "name": "Encryption key generation fails",
+        "category": "software_crash",
+        "component": "crypto.GenerateAESKey",
+        "effect_on_software_item": "CreateObject returns error, object not stored",
+        "effect_on_system": "Caller receives 500 error, must retry or handle failure. Configuration upload fails.",
+        "detection_mechanism": "Error returned to client, logged with zap logger, Prometheus metrics increment error counter",
+        "recovery_mechanism": "Client retry, no persistent state change",
+        "related_hazards": ["ITEM-OS-HAZ-001"],
+        "source": {
+          "files": ["pkg/crypto/cipher.go:19-27"]
+        }
+      },
+      {
+        "id": "ITEM-OS-FM-002",
+        "name": "Database connection lost during metadata save",
+        "category": "infrastructure_failure",
+        "component": "ObjectMetadataRepository.Save",
+        "effect_on_software_item": "Save fails with database error, rollback triggered to delete object file",
+        "effect_on_system": "Object creation fails, client receives error. Dependent services cannot store configuration.",
+        "detection_mechanism": "Database driver error, logged, Prometheus query error metric incremented",
+        "recovery_mechanism": "Client retry after database recovery, database reconnection pool handles transient failures",
+        "related_hazards": ["ITEM-OS-HAZ-008"],
+        "source": {
+          "files": ["internal/repository/object_metadata_repository.go:40-62"]
+        }
+      },
+      {
+        "id": "ITEM-OS-FM-003",
+        "name": "Filesystem write timeout exceeded",
+        "category": "resource_exhaustion",
+        "component": "ObjectRepository.Save",
+        "effect_on_software_item": "Context cancelled, file write incomplete, error returned",
+        "effect_on_system": "Object creation fails, possible orphaned partial file on disk",
+        "detection_mechanism": "Context deadline exceeded error, logged, filesystem latency metric shows timeout",
+        "recovery_mechanism": "Client retry, manual cleanup of orphaned files, increase FILESYSTEM_TIMEOUT_SECONDS if persistent",
+        "related_hazards": ["ITEM-OS-HAZ-005"],
+        "source": {
+          "files": ["internal/repository/object_repository.go:61-73"]
+        }
+      },
+      {
+        "id": "ITEM-OS-FM-004",
+        "name": "SQL injection via label parameter",
+        "category": "security_breach",
+        "component": "createFindMetadataByLabelsQuery",
+        "effect_on_software_item": "Attacker-controlled SQL executed, potential data exfiltration or modification",
+        "effect_on_system": "Database compromised, all stored objects potentially readable by attacker",
+        "detection_mechanism": "Database error logs, anomalous query patterns in metrics",
+        "recovery_mechanism": "Manual incident response, key rotation, database audit, patch deployment",
+        "related_hazards": ["ITEM-OS-HAZ-006"],
+        "source": {
+          "files": ["internal/repository/object_metadata_repository.go:253-310"]
+        }
+      },
+      {
+        "id": "ITEM-OS-FM-005",
+        "name": "Authentication credentials missing or invalid",
+        "category": "authentication_failure",
+        "component": "AccessController.Check",
+        "effect_on_software_item": "Request rejected with 401 Unauthorized",
+        "effect_on_system": "Client cannot access resources, legitimate operations blocked if credentials misconfigured",
+        "detection_mechanism": "HTTP 401 response, logged",
+        "recovery_mechanism": "Client provides correct credentials, admin fixes user configuration",
+        "related_hazards": ["ITEM-OS-HAZ-004"],
+        "source": {
+          "files": ["pkg/httputil/middlewares/accesscontrol.go:25-28"]
+        }
+      },
+      {
+        "id": "ITEM-OS-FM-006",
+        "name": "Decryption fails due to corrupted ciphertext",
+        "category": "data_integrity",
+        "component": "cipher.Service.Decrypt",
+        "effect_on_software_item": "GCM authentication tag mismatch, decryption fails",
+        "effect_on_system": "GetObject returns error, caller cannot retrieve object, data effectively lost",
+        "detection_mechanism": "Decryption error logged, 500 response to client",
+        "recovery_mechanism": "Restore from backup if available, otherwise data lost. Investigate filesystem corruption.",
+        "related_hazards": ["ITEM-OS-HAZ-001", "ITEM-OS-HAZ-007"],
+        "source": {
+          "files": ["pkg/crypto/cipher.go:58-70"]
+        }
+      },
+      {
+        "id": "ITEM-OS-FM-007",
+        "name": "Cache returns stale object after update",
+        "category": "synchronization_error",
+        "component": "ObjectRepository.Find (cache path)",
+        "effect_on_software_item": "Old version of object returned from cache instead of updated version from disk",
+        "effect_on_system": "Caller receives outdated configuration, potential incorrect behavior",
+        "detection_mechanism": "Checksum mismatch if caller validates, otherwise silent failure",
+        "recovery_mechanism": "Cache TTL expires and fresh data loaded, or manual cache flush",
+        "related_hazards": ["ITEM-OS-HAZ-009"],
+        "source": {
+          "files": ["internal/repository/object_repository.go:107-128"]
+        }
+      },
+      {
+        "id": "ITEM-OS-FM-008",
+        "name": "Notification service unavailable during object creation",
+        "category": "external_dependency",
+        "component": "notification.Service.Notify",
+        "effect_on_software_item": "Notify call fails, error returned from CreateObject",
+        "effect_on_system": "Object creation fails, audit event not recorded, must retry entire operation",
+        "detection_mechanism": "ActiveMQ/ZeroMQ connection error logged",
+        "recovery_mechanism": "Client retry after notification service recovers",
+        "related_hazards": ["ITEM-OS-HAZ-011"],
+        "source": {
+          "files": ["internal/services/object/service.go:77-80"]
+        }
+      },
+      {
+        "id": "ITEM-OS-FM-009",
+        "name": "Rollback delete fails after metadata save error",
+        "category": "software_defect",
+        "component": "Service.saveObject rollback path",
+        "effect_on_software_item": "Orphaned encrypted file left on disk, error logged but not returned",
+        "effect_on_system": "Disk space gradually consumed by orphaned files",
+        "detection_mechanism": "Error log entry, filesystem metrics show disk usage growth",
+        "recovery_mechanism": "Manual cleanup job to identify and remove orphaned files, investigate root cause of delete failure",
+        "related_hazards": ["ITEM-OS-HAZ-012"],
+        "source": {
+          "files": ["internal/services/object/service.go:160-167"]
+        }
+      },
+      {
+        "id": "ITEM-OS-FM-010",
+        "name": "KEK ID mismatch between DEK and available KEKs",
+        "category": "configuration_error",
+        "component": "KeyEncryptionKeyRepository.Find",
+        "effect_on_software_item": "Decrypt fails, KEK not found error",
+        "effect_on_system": "GetObject fails, object unrecoverable if KEK permanently lost",
+        "detection_mechanism": "Error logged, 500 response to client",
+        "recovery_mechanism": "Restore missing KEK from backup, update KEK configuration",
+        "related_hazards": ["ITEM-OS-HAZ-007"],
+        "source": {
+          "files": ["internal/services/cipher/service.go:61-64"]
+        }
+      },
+      {
+        "id": "ITEM-OS-FM-011",
+        "name": "Bucket configuration missing or invalid",
+        "category": "configuration_error",
+        "component": "BucketRepository.Find",
+        "effect_on_software_item": "All operations on bucket fail with BadRequest",
+        "effect_on_system": "Bucket unusable until configuration fixed",
+        "detection_mechanism": "400 error response, logged",
+        "recovery_mechanism": "Fix buckets.yaml configuration and restart service",
+        "related_hazards": [],
+        "source": {
+          "files": ["internal/services/object/service.go:50-53"]
+        }
+      },
+      {
+        "id": "ITEM-OS-FM-012",
+        "name": "HTTP request body too large",
+        "category": "resource_exhaustion",
+        "component": "CreateObject io.ReadAll",
+        "effect_on_software_item": "Memory exhaustion or request timeout",
+        "effect_on_system": "Service becomes unresponsive, impacts other requests",
+        "detection_mechanism": "Memory metrics spike, request timeout",
+        "recovery_mechanism": "Service restart, implement request size limit middleware",
+        "related_hazards": [],
+        "source": {
+          "files": ["internal/api/buckets/buckets.go:113-116"]
+        }
+      }
+    ],
+
+    "interfaces_with_safety_impact": [
+      {
+        "id": "ITEM-OS-IF-001",
+        "interface": "MariaDB/MySQL database",
+        "type": "database",
+        "direction": "bidirectional",
+        "safety_impact": "Complete service failure if database unavailable. Metadata loss if database corrupted. All objects become unrecoverable without metadata.",
+        "failure_handling": "Database driver returns error, propagated to client as 500. Connection pool retries transient failures. No circuit breaker implemented.",
+        "timeout": "Not explicitly configured, uses driver defaults",
+        "retry_policy": "Connection pool automatic retry, no application-level retry",
+        "source": {
+          "files": ["internal/repository/object_metadata_repository.go:14-22"]
+        }
+      },
+      {
+        "id": "ITEM-OS-IF-002",
+        "interface": "Local filesystem (PersistentVolume)",
+        "type": "file",
+        "direction": "bidirectional",
+        "safety_impact": "Object data loss if filesystem fails or corrupted. Service cannot function without write access. Disk full prevents new object storage.",
+        "failure_handling": "Filesystem errors logged and returned as 500 errors. Context timeout (5s default) prevents indefinite blocking.",
+        "timeout": "FILESYSTEM_TIMEOUT_SECONDS (default 5s)",
+        "retry_policy": "No automatic retry, client must retry",
+        "source": {
+          "files": ["internal/repository/object_repository.go:16-21"]
+        }
+      },
+      {
+        "id": "ITEM-OS-IF-003",
+        "interface": "ActiveMQ notification service",
+        "type": "JMS",
+        "direction": "outbound",
+        "safety_impact": "Audit trail gap if notification fails. Object creation fails entirely if notification cannot be sent.",
+        "failure_handling": "Notification failure causes CreateObject to fail and return error. No retry mechanism.",
+        "timeout": "Not visible in object-storage code, delegated to notification client",
+        "retry_policy": "None, single send attempt",
+        "source": {
+          "files": ["internal/services/object/service.go:77-80"]
+        }
+      },
+      {
+        "id": "ITEM-OS-IF-004",
+        "interface": "ZeroMQ notification service (alternative)",
+        "type": "other",
+        "direction": "outbound",
+        "safety_impact": "Same as ITEM-OS-IF-003, alternative message queue implementation",
+        "failure_handling": "Same as ITEM-OS-IF-003",
+        "timeout": "Not visible in object-storage code",
+        "retry_policy": "None",
+        "source": {
+          "files": ["internal/config/config.go:48-50"]
+        }
+      },
+      {
+        "id": "ITEM-OS-IF-005",
+        "interface": "User authentication service (Allower interface)",
+        "type": "REST",
+        "direction": "outbound",
+        "safety_impact": "If authentication service unavailable or returns incorrect results, unauthorized access possible or legitimate access blocked.",
+        "failure_handling": "Authentication failure returns 401/403 to client, operation blocked",
+        "timeout": "Not visible in object-storage code",
+        "retry_policy": "None",
+        "source": {
+          "files": ["pkg/httputil/middlewares/accesscontrol.go:10-13"]
+        }
+      },
+      {
+        "id": "ITEM-OS-IF-006",
+        "interface": "HTTP REST API (Echo framework)",
+        "type": "REST",
+        "direction": "inbound",
+        "safety_impact": "Primary interface for all operations. Malformed requests, missing auth, or protocol errors could cause service errors.",
+        "failure_handling": "Echo middleware handles request parsing errors, auth errors, and application errors with appropriate HTTP status codes",
+        "timeout": "HTTP server timeout (not explicitly configured, uses Echo defaults)",
+        "retry_policy": "Client-side retry, server does not retry",
+        "source": {
+          "files": ["internal/api/buckets/buckets.go:24-300"]
+        }
+      }
+    ],
+
+    "verification_gaps": [
+      {
+        "id": "ITEM-OS-GAP-001",
+        "type": "untested_control",
+        "description": "SQL injection protection via escapeString not verified with test cases",
+        "affected_items": ["ITEM-OS-RC-010"],
+        "priority": "high",
+        "recommendation": "Add unit tests with malicious SQL payloads in label values to verify escaping works correctly"
+      },
+      {
+        "id": "ITEM-OS-GAP-002",
+        "type": "untested_control",
+        "description": "Rollback mechanism (saveObject delete on metadata error) not tested",
+        "affected_items": ["ITEM-OS-RC-005"],
+        "priority": "high",
+        "recommendation": "Add integration test that forces metadata save failure and verifies object file is deleted"
+      },
+      {
+        "id": "ITEM-OS-GAP-003",
+        "type": "untested_control",
+        "description": "Permission-based access control (Allower interface) not tested",
+        "affected_items": ["ITEM-OS-RC-007"],
+        "priority": "high",
+        "recommendation": "Add integration tests verifying different user roles can/cannot access different resources"
+      },
+      {
+        "id": "ITEM-OS-GAP-004",
+        "type": "missing_failure_test",
+        "description": "No test coverage for notification service failure scenarios",
+        "affected_items": ["ITEM-OS-HAZ-011", "ITEM-OS-FM-008"],
+        "priority": "medium",
+        "recommendation": "Add test that mocks notification service failure and verifies CreateObject returns error"
+      },
+      {
+        "id": "ITEM-OS-GAP-005",
+        "type": "untested_control",
+        "description": "Cache invalidation on delete not verified",
+        "affected_items": ["ITEM-OS-RC-015"],
+        "priority": "medium",
+        "recommendation": "Add test that creates object, caches it, deletes it, and verifies cache entry removed"
+      },
+      {
+        "id": "ITEM-OS-GAP-006",
+        "type": "unverified_interface",
+        "description": "Database connection failure handling not tested",
+        "affected_items": ["ITEM-OS-IF-001", "ITEM-OS-FM-002"],
+        "priority": "medium",
+        "recommendation": "Add integration test using testcontainers to stop database and verify error handling"
+      },
+      {
+        "id": "ITEM-OS-GAP-007",
+        "type": "missing_failure_test",
+        "description": "No test for HTTP request body size limits",
+        "affected_items": ["ITEM-OS-FM-012"],
+        "priority": "medium",
+        "recommendation": "Add test with large request body to verify service behavior and implement body size limit"
+      },
+      {
+        "id": "ITEM-OS-GAP-008",
+        "type": "untested_control",
+        "description": "Error message sanitization not verified to prevent information disclosure",
+        "affected_items": ["ITEM-OS-RC-012", "ITEM-OS-HAZ-010"],
+        "priority": "low",
+        "recommendation": "Add tests that trigger various errors and verify responses do not leak internal details"
+      }
+    ]
+  },
+
+  "aggregation_hints": {
+    "cross_item_interfaces": [
+      "User authentication service (user repository)",
+      "Notification service (audit logging)",
+      "Configuration consumers (triage-engine, actions-module, etc.)"
+    ],
+    "shared_hazards": [
+      "Authentication bypass hazards shared with all services using Allower interface",
+      "Database failure hazards shared with all services using MariaDB",
+      "Notification failure hazards shared with all services emitting audit events"
+    ],
+    "system_level_controls_needed": [
+      "Centralized key management and rotation policy",
+      "System-wide authentication and authorization service",
+      "Database backup and disaster recovery procedures",
+      "Network security policies (TLS, firewall rules)",
+      "Centralized audit log aggregation and retention",
+      "Monitoring and alerting infrastructure",
+      "Incident response procedures for security breaches"
+    ]
+  }
+}

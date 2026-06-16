@@ -1,0 +1,211 @@
+{
+  "metadata": {
+    "system_id": "Triage24",
+    "system_name": "Digital Triage System",
+    "standard": "ISO 14971:2019 Annex C",
+    "created_by": "Jakob Dumky",
+    "created_at": "2026-03-06",
+    "reviewed_by": null,
+    "status": "draft",
+    "source_documents": [
+      "D490 - Triage24 - Definitions of intended use, user profiles and use environments",
+      "D095 - Triage24 - Product Description",
+      "D1319 - Triage24 Technical Product Description"
+    ]
+  },
+
+  "safety_characteristics": [
+    {
+      "id": "SC-001",
+      "annex_c_ref": "C.2.1",
+      "category": "intended_use",
+      "question": "What is the intended use and how is the device to be used?",
+      "applicable": true,
+      "rationale": "Core characteristic - defines the safety boundaries of the device",
+      "assessment": "Triage24 is intended to provide patients with a recommendation of an appropriate level of care, based on urgency of symptoms. It aids with investigation of a patient's pathological state through patient-reported symptoms. Used via patient application (form-based or conversational), assisted triage in Clinic, or Content Studio for configuration. Not intended for diagnosis.",
+      "evidence_from_extraction": "System collects symptoms via interviewer4, evaluates via rule-engine-module, produces triage recommendations via actions service",
+      "related_hazards": ["All hazards - defines scope of acceptable use"],
+      "verification_method": "Clinical evaluation, usability testing, IFU review"
+    },
+    {
+      "id": "SC-002",
+      "annex_c_ref": "C.2.2",
+      "category": "patient_contact",
+      "question": "Is the device intended to contact the patient or user?",
+      "applicable": false,
+      "rationale": "Software-only device with no physical patient contact",
+      "assessment": "Not applicable - Triage24 is software-as-medical-device with no physical components",
+      "evidence_from_extraction": null,
+      "related_hazards": [],
+      "verification_method": "N/A"
+    },
+    {
+      "id": "SC-003",
+      "annex_c_ref": "C.2.4",
+      "category": "packaging",
+      "question": "Is the device intended to be supplied sterile?",
+      "applicable": false,
+      "rationale": "Software-only device, no physical packaging requiring sterilization",
+      "assessment": "Not applicable",
+      "evidence_from_extraction": null,
+      "related_hazards": [],
+      "verification_method": "N/A"
+    },
+    {
+      "id": "SC-004",
+      "annex_c_ref": "C.2.11",
+      "category": "measurements",
+      "question": "Are measurements taken?",
+      "applicable": true,
+      "rationale": "System collects numeric patient data that influences triage outcome",
+      "assessment": "Triage24 collects numeric inputs from patients including blood pressure, temperature, pain scales, and other quantitative symptom data through the triage-ui QuestionNumber component. These values influence the triage logic and exit determination. However, the device does not perform measurements itself - it accepts patient-reported values.",
+      "evidence_from_extraction": "QuestionNumber component in triage-ui handles numeric inputs with min/max validation (ITEM-TRIAGE-UI-HAZ-003)",
+      "related_hazards": ["ITEM-TRIAGE-UI-HAZ-003", "ITEM-TRIAGE-UI-FM-007"],
+      "verification_method": "Input validation testing, medical content review"
+    },
+    {
+      "id": "SC-005",
+      "annex_c_ref": "C.2.12",
+      "category": "interpretation",
+      "question": "Is the device intended to be interpretive?",
+      "applicable": true,
+      "rationale": "Core function - device interprets patient symptoms to determine urgency",
+      "assessment": "Triage24 is fundamentally an interpretive device. The rule-engine-module interprets patient symptom data against configured medical content and clinical decision rules to determine urgency levels, exit conditions (normal, alarming, breaking), and care recommendations. The triage result is an interpretation of the patient's pathological state based on reported symptoms.",
+      "evidence_from_extraction": "Rule engine (rule-engine-module) interprets symptoms via clinical decision rules. 12 hazards related to incorrect rule interpretation identified.",
+      "related_hazards": ["ITEM-REM-HAZ-001", "ITEM-REM-HAZ-002", "ITEM-REM-HAZ-003", "ITEM-REM-HAZ-007", "ITEM-REM-HAZ-011"],
+      "verification_method": "Clinical validation of medical content, rule package testing, clinical evaluation"
+    },
+    {
+      "id": "SC-006",
+      "annex_c_ref": "C.2.13",
+      "category": "other_devices",
+      "question": "Is the device intended to be used with other devices or medicinal products?",
+      "applicable": true,
+      "rationale": "Triage24 is part of the Platform24 ecosystem and integrates with other modules",
+      "assessment": "Triage24 integrates with health-manager (appointments, consents), directory2 (patient data), front-door (origin config), and other Platform24 modules. It also integrates with external systems via plugins for EMR connectivity. However, it does not directly interface with other medical devices or control medication administration.",
+      "evidence_from_extraction": "Interfaces identified: healthmanager API, directory2 API, front-door API, WebSocket connections. 10 interface specifications per item.",
+      "related_hazards": ["Interface-related hazards in all items"],
+      "verification_method": "Integration testing, API contract validation"
+    },
+    {
+      "id": "SC-007",
+      "annex_c_ref": "C.2.19",
+      "category": "software",
+      "question": "Is software incorporated?",
+      "applicable": true,
+      "rationale": "System is software-as-medical-device (SaMD)",
+      "assessment": "Triage24 is entirely software. 7 software items identified: interviewer4, rule-engine-module, actions, object-storage (Class A), patient-ui, triage-ui, triage-clinic-ui. All items classified as Safety Class B except object-storage (Class A) per IEC 62304.",
+      "evidence_from_extraction": "7 software items extracted, all TypeScript/JavaScript microservices. 84 failure modes, 80 hazard contributions, 85 risk controls identified.",
+      "related_hazards": ["All software hazards"],
+      "verification_method": "IEC 62304 software development process, unit testing, integration testing"
+    },
+    {
+      "id": "SC-008",
+      "annex_c_ref": "C.2.26",
+      "category": "training",
+      "question": "Is special training needed?",
+      "applicable": true,
+      "rationale": "Different user groups require different levels of training",
+      "assessment": "Patients: No special training, B1-B2 language proficiency required, IFU provided in interface. Practitioners: Licensed healthcare professional, C1-C3 language proficiency, must use own clinical assessment together with triage result. Medical content developers: Must complete training (D361 for Content Studio, D1458 for business rules) before access granted.",
+      "evidence_from_extraction": "ITEM-TCU-RC-UP-004 identifies practitioner training on triage interpretation as required upstream control",
+      "related_hazards": ["ITEM-TCU-HAZ-006", "ITEM-TRIAGE-UI-HAZ-001"],
+      "verification_method": "Training effectiveness validation, usability testing"
+    },
+    {
+      "id": "SC-009",
+      "annex_c_ref": "C.2.27",
+      "category": "new_technologies",
+      "question": "Does the device incorporate new or innovative technologies?",
+      "applicable": true,
+      "rationale": "Conversational triage variant uses AI/ML for natural language processing",
+      "assessment": "Version 2 introduces conversational triage with AI-driven natural language processing for symptom description and dynamic questioning. This represents a major architectural change and new technology integration. The NLP-based condition search in triage-clinic-ui also uses AI. EU AI Act applicability acknowledged; implementation paused per Digital Omnibus transitional provisions.",
+      "evidence_from_extraction": "NLP condition search in triage-clinic-ui (ITEM-TCU-HAZ-005). Conversational variant uses AI for CF-CV01, CF-CV02.",
+      "related_hazards": ["ITEM-TCU-HAZ-005", "Conversational AI hazards (to be assessed)"],
+      "verification_method": "AI/ML validation per MDCG guidance, clinical validation of conversational outputs"
+    },
+    {
+      "id": "SC-010",
+      "annex_c_ref": "C.2.28",
+      "category": "human_factors",
+      "question": "Is successful use critically dependent on human factors?",
+      "applicable": true,
+      "rationale": "Patient data entry accuracy is critical; practitioner interpretation of results required",
+      "assessment": "Critically dependent on human factors: 1) Patient must accurately describe symptoms and answer questions correctly - incorrect input leads to wrong triage. 2) Patients must recognize and respond to urgent care warnings. 3) Practitioners must use own clinical assessment together with triage results. 4) Medical content developers must carefully analyze effects of changes. Multiple user_error failure modes identified.",
+      "evidence_from_extraction": "User error failure modes: ITEM-TRIAGE-UI-FM-001, FM-002, FM-007, FM-008, FM-010, FM-012. ITEM-TCU-FM-004, FM-005. Human factors hazards in all UI items.",
+      "related_hazards": ["ITEM-TRIAGE-UI-HAZ-001", "ITEM-TRIAGE-UI-HAZ-002", "ITEM-TCU-HAZ-003", "ITEM-TCU-HAZ-005"],
+      "verification_method": "Usability engineering per IEC 62366, formative and summative usability testing"
+    },
+    {
+      "id": "SC-011",
+      "annex_c_ref": "C.2.29",
+      "category": "alarms",
+      "question": "Does the device use an alarm system?",
+      "applicable": true,
+      "rationale": "System displays clinical flags and urgent care warnings",
+      "assessment": "Triage24 does not use audible alarms. However, it displays visual warnings and clinical flags: 1) Urgent care warnings when alarming conditions detected (interview stops and locks, patient instructed to call 112). 2) Clinical flags displayed to practitioners via triage-clinic-ui with color-coded urgency indicators (green/yellow/red). 3) UI warnings for life-threatening symptoms.",
+      "evidence_from_extraction": "ITEM-TCU-HAZ-006 - urgency not prominently displayed. GuidanceRenderer displays flags. Warning text in patient UI.",
+      "related_hazards": ["ITEM-TCU-HAZ-006", "ITEM-TCU-HAZ-002"],
+      "verification_method": "Usability testing of warning visibility, clinical flag display verification"
+    },
+    {
+      "id": "SC-012",
+      "annex_c_ref": "C.2.30",
+      "category": "misuse",
+      "question": "Could the device be susceptible to deliberate misuse?",
+      "applicable": true,
+      "rationale": "Patient could provide false symptoms; sessionStorage manipulation possible",
+      "assessment": "Susceptible to: 1) Patient providing false or misleading symptoms - system cannot verify truthfulness. 2) SessionStorage manipulation to bypass safety controls (ITEM-PATIENT-UI-HAZ-008). 3) Medical content developers making changes without proper review. Mitigations: Contraindications stated, warnings displayed, review processes required, practitioner must use own assessment.",
+      "evidence_from_extraction": "ITEM-PATIENT-UI-HAZ-008 - Universal error shutdown bypass via sessionStorage. User error failure modes across UI items.",
+      "related_hazards": ["ITEM-PATIENT-UI-HAZ-008", "ITEM-TRIAGE-UI-HAZ-012"],
+      "verification_method": "Security testing, review process verification"
+    },
+    {
+      "id": "SC-013",
+      "annex_c_ref": "C.2.31",
+      "category": "critical_data",
+      "question": "Does the device hold data critical to patient care?",
+      "applicable": true,
+      "rationale": "Stores symptom data, triage results, consent records, appointment data",
+      "assessment": "Triage24 holds critical patient care data: 1) Patient symptom data collected during interview. 2) Triage results including urgency and exit attributes. 3) Interview history and anamnesis. 4) Consent records. 5) Appointment data. Data stored via object-storage service with PostgreSQL backend. Data integrity and availability are essential.",
+      "evidence_from_extraction": "Object-storage handles all data persistence (Class A). ITEM-OS hazards related to data integrity (HAZ-001, HAZ-002, HAZ-003). SQL injection risk (HAZ-006).",
+      "related_hazards": ["ITEM-OS-HAZ-001", "ITEM-OS-HAZ-002", "ITEM-OS-HAZ-003", "ITEM-OS-HAZ-006"],
+      "verification_method": "Data integrity testing, backup/recovery testing, security testing"
+    },
+    {
+      "id": "SC-014",
+      "annex_c_ref": "C.2.33",
+      "category": "essential_performance",
+      "question": "Does the device have essential performance?",
+      "applicable": true,
+      "rationale": "Triage accuracy and system availability are essential for safe care routing",
+      "assessment": "Essential performance characteristics: 1) Triage accuracy - correct urgency determination based on symptoms. 2) System availability - patients must be able to complete triage. 3) Warning display - urgent conditions must trigger appropriate warnings. 4) Data integrity - patient data must be accurately stored and retrieved. Loss of essential performance could lead to patients being routed to inappropriate level of care.",
+      "evidence_from_extraction": "Critical hazards identified: wrong triage recommendation (ITEM-REM), interview data integrity (ITEM-INTERVIEWER4-HAZ-006), wrong patient data display (ITEM-TCU-HAZ-003 - catastrophic).",
+      "related_hazards": ["ITEM-REM-HAZ-001", "ITEM-REM-HAZ-002", "ITEM-INTERVIEWER4-HAZ-006", "ITEM-TCU-HAZ-003"],
+      "verification_method": "Clinical validation, performance testing, availability monitoring"
+    },
+    {
+      "id": "SC-015",
+      "annex_c_ref": "C.2.34",
+      "category": "disposal",
+      "question": "Does the device require special disposal procedures?",
+      "applicable": false,
+      "rationale": "Software-only device with no physical components requiring disposal",
+      "assessment": "Not applicable - SaMD has no physical disposal requirements. Data retention and deletion policies apply to patient data.",
+      "evidence_from_extraction": null,
+      "related_hazards": [],
+      "verification_method": "N/A"
+    },
+    {
+      "id": "SC-016",
+      "annex_c_ref": "C.2.35",
+      "category": "installation",
+      "question": "Does the device require special installation or maintenance?",
+      "applicable": true,
+      "rationale": "Cloud deployment and medical content configuration required",
+      "assessment": "Installation: Cloud-based deployment managed by Platform24. Configuration: Medical content and business rules must be configured for each healthcare provider. Maintenance: Regular updates, security patches, medical content updates. Technical review by Platform24 required before production release of content changes.",
+      "evidence_from_extraction": "Configuration management documented. Medical content development process requires validation.",
+      "related_hazards": ["Content configuration hazards"],
+      "verification_method": "Deployment validation, configuration management audit"
+    }
+  ]
+}

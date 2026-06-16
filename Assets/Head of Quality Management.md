@@ -12,10 +12,10 @@ assignee:
 ---
 The head of quality management is employed by top management to ensure that the quality management system is implemented and operational within the organisation.
 
-Head of Quality Management will lead [[Quality Management]].
+Head of Quality Management will lead Quality Management.
 
 This includes:
-* Enforcing quality  to fulfill the [[Quality Policy]] in
+* Enforcing quality  to fulfill the [Quality Policy](Quality%20Policy.md) in
 	* Top Management
 	* Internal IT Management
 	* Risk Management 

@@ -1,0 +1,1342 @@
+{
+  "extraction_metadata": {
+    "repository": "/home/jakob/Noncomplicity/Repos/health-manager",
+    "commit": "16e0273739eda65f73af5410323e1caf53362f16",
+    "extracted_at": "2026-03-06T09:10:18Z",
+    "extractor_version": "1.0",
+    "standard": "IEC 62304:2006+AMD1:2015",
+    "standard_clause": "5.2 Software requirements analysis",
+    "software_name": "health-manager",
+    "software_version": "1.0.0-SNAPSHOT",
+    "technology_stack": {
+      "runtime": "Java 21",
+      "framework": "Spring Boot",
+      "persistence": "Spring Data JPA, Hibernate",
+      "database": "MySQL/MariaDB",
+      "messaging": "JMS (Apache Artemis)",
+      "build": "Maven",
+      "query": "QueryDSL",
+      "migration": "Flyway"
+    },
+    "module_structure": {
+      "dto": "Data Transfer Objects (API contracts)",
+      "svc": "Main service module (controllers, services, domain, repositories)",
+      "cnf": "Configuration module",
+      "modules": "Additional modules (e.g., escalator)"
+    }
+  },
+  "requirements": [
+    {
+      "req_id": "SRS-APPT-001",
+      "title": "Create Appointment",
+      "description": "The system shall allow authenticated practitioners, patients, and system users to create appointments with specified type (CONSULTATION, DROP_IN, SCHEDULED), episode of care, practitioner assignment, and scheduling information.",
+      "type": "functional",
+      "source": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/controller/v1/AppointmentController.java:92-140",
+          "svc/src/main/java/se/alerisx/mhp/manager/domain/Appointment.java:1-150",
+          "svc/src/main/java/se/alerisx/mhp/manager/service/UpdateAppointmentService.java"
+        ],
+        "commits": [],
+        "prs": []
+      },
+      "verification": {
+        "test_files": [
+          "svc/src/test/java/se/alerisx/mhp/manager/service/impl/GetAppointmentServiceImplTest.java"
+        ],
+        "test_names": []
+      },
+      "safety_class": "B",
+      "safety_rationale": "Appointment creation affects patient scheduling and care delivery; incorrect implementation could delay or prevent access to care",
+      "interfaces": ["AppointmentController", "UpdateAppointmentService", "AppointmentRepository"],
+      "dependencies": []
+    },
+    {
+      "req_id": "SRS-APPT-002",
+      "title": "Retrieve Appointment by ID",
+      "description": "The system shall allow authorized users to retrieve appointment details by appointment ID. Access control shall enforce role-based permissions: practitioners can view appointments in their care unit, patients can view their own appointments, system users have unrestricted access.",
+      "type": "functional",
+      "source": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/controller/v1/AppointmentController.java:69-90",
+          "svc/src/main/java/se/alerisx/mhp/manager/service/GetAppointmentService.java"
+        ],
+        "commits": [],
+        "prs": []
+      },
+      "verification": {
+        "test_files": [
+          "svc/src/test/java/se/alerisx/mhp/manager/service/impl/GetAppointmentServiceImplTest.java"
+        ],
+        "test_names": []
+      },
+      "safety_class": "B",
+      "safety_rationale": "Appointment retrieval provides clinical context for care decisions; incorrect data could lead to inappropriate treatment",
+      "interfaces": ["AppointmentController", "GetAppointmentService", "AppointmentRepository"],
+      "dependencies": ["SRS-SEC-001", "SRS-SEC-002"]
+    },
+    {
+      "req_id": "SRS-APPT-003",
+      "title": "Update Appointment Status and Attributes",
+      "description": "The system shall allow authorized practitioners and system users to update appointment status (queued, started, ended, cancelled), practitioner assignment, scheduling time, and other attributes according to business rules and authorization policies.",
+      "type": "functional",
+      "source": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/controller/v1/AppointmentController.java",
+          "svc/src/main/java/se/alerisx/mhp/manager/service/UpdateAppointmentService.java",
+          "svc/src/main/java/se/alerisx/mhp/manager/service/impl/UpdateAppointmentServiceImpl.java"
+        ],
+        "commits": [],
+        "prs": []
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": []
+      },
+      "safety_class": "B",
+      "safety_rationale": "Appointment updates affect clinical workflow and patient tracking; status changes must be accurate and auditable",
+      "interfaces": ["AppointmentController", "UpdateAppointmentService"],
+      "dependencies": ["SRS-SEC-001", "SRS-SEC-002", "SRS-AUD-001"]
+    },
+    {
+      "req_id": "SRS-APPT-004",
+      "title": "Appointment State Tracking with Timestamps",
+      "description": "The system shall track appointment state transitions with microsecond-precision timestamps for key events: notifiedAt, queuedAt, bookedAt, startedAt, endedAt, cancelledAt, endFollowUpAt, sendFollowUpMessageAt. Timestamps shall use TIMESTAMP(6) precision in database storage.",
+      "type": "functional",
+      "source": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/domain/Appointment.java:106-140"
+        ],
+        "commits": [],
+        "prs": []
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": []
+      },
+      "safety_class": "C",
+      "safety_rationale": "Accurate timestamp tracking is critical for clinical documentation, compliance reporting, and audit trails required for patient safety investigations",
+      "interfaces": ["Appointment entity"],
+      "dependencies": ["SRS-AUD-001", "SRS-DATA-001"]
+    },
+    {
+      "req_id": "SRS-HAND-001",
+      "title": "Propose Appointment Handover",
+      "description": "The system shall allow a practitioner to propose handing over an appointment to another practitioner or role. The handover proposal shall specify target care unit ID, practitioner role, optional practitioner capability, optional specific practitioner ID, and optional handover notes (max 1024 characters). Handover can only be proposed when the appointment is in HANDOVER_ENABLED status.",
+      "type": "functional",
+      "source": {
+        "files": [
+          "handover_architecture.md:1-150",
+          "software_requirements.md:1-200",
+          "svc/src/main/java/se/alerisx/mhp/manager/service/impl/AppointmentHandoverServiceImpl.java",
+          "dto/src/main/java/se/alerisx/mhp/manager/dto/UpdateAppointmentDTO.java"
+        ],
+        "commits": [],
+        "prs": []
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": []
+      },
+      "safety_class": "B",
+      "safety_rationale": "Handover initiation affects continuity of care; incorrect handover could result in care gaps or practitioner confusion about responsibility",
+      "interfaces": ["AppointmentController", "UpdateAppointmentService", "AppointmentHandoverService"],
+      "dependencies": ["SRS-HAND-002", "SRS-HAND-003", "SRS-SEC-003"]
+    },
+    {
+      "req_id": "SRS-HAND-002",
+      "title": "Accept Appointment Handover",
+      "description": "The system shall allow the target practitioner to accept a proposed handover. Upon acceptance, the system shall update the appointment's practitioner assignment, change handover status to HANDOVER_ACCEPTED, create an audit event, publish a JMS event, send notifications to the original practitioner, and post a handover message to the patient meeting.",
+      "type": "functional",
+      "source": {
+        "files": [
+          "software_requirements.md:38-54",
+          "handover_architecture.md:144-150",
+          "svc/src/main/java/se/alerisx/mhp/manager/service/impl/AppointmentHandoverServiceImpl.java"
+        ],
+        "commits": [],
+        "prs": []
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": []
+      },
+      "safety_class": "B",
+      "safety_rationale": "Handover acceptance transfers clinical responsibility; the system must reliably update practitioner assignment and notify all parties to prevent care gaps",
+      "interfaces": ["AppointmentHandoverService", "AppointmentEventSender", "NotifierClient", "AppointmentMeetingService"],
+      "dependencies": ["SRS-HAND-001", "SRS-INT-002", "SRS-INT-003", "SRS-AUD-002"]
+    },
+    {
+      "req_id": "SRS-HAND-003",
+      "title": "Deny or Cancel Appointment Handover",
+      "description": "The system shall allow the target practitioner to deny a handover proposal or the original practitioner to cancel it. The system shall change status to HANDOVER_DENIED or HANDOVER_CANCELLED, create audit events, publish JMS events, send notifications, and post messages to the meeting. The appointment's practitioner assignment shall remain unchanged.",
+      "type": "functional",
+      "source": {
+        "files": [
+          "software_requirements.md:38-54",
+          "svc/src/main/java/se/alerisx/mhp/manager/service/impl/AppointmentHandoverServiceImpl.java"
+        ],
+        "commits": [],
+        "prs": []
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": []
+      },
+      "safety_class": "B",
+      "safety_rationale": "Handover denial/cancellation must maintain clarity about clinical responsibility to avoid confusion about who is caring for the patient",
+      "interfaces": ["AppointmentHandoverService"],
+      "dependencies": ["SRS-HAND-001", "SRS-HAND-002", "SRS-AUD-002"]
+    },
+    {
+      "req_id": "SRS-HAND-004",
+      "title": "Handover State Machine Enforcement",
+      "description": "The system shall enforce a state machine for handover status transitions: HANDOVER_ENABLED → HANDOVER_PROPOSED (via propose action), HANDOVER_PROPOSED → HANDOVER_ACCEPTED (via accept action), HANDOVER_PROPOSED → HANDOVER_DENIED (via deny action), HANDOVER_PROPOSED → HANDOVER_CANCELLED (via cancel action). Invalid state transitions shall be rejected with error messages.",
+      "type": "functional",
+      "source": {
+        "files": [
+          "software_requirements.md:37-54",
+          "handover_architecture.md:144-150"
+        ],
+        "commits": [],
+        "prs": []
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": []
+      },
+      "safety_class": "C",
+      "safety_rationale": "State machine enforcement prevents invalid handover sequences that could create ambiguous clinical responsibility and patient safety risks",
+      "interfaces": ["AppointmentHandoverService"],
+      "dependencies": ["SRS-HAND-001", "SRS-HAND-002", "SRS-HAND-003"]
+    },
+    {
+      "req_id": "SRS-HAND-005",
+      "title": "Handover Authorization Rules",
+      "description": "The system shall validate handover authorization: (1) handover must be enabled for the care unit via feature flag, (2) target care unit and practitioner role must be valid, (3) cross-care-provider handovers require explicit feature enablement, (4) only the handover owner can cancel a proposed handover, (5) only authorized recipients can accept or deny handovers.",
+      "type": "functional",
+      "source": {
+        "files": [
+          "software_requirements.md:114-127",
+          "svc/src/main/java/se/alerisx/mhp/manager/service/impl/AppointmentHandoverServiceImpl.java"
+        ],
+        "commits": [],
+        "prs": []
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": []
+      },
+      "safety_class": "C",
+      "safety_rationale": "Authorization controls prevent unauthorized handovers that could compromise patient care by transferring responsibility to inappropriate or unqualified practitioners",
+      "interfaces": ["AppointmentHandoverService", "CustomizationService", "CareUnitRegistry"],
+      "dependencies": ["SRS-HAND-001", "SRS-SEC-003"]
+    },
+    {
+      "req_id": "SRS-CONS-001",
+      "title": "Create Consultation",
+      "description": "The system shall allow practitioners with ROLE_PRACTITIONER to create a consultation associated with an appointment. The consultation shall include care unit ID, practitioner ID, practitioner role, optional practitioner capability, and origin ID. If capabilities are enabled and not optional for the care unit, capability must be provided.",
+      "type": "functional",
+      "source": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/controller/v1/clinic/ConsultationController.java:37-57"
+        ],
+        "commits": [],
+        "prs": []
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": []
+      },
+      "safety_class": "B",
+      "safety_rationale": "Consultation creation initiates clinical encounters; incorrect practitioner assignment or missing capabilities could affect care quality",
+      "interfaces": ["ConsultationController", "ConsultationService", "CustomizationService"],
+      "dependencies": ["SRS-APPT-001", "SRS-SEC-001"]
+    },
+    {
+      "req_id": "SRS-CONS-002",
+      "title": "Retrieve Consultation by Appointment ID",
+      "description": "The system shall allow practitioners with read access to an appointment to retrieve the associated consultation by consultation appointment ID. Access control shall be enforced via @PreAuthorize annotation.",
+      "type": "functional",
+      "source": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/controller/v1/clinic/ConsultationController.java:59-66"
+        ],
+        "commits": [],
+        "prs": []
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": []
+      },
+      "safety_class": "B",
+      "safety_rationale": "Consultation retrieval provides clinical context; unauthorized access could breach patient privacy",
+      "interfaces": ["ConsultationController", "ConsultationService"],
+      "dependencies": ["SRS-SEC-002", "SRS-APPT-002"]
+    },
+    {
+      "req_id": "SRS-SEC-001",
+      "title": "Role-Based Access Control (RBAC)",
+      "description": "The system shall enforce role-based access control using Spring Security annotations (@Secured, @PreAuthorize). Supported roles include: ROLE_PATIENT, ROLE_PRACTITIONER, ROLE_PRACTITIONER_LIMITED_ACCESS, ROLE_SECRETARY, ROLE_SYSTEM, ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_IRREGULARITY_ASSESSOR, ROLE_ANONYMOUS. Each endpoint shall specify allowed roles.",
+      "type": "security",
+      "source": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/controller/v1/AppointmentController.java:53-59",
+          "svc/src/main/java/se/alerisx/mhp/manager/controller/v1/AppointmentController.java:69-94"
+        ],
+        "commits": [],
+        "prs": []
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": []
+      },
+      "safety_class": "C",
+      "safety_rationale": "RBAC prevents unauthorized access to patient health information and clinical functions, protecting patient privacy and data integrity",
+      "interfaces": ["All controllers", "Spring Security"],
+      "dependencies": []
+    },
+    {
+      "req_id": "SRS-SEC-002",
+      "title": "Appointment-Level Authorization",
+      "description": "The system shall enforce fine-grained authorization for appointment access via AppointmentAuthorizer component. Practitioners can access appointments in their care unit or for which they have explicit consent. Patients can access their own appointments. PRACTITIONER_LIMITED_ACCESS role is restricted to appointments for patients in their 'pids' claim. Authorization checks shall be cached for performance.",
+      "type": "security",
+      "source": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/security/AppointmentAuthorizer.java:48-99",
+          "svc/src/main/java/se/alerisx/mhp/manager/controller/v1/AppointmentController.java:71"
+        ],
+        "commits": [],
+        "prs": []
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": []
+      },
+      "safety_class": "C",
+      "safety_rationale": "Fine-grained authorization prevents unauthorized access to individual patient appointments, protecting sensitive health information from disclosure",
+      "interfaces": ["AppointmentAuthorizer", "AppointmentRepository", "CareUnitRegistry", "ConsentV2Service"],
+      "dependencies": ["SRS-SEC-001"]
+    },
+    {
+      "req_id": "SRS-SEC-003",
+      "title": "JWT-Based Authentication",
+      "description": "The system shall authenticate users via JWT tokens issued by the configured issuer ('alerisx-mhp'). The JWT shall contain user identity (username), roles, patient IDs (for limited access practitioners), and other claims. JWT validation shall verify token signature, issuer, and expiration.",
+      "type": "security",
+      "source": {
+        "files": [
+          "svc/src/main/resources/application.yml:1-3",
+          "svc/src/main/java/se/alerisx/mhp/manager/controller/v1/AppointmentController.java:76"
+        ],
+        "commits": [],
+        "prs": []
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": []
+      },
+      "safety_class": "C",
+      "safety_rationale": "JWT authentication ensures only authenticated users can access the system, preventing unauthorized access to patient health records",
+      "interfaces": ["Spring Security", "JWT library (platform24.auth.jwt)"],
+      "dependencies": []
+    },
+    {
+      "req_id": "SRS-SEC-004",
+      "title": "Audit Logging with Throttling",
+      "description": "The system shall log access to sensitive operations using @Audit annotation. Audit logs shall be throttled (HOURLY, DAILY, etc.) to prevent log flooding. Audit events shall capture user identity, operation, resource identifiers, and timestamp.",
+      "type": "security",
+      "source": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/controller/v1/AppointmentController.java:69"
+        ],
+        "commits": [],
+        "prs": []
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": []
+      },
+      "safety_class": "C",
+      "safety_rationale": "Audit logging creates an immutable record of system access for security investigations, compliance reporting, and patient safety incident analysis",
+      "interfaces": ["Audit logging library (alerisx.mhp.audit)"],
+      "dependencies": ["SRS-AUD-001"]
+    },
+    {
+      "req_id": "SRS-INT-001",
+      "title": "Directory Service Integration",
+      "description": "The system shall integrate with Directory Service (directory2) via REST/HTTP to retrieve patient information, validate practitioner IDs, retrieve practitioner names, and manage user relationships. The directory URL shall be configurable via application.yml (alerisx.directory2.url).",
+      "type": "interface",
+      "source": {
+        "files": [
+          "svc/src/main/resources/application.yml:100-102",
+          "software_requirements.md:64"
+        ],
+        "commits": [],
+        "prs": []
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": []
+      },
+      "safety_class": "B",
+      "safety_rationale": "Directory integration provides current patient and practitioner data; incorrect data could lead to wrong patient identification or practitioner assignment",
+      "interfaces": ["DirectoryService", "HTTP REST client"],
+      "dependencies": []
+    },
+    {
+      "req_id": "SRS-INT-002",
+      "title": "Notifier Service Integration",
+      "description": "The system shall integrate with Notifier Service via REST/HTTP to send clinic notifications including handover notifications (type=HANDOVER). Notifications shall include care unit ID, practitioner ID, appointment ID, notification type, and metadata map. The notifier URL shall be configurable (alerisx.notifier.url).",
+      "type": "interface",
+      "source": {
+        "files": [
+          "svc/src/main/resources/application.yml:112",
+          "software_requirements.md:62"
+        ],
+        "commits": [],
+        "prs": []
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": []
+      },
+      "safety_class": "B",
+      "safety_rationale": "Notifications ensure practitioners are aware of handovers and other critical events; missed notifications could delay response to patient needs",
+      "interfaces": ["NotifierClient", "HTTP REST client"],
+      "dependencies": []
+    },
+    {
+      "req_id": "SRS-INT-003",
+      "title": "MeetingPlace Service Integration",
+      "description": "The system shall integrate with MeetingPlace Service via REST/HTTP to send handover messages to patient-practitioner chat meetings, add practitioners to meetings, and manage meeting participants. The system shall subscribe to messageEventTopic for incoming meeting events. The meetingplace URL shall be configurable (alerisx.meetingplace.url).",
+      "type": "interface",
+      "source": {
+        "files": [
+          "svc/src/main/resources/application.yml:84-86",
+          "software_requirements.md:63"
+        ],
+        "commits": [],
+        "prs": []
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": []
+      },
+      "safety_class": "B",
+      "safety_rationale": "Meeting integration enables patient-practitioner communication; failed integration could prevent critical care coordination discussions",
+      "interfaces": ["AppointmentMeetingService", "HTTP REST client", "JMS listener"],
+      "dependencies": []
+    },
+    {
+      "req_id": "SRS-INT-004",
+      "title": "JMS Topic Publishing for Events",
+      "description": "The system shall publish domain events to JMS topics using Apache Artemis message broker. Event types include: appointmentHandoverEventTopic, consultationEventTopic, appointmentEventTopic, creditStatusEventTopic, paymentEventTopic, followUpEventTopic, scheduledAppointmentEventTopic, healthManagerEventTopic, shiftEventTopic, noteEventTopic, referralEventTopic, escalationEventTopic, newParticipantInMeetingEventTopic. Events shall be published in pub-sub mode.",
+      "type": "interface",
+      "source": {
+        "files": [
+          "svc/src/main/resources/application.yml:56-64",
+          "svc/src/main/resources/application.yml:162-177",
+          "software_requirements.md:59-68"
+        ],
+        "commits": [],
+        "prs": []
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": []
+      },
+      "safety_class": "B",
+      "safety_rationale": "Event publishing enables system integration and real-time updates; event loss could prevent downstream systems from responding to critical state changes",
+      "interfaces": ["AppointmentEventSender", "JMS (Apache Artemis)"],
+      "dependencies": []
+    },
+    {
+      "req_id": "SRS-INT-005",
+      "title": "Bookings Service Integration",
+      "description": "The system shall integrate with Bookings Service via REST/HTTP for appointment scheduling and booking operations. The system shall subscribe to synchronizedBookingV2Topic for booking synchronization events. The bookings URL shall be configurable (alerisx.bookings.url).",
+      "type": "interface",
+      "source": {
+        "files": [
+          "svc/src/main/resources/application.yml:80-82",
+          "svc/src/main/java/se/alerisx/mhp/manager/conf/HealthManagerConfiguration.java:38-41"
+        ],
+        "commits": [],
+        "prs": []
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": []
+      },
+      "safety_class": "B",
+      "safety_rationale": "Booking integration manages appointment scheduling; integration failures could prevent patients from booking appointments",
+      "interfaces": ["BookingsService", "HTTP REST client", "JMS listener"],
+      "dependencies": []
+    },
+    {
+      "req_id": "SRS-INT-006",
+      "title": "Configuration Service Integration",
+      "description": "The system shall integrate with System Configuration Service to retrieve care unit registry, origin registry, partner registry, customization settings, capabilities, practitioner roles, options, rules, menu items, notes, and plugin services. Configuration shall support test mode and primary source selection. Object storage integration shall use ZeroMQ protocol.",
+      "type": "interface",
+      "source": {
+        "files": [
+          "svc/src/main/resources/application.yml:114-143",
+          "software_requirements.md:66"
+        ],
+        "commits": [],
+        "prs": []
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": []
+      },
+      "safety_class": "B",
+      "safety_rationale": "Configuration controls system behavior including feature flags and clinical workflows; incorrect configuration could enable unsafe features or disable safety controls",
+      "interfaces": ["CustomizationService", "CareUnitRegistry", "OriginRegistry", "PartnerRegistry", "ZeroMQ"],
+      "dependencies": []
+    },
+    {
+      "req_id": "SRS-PERF-001",
+      "title": "Database Connection Pool Configuration",
+      "description": "The system shall configure HikariCP connection pool with minimum idle connections (default 10), maximum pool size (default 100), and connection timeout (default 5000ms). Connection pool settings shall be environment-configurable via mysql.connections.* properties.",
+      "type": "performance",
+      "source": {
+        "files": [
+          "svc/src/main/resources/application.yml:16-21"
+        ],
+        "commits": [],
+        "prs": []
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": []
+      },
+      "safety_class": "unclassified",
+      "safety_rationale": "Connection pool configuration affects system availability and response time but does not directly impact clinical safety",
+      "interfaces": ["HikariCP", "MySQL/MariaDB"],
+      "dependencies": ["SRS-DATA-001"]
+    },
+    {
+      "req_id": "SRS-PERF-002",
+      "title": "Query Timeout Enforcement",
+      "description": "The system shall enforce a 30-second timeout on JPA queries via javax.persistence.query.timeout property. Queries exceeding this timeout shall be cancelled to prevent resource exhaustion.",
+      "type": "performance",
+      "source": {
+        "files": [
+          "svc/src/main/resources/application.yml:54"
+        ],
+        "commits": [],
+        "prs": []
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": []
+      },
+      "safety_class": "B",
+      "safety_rationale": "Query timeouts prevent database lock-ups that could make the system unresponsive and delay critical patient care operations",
+      "interfaces": ["Hibernate JPA"],
+      "dependencies": ["SRS-DATA-001"]
+    },
+    {
+      "req_id": "SRS-PERF-003",
+      "title": "Hibernate Query Plan Caching",
+      "description": "The system shall cache Hibernate query plans (default 512 entries) and query parameter metadata (default 128 entries) to improve query execution performance. Cache sizes shall be configurable via hibernate.query.cache.max.size and hibernate.query.metadata.max.size.",
+      "type": "performance",
+      "source": {
+        "files": [
+          "svc/src/main/resources/application.yml:50-52"
+        ],
+        "commits": [],
+        "prs": []
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": []
+      },
+      "safety_class": "unclassified",
+      "safety_rationale": "Query plan caching improves performance but does not directly affect clinical safety",
+      "interfaces": ["Hibernate"],
+      "dependencies": []
+    },
+    {
+      "req_id": "SRS-PERF-004",
+      "title": "Application-Level Caching",
+      "description": "The system shall implement application-level caching with configurable TTL and max size for: practitioner appointments (clinic list cache), practitioner lookups, care unit lookups, authorization checks, and audit resource reflection. Default cache TTL and sizes shall be configurable via cache.timeToLive and cache.maxSize properties.",
+      "type": "performance",
+      "source": {
+        "files": [
+          "svc/src/main/resources/application.yml:185-238",
+          "svc/src/main/java/se/alerisx/mhp/manager/security/AppointmentAuthorizer.java:48-58"
+        ],
+        "commits": [],
+        "prs": []
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": []
+      },
+      "safety_class": "B",
+      "safety_rationale": "Caching improves response times for clinical operations; stale cache data could show outdated appointment status or authorization, but cache TTLs mitigate this risk",
+      "interfaces": ["Spring Cache", "Caffeine cache"],
+      "dependencies": []
+    },
+    {
+      "req_id": "SRS-PERF-005",
+      "title": "Parallel Test Execution",
+      "description": "The system shall execute unit tests in parallel at class level with 4 threads and unlimited thread count option. Integration tests shall execute in parallel at method level. Parallel execution shall be enabled via JUnit Jupiter parallel execution.",
+      "type": "performance",
+      "source": {
+        "files": [
+          "pom.xml:197-202",
+          "pom.xml:208-213"
+        ],
+        "commits": [],
+        "prs": []
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": []
+      },
+      "safety_class": "unclassified",
+      "safety_rationale": "Test execution performance does not directly affect production clinical safety",
+      "interfaces": ["Maven Surefire", "Maven Failsafe"],
+      "dependencies": []
+    },
+    {
+      "req_id": "SRS-PERF-006",
+      "title": "Remote Client Timeout Configuration",
+      "description": "The system shall configure remote HTTP client timeouts with 10-second connect timeout and 5-minute read timeout for all external service integrations (directory, bookings, meetingplace, etc.). Timeouts shall be configurable via alerisx.remote-client properties.",
+      "type": "performance",
+      "source": {
+        "files": [
+          "svc/src/main/resources/application.yml:74-78"
+        ],
+        "commits": [],
+        "prs": []
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": []
+      },
+      "safety_class": "B",
+      "safety_rationale": "Client timeouts prevent indefinite blocking on external services; timeouts ensure the system remains responsive even when external services are slow or unavailable",
+      "interfaces": ["RemoteClient"],
+      "dependencies": []
+    },
+    {
+      "req_id": "SRS-PERF-007",
+      "title": "Asynchronous Processing with Thread Pool",
+      "description": "The system shall provide a fixed thread pool executor with 9 threads for parallel processing of combiner operations. Thread pool shall be managed as a Spring bean.",
+      "type": "performance",
+      "source": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/conf/HealthManagerConfiguration.java:43-46"
+        ],
+        "commits": [],
+        "prs": []
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": []
+      },
+      "safety_class": "unclassified",
+      "safety_rationale": "Thread pool configuration affects system performance but does not directly impact clinical safety",
+      "interfaces": ["Java ExecutorService"],
+      "dependencies": []
+    },
+    {
+      "req_id": "SRS-DATA-001",
+      "title": "MySQL/MariaDB Persistence",
+      "description": "The system shall persist all entities to MySQL/MariaDB database using Spring Data JPA and Hibernate ORM. Database connection shall use MariaDB JDBC driver (org.mariadb.jdbc.Driver). Hibernate shall use MySQL dialect and validate schema against DDL (ddl-auto: validate). All identifiers shall be globally quoted.",
+      "type": "data",
+      "source": {
+        "files": [
+          "svc/src/main/resources/application.yml:10-52"
+        ],
+        "commits": [],
+        "prs": []
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": []
+      },
+      "safety_class": "C",
+      "safety_rationale": "Database persistence stores all clinical data including appointments, consultations, and patient information; data loss or corruption could compromise patient safety",
+      "interfaces": ["MySQL/MariaDB", "JDBC", "Hibernate"],
+      "dependencies": []
+    },
+    {
+      "req_id": "SRS-DATA-002",
+      "title": "Flyway Database Migration",
+      "description": "The system shall manage database schema versions using Flyway migration tool. Flyway shall baseline at version 1, baseline on migrate, ignore missing migrations, and use custom history table 'flyway_schema_history_v2'. Flyway shall be enabled by default (configurable via flyway.enabled).",
+      "type": "data",
+      "source": {
+        "files": [
+          "svc/src/main/resources/application.yml:23-29"
+        ],
+        "commits": [],
+        "prs": []
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": []
+      },
+      "safety_class": "C",
+      "safety_rationale": "Database migrations affect schema structure and data integrity; incorrect migrations could cause data loss or corruption affecting patient safety records",
+      "interfaces": ["Flyway"],
+      "dependencies": ["SRS-DATA-001"]
+    },
+    {
+      "req_id": "SRS-DATA-003",
+      "title": "Appointment Handover Process Data Schema",
+      "description": "The system shall persist appointment handover processes in table 'appointment_handover_process' with fields: id (varchar(50) PK), created_at (timestamp(6)), version (int), appointment_id (varchar(50) FK UNIQUE), owner_id (varchar(50)), owner_role (varchar(50)), handover_status (varchar(50) indexed), handover_care_unit_id (varchar(50)), handover_practitioner_role (varchar(50)), handover_practitioner_capability (varchar(512) nullable), handover_practitioner_id (varchar(50) nullable), handover_notes (varchar(1024) nullable). Only one active process per appointment.",
+      "type": "data",
+      "source": {
+        "files": [
+          "software_requirements.md:173-200"
+        ],
+        "commits": [],
+        "prs": []
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": []
+      },
+      "safety_class": "C",
+      "safety_rationale": "Handover process data tracks clinical responsibility transfer; data integrity is critical to maintain clear accountability for patient care",
+      "interfaces": ["AppointmentHandoverProcess entity", "MySQL/MariaDB"],
+      "dependencies": ["SRS-DATA-001", "SRS-HAND-001"]
+    },
+    {
+      "req_id": "SRS-DATA-004",
+      "title": "UTF-8 Character Encoding",
+      "description": "The system shall use utf8mb4 character set for all database tables to support full Unicode including emojis and international characters. This applies to all tables including appointment_handover_process and appointment_handover_event.",
+      "type": "data",
+      "source": {
+        "files": [
+          "software_requirements.md:199"
+        ],
+        "commits": [],
+        "prs": []
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": []
+      },
+      "safety_class": "unclassified",
+      "safety_rationale": "Character encoding supports international patient names and clinical notes but does not directly impact clinical safety",
+      "interfaces": ["MySQL/MariaDB"],
+      "dependencies": ["SRS-DATA-001"]
+    },
+    {
+      "req_id": "SRS-DATA-005",
+      "title": "Optimistic Locking with Versioning",
+      "description": "The system shall implement optimistic locking using version fields in entities (e.g., appointment_handover_process.version). Version shall be incremented on each update. Concurrent update conflicts shall be detected and rejected.",
+      "type": "data",
+      "source": {
+        "files": [
+          "software_requirements.md:184"
+        ],
+        "commits": [],
+        "prs": []
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": []
+      },
+      "safety_class": "B",
+      "safety_rationale": "Optimistic locking prevents lost updates in concurrent scenarios; prevents race conditions in handover status updates that could create conflicting clinical responsibilities",
+      "interfaces": ["Hibernate JPA"],
+      "dependencies": ["SRS-DATA-001"]
+    },
+    {
+      "req_id": "SRS-AUD-001",
+      "title": "Immutable Audit Event Storage",
+      "description": "The system shall store immutable audit events for significant state changes including handover status transitions in table 'appointment_handover_event'. Audit events shall include appointment_id, old_status, new_status, created_by, created_at, practitioner_id, and handover_process_id. Events shall never be updated or deleted (append-only).",
+      "type": "data",
+      "source": {
+        "files": [
+          "software_requirements.md:201-230",
+          "handover_architecture.md:103-106"
+        ],
+        "commits": [],
+        "prs": []
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": []
+      },
+      "safety_class": "C",
+      "safety_rationale": "Immutable audit trail is required for regulatory compliance and patient safety investigations; tampered or lost audit logs could prevent root cause analysis of adverse events",
+      "interfaces": ["AppointmentHandoverEvent entity", "MySQL/MariaDB"],
+      "dependencies": ["SRS-DATA-001"]
+    },
+    {
+      "req_id": "SRS-AUD-002",
+      "title": "Handover Event Audit Logging",
+      "description": "The system shall log handover status changes at INFO level with format: 'Appointment {} has changed handover status from: {} to: {}. By {} {}. Current practitioner: {}'. Warning-level logs shall be created when handover process is null.",
+      "type": "data",
+      "source": {
+        "files": [
+          "software_requirements.md:159-170"
+        ],
+        "commits": [],
+        "prs": []
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": []
+      },
+      "safety_class": "B",
+      "safety_rationale": "Application logs provide operational visibility for troubleshooting; missing logs could delay identification of handover process failures",
+      "interfaces": ["SLF4J logging"],
+      "dependencies": ["SRS-AUD-001"]
+    },
+    {
+      "req_id": "SRS-OPER-001",
+      "title": "Environment-Based Configuration",
+      "description": "The system shall support environment-based configuration via application.yml and application-local.yml files. Configuration properties shall be overridable via environment variables (e.g., mysql.url, jwt.secret, artemis.url). Sensitive values like passwords and secrets shall be externalized.",
+      "type": "operational",
+      "source": {
+        "files": [
+          "svc/src/main/resources/application.yml:1-373"
+        ],
+        "commits": [],
+        "prs": []
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": []
+      },
+      "safety_class": "B",
+      "safety_rationale": "Configuration management ensures correct system behavior in different environments; misconfiguration could enable unsafe features or disable security controls",
+      "interfaces": ["Spring Boot Configuration"],
+      "dependencies": []
+    },
+    {
+      "req_id": "SRS-OPER-002",
+      "title": "Health Check and Monitoring Endpoints",
+      "description": "The system shall expose Actuator management endpoints for monitoring: dump, flyway, health, info, heapdump, loggers, metrics, prometheus, trace, threaddump. Endpoints shall be exposed via web interface without security restrictions (management.security.enabled: false).",
+      "type": "operational",
+      "source": {
+        "files": [
+          "svc/src/main/resources/application.yml:361-366"
+        ],
+        "commits": [],
+        "prs": []
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": []
+      },
+      "safety_class": "B",
+      "safety_rationale": "Health monitoring enables early detection of system issues; unavailable monitoring could delay detection of failures affecting patient care",
+      "interfaces": ["Spring Boot Actuator", "Prometheus"],
+      "dependencies": []
+    },
+    {
+      "req_id": "SRS-OPER-003",
+      "title": "Scheduled Background Jobs",
+      "description": "The system shall execute scheduled background jobs including: scheduled today notifications (default 8am daily cron), waiting room scheduler, async appointment scheduler (default 11:15pm daily), external prescription sync (default every minute), and alert checks for waiting room (default every 15 minutes). Schedulers shall be configurable and enable/disable via feature flags.",
+      "type": "operational",
+      "source": {
+        "files": [
+          "svc/src/main/resources/application.yml:146-157",
+          "svc/src/main/resources/application.yml:268-272"
+        ],
+        "commits": [],
+        "prs": []
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": []
+      },
+      "safety_class": "B",
+      "safety_rationale": "Scheduled jobs perform critical functions like appointment reminders and prescription syncing; job failures could prevent patient notifications or medication management",
+      "interfaces": ["Spring Scheduler"],
+      "dependencies": []
+    },
+    {
+      "req_id": "SRS-OPER-004",
+      "title": "Feature Flags",
+      "description": "The system shall support feature flags for controlling functionality including: FF_ENABLE_SERVICE_REQUESTS_MY_APPTS_2, FF_ENABLE_RECURRING_QUESTIONNAIRES_MY_APPTS_2, FF_ENABLE_MEDICAL_HISTORY_SYNC_FROM_INTERVIEWER (default true), FF_USE_CARE_PROVIDER_SERVICE. Feature flags shall be environment-configurable.",
+      "type": "operational",
+      "source": {
+        "files": [
+          "svc/src/main/resources/application.yml:368-372"
+        ],
+        "commits": [],
+        "prs": []
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": []
+      },
+      "safety_class": "B",
+      "safety_rationale": "Feature flags control system behavior and can enable/disable safety-relevant features; incorrect flag states could expose untested functionality",
+      "interfaces": ["Configuration properties"],
+      "dependencies": ["SRS-OPER-001"]
+    },
+    {
+      "req_id": "SRS-OPER-005",
+      "title": "Distributed Tracing with W3C Trace Context",
+      "description": "The system shall implement distributed tracing using Spring Sleuth with W3C Trace Context propagation. Trace IDs shall be 128-bit. Trace context shall be propagated to external services and included in logs.",
+      "type": "operational",
+      "source": {
+        "files": [
+          "svc/src/main/resources/application.yml:31-35"
+        ],
+        "commits": [],
+        "prs": []
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": []
+      },
+      "safety_class": "unclassified",
+      "safety_rationale": "Distributed tracing aids troubleshooting but does not directly impact clinical safety",
+      "interfaces": ["Spring Sleuth", "W3C Trace Context"],
+      "dependencies": []
+    },
+    {
+      "req_id": "SRS-OPER-006",
+      "title": "Structured Logging with Log Levels",
+      "description": "The system shall implement structured logging with configurable log levels: root INFO, Flyway DEBUG, application packages (se.alerisx, se.platform24) DEBUG, security INFO, HTTP client INFO, ActiveMQ WARN, Hibernate SQL INFO. Log levels shall be configurable per package.",
+      "type": "operational",
+      "source": {
+        "files": [
+          "svc/src/main/resources/application.yml:336-359"
+        ],
+        "commits": [],
+        "prs": []
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": []
+      },
+      "safety_class": "B",
+      "safety_rationale": "Appropriate log levels enable troubleshooting without log flooding; insufficient logging could delay diagnosis of issues affecting patient care",
+      "interfaces": ["SLF4J", "Logback"],
+      "dependencies": []
+    },
+    {
+      "req_id": "SRS-UI-001",
+      "title": "RESTful API Endpoints for Web and Mobile Clients",
+      "description": "The system shall expose RESTful HTTP APIs at /v1/, /v2/, and /v3/ paths for web and mobile client consumption. APIs shall use JSON for request/response payloads. API versioning shall allow backward compatibility and gradual migration.",
+      "type": "ui",
+      "source": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/controller/v1/AppointmentController.java:47"
+        ],
+        "commits": [],
+        "prs": []
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": []
+      },
+      "safety_class": "B",
+      "safety_rationale": "API interfaces deliver clinical data to user interfaces; API errors could present incorrect information to practitioners or patients",
+      "interfaces": ["Spring MVC", "Jackson JSON"],
+      "dependencies": []
+    },
+    {
+      "req_id": "SRS-UI-002",
+      "title": "OpenAPI Documentation",
+      "description": "The system shall provide OpenAPI (formerly Swagger) documentation for API endpoints using Eclipse MicroProfile OpenAPI annotations. APIs shall be tagged and categorized (e.g., 'Appointment API V1', 'LEGACY'). Deprecated endpoints shall be marked with @Operation(deprecated = true).",
+      "type": "ui",
+      "source": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/controller/v1/AppointmentController.java:45-50",
+          "svc/src/main/java/se/alerisx/mhp/manager/controller/v1/AppointmentController.java:72"
+        ],
+        "commits": [],
+        "prs": []
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": []
+      },
+      "safety_class": "unclassified",
+      "safety_rationale": "API documentation aids development but does not directly affect clinical safety",
+      "interfaces": ["MicroProfile OpenAPI"],
+      "dependencies": []
+    },
+    {
+      "req_id": "SRS-UI-003",
+      "title": "Internationalization (i18n) for User Messages",
+      "description": "The system shall support internationalized user-facing messages using TranslationService. Message keys for handover include: appointment_handover_proposed, appointment_handover_accepted, appointment_handover_denied, appointment_handover_cancelled. Messages shall support template variables (proposedBy, proposedTo, careUnitName, etc.).",
+      "type": "ui",
+      "source": {
+        "files": [
+          "software_requirements.md:135-151",
+          "svc/src/main/resources/application.yml:296"
+        ],
+        "commits": [],
+        "prs": []
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": []
+      },
+      "safety_class": "B",
+      "safety_rationale": "Internationalized messages ensure users understand system behavior; mistranslated or missing translations could lead to misunderstanding of clinical workflow",
+      "interfaces": ["TranslationService"],
+      "dependencies": []
+    },
+    {
+      "req_id": "SRS-UI-004",
+      "title": "Safe Character Validation",
+      "description": "The system shall validate user input for safe characters to prevent injection attacks. Allowed alphanumeric characters (default: '0-9a-zåäöæøáéëïü') and special characters (default: space, newline, tab, punctuation) shall be configurable via safeCharacters.alphanumeric and safeCharacters.special properties.",
+      "type": "ui",
+      "source": {
+        "files": [
+          "svc/src/main/resources/application.yml:282-284"
+        ],
+        "commits": [],
+        "prs": []
+      },
+      "verification": {
+        "test_files": [
+          "svc/src/test/java/se/alerisx/mhp/manager/service/impl/SafeCharacterServiceImplTest.java"
+        ],
+        "test_names": []
+      },
+      "safety_class": "B",
+      "safety_rationale": "Input validation prevents injection attacks that could compromise patient data or system integrity",
+      "interfaces": ["SafeCharacterService"],
+      "dependencies": ["SRS-SEC-001"]
+    },
+    {
+      "req_id": "SRS-REG-001",
+      "title": "GDPR Data Erasure",
+      "description": "The system shall provide data erasure functionality via SystemDataErasureController to comply with GDPR right to erasure. System administrators shall be able to trigger data erasure for specified patient or practitioner identifiers.",
+      "type": "regulatory",
+      "source": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/controller/v1/system/SystemDataErasureController.java"
+        ],
+        "commits": [],
+        "prs": []
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": []
+      },
+      "safety_class": "C",
+      "safety_rationale": "GDPR compliance is legally required; incorrect erasure could violate privacy regulations or accidentally delete active patient records",
+      "interfaces": ["SystemDataErasureController"],
+      "dependencies": []
+    },
+    {
+      "req_id": "SRS-REG-002",
+      "title": "Medical Device Regulation (MDR) Compliance",
+      "description": "The system shall maintain audit trails, traceability, and documentation to comply with EU MDR 2017/745. This includes immutable audit events, version control of configuration, and structured logging of clinical operations.",
+      "type": "regulatory",
+      "source": {
+        "files": [],
+        "commits": [],
+        "prs": []
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": []
+      },
+      "safety_class": "C",
+      "safety_rationale": "MDR compliance is required for medical device software; non-compliance could prevent market authorization and affect patient access to care",
+      "interfaces": [],
+      "dependencies": ["SRS-AUD-001", "SRS-AUD-002", "SRS-DATA-002"]
+    },
+    {
+      "req_id": "SRS-SAF-001",
+      "title": "Handover Cross-Care-Provider Validation",
+      "description": "The system shall prevent handovers across different care providers unless explicitly enabled via feature flag (ENABLE_HANDOVERS_ACROSS_CARE_PROVIDERS). This prevents unintended patient data sharing across organizational boundaries and ensures data governance compliance.",
+      "type": "safety",
+      "source": {
+        "files": [
+          "software_requirements.md:122",
+          "svc/src/main/java/se/alerisx/mhp/manager/service/impl/AppointmentHandoverServiceImpl.java"
+        ],
+        "commits": [],
+        "prs": []
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": []
+      },
+      "safety_class": "C",
+      "safety_rationale": "Cross-care-provider handovers involve patient data transfer across organizational boundaries; unauthorized sharing could violate data governance and patient privacy",
+      "interfaces": ["AppointmentHandoverService", "CareUnitRegistry"],
+      "dependencies": ["SRS-HAND-005"]
+    },
+    {
+      "req_id": "SRS-SAF-002",
+      "title": "Practitioner Validation for Handover",
+      "description": "The system shall validate that the target practitioner ID exists in the Directory Service when a specific practitioner is named in a handover proposal. Invalid practitioner IDs shall be rejected with error message 'Appointment [%s] at careUnit %s cannot be handed over to an invalid practitioner %s'.",
+      "type": "safety",
+      "source": {
+        "files": [
+          "software_requirements.md:123",
+          "svc/src/main/java/se/alerisx/mhp/manager/service/impl/AppointmentHandoverServiceImpl.java"
+        ],
+        "commits": [],
+        "prs": []
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": []
+      },
+      "safety_class": "C",
+      "safety_rationale": "Practitioner validation ensures appointments are only handed to legitimate practitioners; accepting invalid IDs could result in care gaps or unauthorized access",
+      "interfaces": ["AppointmentHandoverService", "DirectoryService"],
+      "dependencies": ["SRS-HAND-001", "SRS-INT-001"]
+    },
+    {
+      "req_id": "SRS-SAF-003",
+      "title": "Appointment State Validation for Handover",
+      "description": "The system shall validate that appointments are in an appropriate state for handover operations. Handovers can only be proposed when handover is enabled. Accept/deny operations require an active (PROPOSED) handover. Invalid state transitions shall be rejected with descriptive error messages.",
+      "type": "safety",
+      "source": {
+        "files": [
+          "software_requirements.md:118-119",
+          "svc/src/main/java/se/alerisx/mhp/manager/service/impl/AppointmentHandoverServiceImpl.java"
+        ],
+        "commits": [],
+        "prs": []
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": []
+      },
+      "safety_class": "C",
+      "safety_rationale": "State validation prevents invalid handover sequences that could create ambiguous clinical responsibility and compromise patient safety",
+      "interfaces": ["AppointmentHandoverService"],
+      "dependencies": ["SRS-HAND-004"]
+    },
+    {
+      "req_id": "SRS-SAF-004",
+      "title": "Handover Ownership Validation",
+      "description": "The system shall enforce that only the handover owner (practitioner who initiated the handover) can cancel a proposed handover. Attempts by other practitioners to cancel shall be rejected with error: 'Handover for appointment [%s] at careUnit %s cannot be cancelled by %s because it is owned by %s. Try denying instead.'",
+      "type": "safety",
+      "source": {
+        "files": [
+          "software_requirements.md:125"
+        ],
+        "commits": [],
+        "prs": []
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": []
+      },
+      "safety_class": "B",
+      "safety_rationale": "Ownership validation prevents unauthorized cancellation of handovers; this maintains clear accountability for clinical decisions",
+      "interfaces": ["AppointmentHandoverService"],
+      "dependencies": ["SRS-HAND-003"]
+    },
+    {
+      "req_id": "SRS-SAF-005",
+      "title": "Mandatory Practitioner Role for Handover",
+      "description": "The system shall require that a practitioner role be supplied when initiating a handover. Missing practitionerRole shall be rejected with error: 'A practitionerRole for the practitioner initiating the handover has to be supplied.'",
+      "type": "safety",
+      "source": {
+        "files": [
+          "software_requirements.md:120"
+        ],
+        "commits": [],
+        "prs": []
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": []
+      },
+      "safety_class": "B",
+      "safety_rationale": "Practitioner role tracking ensures handovers maintain clinical competency requirements; missing role could result in inappropriate scope of practice",
+      "interfaces": ["AppointmentHandoverService"],
+      "dependencies": ["SRS-HAND-001"]
+    }
+  ],
+  "soup_references": [
+    {
+      "name": "org.springframework.boot:spring-boot-starter-parent",
+      "version": "inherited from alerisx-mhp-parent:2.30.0",
+      "related_requirements": ["SRS-APPT-001", "SRS-APPT-002", "SRS-APPT-003", "SRS-CONS-001", "SRS-SEC-001", "SRS-UI-001"]
+    },
+    {
+      "name": "org.springframework.security:spring-security",
+      "version": "inherited from Spring Boot",
+      "related_requirements": ["SRS-SEC-001", "SRS-SEC-002", "SRS-SEC-003"]
+    },
+    {
+      "name": "org.springframework.data:spring-data-jpa",
+      "version": "inherited from Spring Boot",
+      "related_requirements": ["SRS-DATA-001", "SRS-DATA-005"]
+    },
+    {
+      "name": "org.hibernate:hibernate-core",
+      "version": "inherited from Spring Boot",
+      "related_requirements": ["SRS-DATA-001", "SRS-PERF-002", "SRS-PERF-003"]
+    },
+    {
+      "name": "org.mariadb.jdbc:mariadb-java-client",
+      "version": "specified via mysql.driver property",
+      "related_requirements": ["SRS-DATA-001"]
+    },
+    {
+      "name": "org.flywaydb:flyway-core",
+      "version": "inherited from Spring Boot",
+      "related_requirements": ["SRS-DATA-002"]
+    },
+    {
+      "name": "com.zaxxer:HikariCP",
+      "version": "inherited from Spring Boot",
+      "related_requirements": ["SRS-PERF-001"]
+    },
+    {
+      "name": "org.apache.activemq:artemis-jms-client",
+      "version": "inherited",
+      "related_requirements": ["SRS-INT-004"]
+    },
+    {
+      "name": "com.querydsl:querydsl-jpa",
+      "version": "inherited",
+      "related_requirements": ["SRS-APPT-002"]
+    },
+    {
+      "name": "org.projectlombok:lombok",
+      "version": "1.18.30",
+      "related_requirements": []
+    },
+    {
+      "name": "com.blazebit:blaze-persistence",
+      "version": "1.6.11",
+      "related_requirements": []
+    },
+    {
+      "name": "org.eclipse.microprofile.openapi:microprofile-openapi-api",
+      "version": "3.1.1",
+      "related_requirements": ["SRS-UI-002"]
+    },
+    {
+      "name": "io.smallrye:smallrye-open-api",
+      "version": "3.10.0",
+      "related_requirements": ["SRS-UI-002"]
+    },
+    {
+      "name": "org.apache.cxf:cxf",
+      "version": "3.6.3",
+      "related_requirements": ["SRS-INT-001", "SRS-INT-002", "SRS-INT-003"]
+    },
+    {
+      "name": "org.apache.pdfbox:pdfbox",
+      "version": "3.0.2",
+      "related_requirements": []
+    },
+    {
+      "name": "org.springframework.cloud:spring-cloud-sleuth",
+      "version": "inherited",
+      "related_requirements": ["SRS-OPER-005"]
+    },
+    {
+      "name": "io.micrometer:micrometer-registry-prometheus",
+      "version": "inherited",
+      "related_requirements": ["SRS-OPER-002"]
+    },
+    {
+      "name": "org.jacoco:jacoco-maven-plugin",
+      "version": "0.8.12",
+      "related_requirements": []
+    },
+    {
+      "name": "org.owasp:dependency-check-maven",
+      "version": "12.1.0",
+      "related_requirements": []
+    },
+    {
+      "name": "org.testcontainers:testcontainers",
+      "version": "1.19.8",
+      "related_requirements": []
+    },
+    {
+      "name": "javax.validation:validation-api",
+      "version": "inherited",
+      "related_requirements": ["SRS-UI-004"]
+    }
+  ],
+  "gaps": [
+    {
+      "type": "untested",
+      "description": "No integration tests found for handover functionality (AppointmentHandoverServiceImpl). The handover feature is complex and safety-critical but lacks comprehensive automated testing.",
+      "affected_requirements": ["SRS-HAND-001", "SRS-HAND-002", "SRS-HAND-003", "SRS-HAND-004", "SRS-HAND-005"]
+    },
+    {
+      "type": "untested",
+      "description": "No unit or integration tests found for AppointmentAuthorizer security component. Authorization logic is critical for patient privacy but testing coverage is unclear.",
+      "affected_requirements": ["SRS-SEC-002"]
+    },
+    {
+      "type": "untested",
+      "description": "No tests found for JMS event publishing (AppointmentEventSender). Event delivery is critical for system integration but verification method is unclear.",
+      "affected_requirements": ["SRS-INT-004"]
+    },
+    {
+      "type": "unclear_classification",
+      "description": "Software safety classification (Class A, B, or C per IEC 62304) is not explicitly documented in code or configuration. Requirements have been inferred based on clinical impact but should be formally classified.",
+      "affected_requirements": ["SRS-APPT-001", "SRS-APPT-002", "SRS-APPT-003", "SRS-HAND-001", "SRS-HAND-002", "SRS-HAND-003", "SRS-SAF-001", "SRS-SAF-002", "SRS-SAF-003"]
+    },
+    {
+      "type": "undocumented",
+      "description": "No formal risk analysis document found in repository. Risk controls are implemented (e.g., handover validation, authorization) but risk traceability is incomplete. Note: risk_analysis_handover.md exists but is specific to handover feature only.",
+      "affected_requirements": ["SRS-SAF-001", "SRS-SAF-002", "SRS-SAF-003", "SRS-SAF-004", "SRS-SAF-005"]
+    },
+    {
+      "type": "undocumented",
+      "description": "No software architecture document found beyond handover_architecture.md. Overall system architecture, component dependencies, and deployment model are not formally documented.",
+      "affected_requirements": []
+    },
+    {
+      "type": "unclear_classification",
+      "description": "SOUP hazard analysis is not documented. Third-party libraries (Spring, Hibernate, etc.) are used but their safety implications have not been formally assessed.",
+      "affected_requirements": []
+    },
+    {
+      "type": "undocumented",
+      "description": "Verification and validation plan is incomplete. handover_verification.md exists for handover feature but comprehensive V&V approach for entire system is not documented.",
+      "affected_requirements": []
+    },
+    {
+      "type": "untested",
+      "description": "No security penetration testing or vulnerability scanning results found. OWASP dependency check is configured but results are not included in repository.",
+      "affected_requirements": ["SRS-SEC-001", "SRS-SEC-002", "SRS-SEC-003", "SRS-SEC-004"]
+    },
+    {
+      "type": "unclear_classification",
+      "description": "Performance requirements (response times, throughput) are not explicitly specified. Performance configuration exists but acceptance criteria are not defined.",
+      "affected_requirements": ["SRS-PERF-001", "SRS-PERF-002", "SRS-PERF-003", "SRS-PERF-004", "SRS-PERF-006"]
+    },
+    {
+      "type": "undocumented",
+      "description": "Backup and recovery procedures are not documented. Database backup strategy, retention, and recovery testing procedures are not specified.",
+      "affected_requirements": ["SRS-DATA-001", "SRS-DATA-002"]
+    },
+    {
+      "type": "undocumented",
+      "description": "Disaster recovery and business continuity plans are not documented. System availability targets and recovery time objectives are not specified.",
+      "affected_requirements": ["SRS-OPER-001", "SRS-OPER-002"]
+    },
+    {
+      "type": "unclear_classification",
+      "description": "Data retention and archival policies are not documented. How long clinical data is retained and when/how it is archived or deleted is not specified.",
+      "affected_requirements": ["SRS-DATA-001", "SRS-REG-001"]
+    },
+    {
+      "type": "undocumented",
+      "description": "User training and competency requirements are not documented. Required practitioner and administrative training for using the system safely is not specified.",
+      "affected_requirements": []
+    },
+    {
+      "type": "unclear_classification",
+      "description": "Installation and deployment procedures are not formally documented. While Kubernetes charts exist, installation qualification and configuration validation procedures are not specified.",
+      "affected_requirements": ["SRS-OPER-001"]
+    }
+  ]
+}

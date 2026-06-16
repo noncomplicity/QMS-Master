@@ -91,7 +91,7 @@ The system consists of the following major components:
 
 ### Reader Navigation & Interaction (within Documentation Access)
 
-_(User stories for this section are maintained in [[DocTrace Rdr - Navigation Requirements]])_
+_(User stories for this section are maintained in [DocTrace Rdr - Navigation Requirements](DocTrace%20Rdr%20-%20Navigation%20Requirements.md))_
 
 ### 5.6 Audit Logging
 
@@ -181,7 +181,7 @@ Git Repository Interface used to pull released documentation artifacts; Authenti
 
 Frontmatter (YAML or JSON blocks at the top of each document) shall define the metadata fields for every controlled document, including Process, Owner, Type, and Object. This ensures consistent and machine-readable metadata extraction during builds.
 
-All controlled documents include the following metadata fields: [[Metadata-scheema]]
+All controlled documents include the following metadata fields: [Metadata-scheema](../Templates/Metadata-scheema.md)
 
 
 

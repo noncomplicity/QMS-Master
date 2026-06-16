@@ -1,0 +1,566 @@
+{
+  "metadata": {
+    "system_id": "Triage24",
+    "system_name": "Digital Triage System",
+    "created_by": "Jakob Dumky",
+    "created_at": "2026-03-06",
+    "assessed_by": "Clinical Risk Assessment",
+    "assessed_at": "2026-03-06",
+    "reviewed_by": null,
+    "approved_by": null,
+    "status": "assessed - pending review",
+    "risk_criteria_version": "risk-criteria.json v1.0",
+    "assessment_methodology": "ISO 14971:2019 two-factor probability model"
+  },
+
+  "risk_model": {
+    "chain": "Hazard → Sequence (P1) → Hazardous Situation → Harm (S, P2)",
+    "severity_scale": {"1": "Negligible", "2": "Minor", "3": "Serious", "4": "Critical", "5": "Catastrophic"},
+    "probability_scale": {"1": "Incredible", "2": "Remote", "3": "Occasional", "4": "Probable", "5": "Frequent"},
+    "p1_description": "Probability sequence leads to hazardous situation",
+    "p2_description": "Probability hazardous situation results in specific harm",
+    "rpn_calculation": "RPN = S × P (where P derived from P1 × P2)"
+  },
+
+  "hazard_assessments": [
+    {
+      "hazard_id": "ITEM-TCU-HAZ-003",
+      "description": "Wrong patient data displayed in search or triage results",
+      "source_item": "triage-clinic-ui",
+
+      "sequences_of_events": [
+        {
+          "seq_id": "SEQ-TCU-003-A",
+          "name": "Race condition in patient search",
+          "steps": [
+            "1. Practitioner searches for patient by name",
+            "2. Multiple patients with similar names returned",
+            "3. Practitioner clicks patient A",
+            "4. API response for patient B arrives late and overwrites display",
+            "5. Practitioner views patient B's data as patient A"
+          ],
+          "P1": 3,
+          "P1_rationale": "Occasional: Race conditions possible with slow network",
+          "leads_to": "HS-TCU-003-1"
+        },
+        {
+          "seq_id": "SEQ-TCU-003-B",
+          "name": "Practitioner selects wrong patient",
+          "steps": [
+            "1. Practitioner searches for patient",
+            "2. Multiple similar names displayed",
+            "3. Practitioner clicks wrong patient (distraction/UI similarity)",
+            "4. Wrong patient's data loaded"
+          ],
+          "P1": 4,
+          "P1_rationale": "Probable: Human error common with similar names",
+          "leads_to": "HS-TCU-003-1"
+        }
+      ],
+
+      "hazardous_situations": [
+        {
+          "hs_id": "HS-TCU-003-1",
+          "description": "Practitioner conducts clinical decision-making using wrong patient's data",
+          "from_sequences": ["SEQ-TCU-003-A", "SEQ-TCU-003-B"],
+          "leads_to_harms": ["HARM-TCU-003-1", "HARM-TCU-003-2", "HARM-TCU-003-3"]
+        }
+      ],
+
+      "harms": [
+        {
+          "harm_id": "HARM-TCU-003-1",
+          "description": "Patient receives contraindicated treatment based on wrong history/allergies",
+          "S": 5,
+          "S_rationale": "Catastrophic: Contraindicated treatment could cause death",
+          "P2": 2,
+          "P2_rationale": "Remote: Contraindication match between wrong patient's data and correct patient's condition unlikely",
+          "from_situation": "HS-TCU-003-1"
+        },
+        {
+          "harm_id": "HARM-TCU-003-2",
+          "description": "Urgent condition missed - wrong patient's symptoms appear non-urgent",
+          "S": 4,
+          "S_rationale": "Critical: Delayed urgent care could cause permanent impairment",
+          "P2": 3,
+          "P2_rationale": "Occasional: Symptom mismatch may hide urgency in ~10% of cases",
+          "from_situation": "HS-TCU-003-1"
+        },
+        {
+          "harm_id": "HARM-TCU-003-3",
+          "description": "Inappropriate care routing delays needed treatment",
+          "S": 3,
+          "S_rationale": "Serious: Delay may require additional intervention but recoverable",
+          "P2": 4,
+          "P2_rationale": "Probable: Wrong data likely leads to suboptimal routing",
+          "from_situation": "HS-TCU-003-1"
+        }
+      ],
+
+      "risk_estimation": {
+        "worst_case": {"harm": "HARM-TCU-003-1", "S": 5, "P1": 3, "P2": 2},
+        "P1xP2": 6,
+        "P_combined": 2,
+        "RPN_initial": 10,
+        "note": "Using S=5 from worst harm, P1=3 from worst sequence, P2=2 from that harm"
+      },
+
+      "risk_controls": [
+        {"id": "ITEM-TCU-RC-006", "description": "Patient verification dialog", "P1_reduction": 0.1},
+        {"id": "ITEM-TCU-RC-008", "description": "Session isolation", "P1_reduction": 0.5}
+      ],
+
+      "residual_risk": {
+        "S": 5, "P1": 2, "P2": 2,
+        "P1_calc": "3 × 0.1 × 0.5 = 0.15 → 2",
+        "P1xP2": 4, "P_combined": 2, "RPN": 10,
+        "acceptability": "alarp"
+      }
+    },
+
+    {
+      "hazard_id": "ITEM-TCU-HAZ-006",
+      "description": "Triage urgency not prominently displayed",
+      "source_item": "triage-clinic-ui",
+
+      "sequences_of_events": [
+        {
+          "seq_id": "SEQ-TCU-006-A",
+          "name": "Urgency indicator not visible in busy workflow",
+          "steps": [
+            "1. Patient completes triage with urgent symptoms",
+            "2. System determines high urgency",
+            "3. Result displays urgency (small, low contrast, poorly positioned)",
+            "4. Practitioner views during high workload",
+            "5. Practitioner does not notice urgency indicator"
+          ],
+          "P1": 4,
+          "P1_rationale": "Probable: Usability unverified, high workload normal",
+          "leads_to": "HS-TCU-006-1"
+        },
+        {
+          "seq_id": "SEQ-TCU-006-B",
+          "name": "Color-coded indicator not distinguishable",
+          "steps": [
+            "1. Urgent result generated",
+            "2. Urgency shown via color only",
+            "3. Practitioner has color vision deficiency (~8% males)",
+            "4. No alternative indicator exists",
+            "5. Practitioner cannot determine urgency"
+          ],
+          "P1": 3,
+          "P1_rationale": "Occasional: CVD affects ~8% of males",
+          "leads_to": "HS-TCU-006-1"
+        }
+      ],
+
+      "hazardous_situations": [
+        {
+          "hs_id": "HS-TCU-006-1",
+          "description": "Practitioner makes care routing decision unaware of patient's urgency",
+          "from_sequences": ["SEQ-TCU-006-A", "SEQ-TCU-006-B"],
+          "leads_to_harms": ["HARM-TCU-006-1", "HARM-TCU-006-2"]
+        }
+      ],
+
+      "harms": [
+        {
+          "harm_id": "HARM-TCU-006-1",
+          "description": "Urgent condition deteriorates due to delayed treatment",
+          "S": 4,
+          "S_rationale": "Critical: Delayed urgent care could cause permanent impairment",
+          "P2": 3,
+          "P2_rationale": "Occasional: Missed urgency leads to inappropriate routing ~10-50%",
+          "from_situation": "HS-TCU-006-1"
+        },
+        {
+          "harm_id": "HARM-TCU-006-2",
+          "description": "Patient experiences unnecessary suffering from delayed care",
+          "S": 2,
+          "S_rationale": "Minor: Anxiety/discomfort, no permanent harm",
+          "P2": 4,
+          "P2_rationale": "Probable: Delayed care almost always causes some suffering",
+          "from_situation": "HS-TCU-006-1"
+        }
+      ],
+
+      "risk_estimation": {
+        "worst_case": {"harm": "HARM-TCU-006-1", "S": 4, "P1": 4, "P2": 3},
+        "P1xP2": 12,
+        "P_combined": 4,
+        "RPN_initial": 16
+      },
+
+      "risk_controls": [],
+
+      "residual_risk": {
+        "S": 4, "P1": 4, "P2": 3,
+        "P1_calc": "No controls",
+        "P1xP2": 12, "P_combined": 4, "RPN": 16,
+        "acceptability": "unacceptable"
+      },
+
+      "additional_controls_needed": [
+        {"control": "Usability testing IEC 62366", "expected_P1_reduction": 0.3},
+        {"control": "High contrast + text labels", "expected_P1_reduction": 0.5},
+        {"control": "Prominent positioning", "expected_P1_reduction": 0.5}
+      ],
+
+      "projected_after_controls": {
+        "P1": 2, "P1_calc": "4 × 0.3 × 0.5 × 0.5 = 0.3 → 2",
+        "P2": 3, "RPN": 8
+      }
+    },
+
+    {
+      "hazard_id": "ITEM-OS-HAZ-006",
+      "description": "SQL injection through label parameters",
+      "source_item": "object-storage",
+
+      "sequences_of_events": [
+        {
+          "seq_id": "SEQ-OS-006-A",
+          "name": "Malicious SQL injection attack",
+          "steps": [
+            "1. Attacker identifies API endpoint accepting labels",
+            "2. Attacker crafts SQL injection payload",
+            "3. Payload bypasses API validation",
+            "4. Label reaches escapeString function",
+            "5. If escapeString fails, payload reaches SQL",
+            "6. Arbitrary database commands execute"
+          ],
+          "P1": 3,
+          "P1_rationale": "Occasional: Requires attacker access, escapeString protection UNVERIFIED",
+          "leads_to": "HS-OS-006-1"
+        },
+        {
+          "seq_id": "SEQ-OS-006-B",
+          "name": "Internal malformed label",
+          "steps": [
+            "1. Internal system generates label with SQL metacharacters",
+            "2. Patient freetext contains quotes/semicolons",
+            "3. escapeString fails edge case",
+            "4. SQL query malformed"
+          ],
+          "P1": 2,
+          "P1_rationale": "Remote: Internal systems generate safe labels typically",
+          "leads_to": "HS-OS-006-2"
+        }
+      ],
+
+      "hazardous_situations": [
+        {
+          "hs_id": "HS-OS-006-1",
+          "description": "Attacker gains arbitrary database access",
+          "from_sequences": ["SEQ-OS-006-A"],
+          "leads_to_harms": ["HARM-OS-006-1", "HARM-OS-006-2", "HARM-OS-006-3"]
+        },
+        {
+          "hs_id": "HS-OS-006-2",
+          "description": "Database query returns corrupted results",
+          "from_sequences": ["SEQ-OS-006-B"],
+          "leads_to_harms": ["HARM-OS-006-4"]
+        }
+      ],
+
+      "harms": [
+        {
+          "harm_id": "HARM-OS-006-1",
+          "description": "Mass patient data breach - PHI exposed",
+          "S": 5,
+          "S_rationale": "Catastrophic: Privacy breach affecting all patients",
+          "P2": 4,
+          "P2_rationale": "Probable: If injection succeeds, exfiltration straightforward",
+          "from_situation": "HS-OS-006-1"
+        },
+        {
+          "harm_id": "HARM-OS-006-2",
+          "description": "Database corruption/deletion affecting care",
+          "S": 5,
+          "S_rationale": "Catastrophic: Loss of patient data affects all patients",
+          "P2": 3,
+          "P2_rationale": "Occasional: Attacker may corrupt/delete, but exfiltration usually primary goal",
+          "from_situation": "HS-OS-006-1"
+        },
+        {
+          "harm_id": "HARM-OS-006-3",
+          "description": "System compromised for lateral attacks",
+          "S": 4,
+          "S_rationale": "Critical: Lateral movement to other healthcare systems",
+          "P2": 3,
+          "P2_rationale": "Occasional: DB access may enable privilege escalation",
+          "from_situation": "HS-OS-006-1"
+        },
+        {
+          "harm_id": "HARM-OS-006-4",
+          "description": "Wrong patient data returned causing clinical error",
+          "S": 4,
+          "S_rationale": "Critical: Wrong data could lead to wrong decision",
+          "P2": 2,
+          "P2_rationale": "Remote: Malformed query more likely to fail than return plausible wrong data",
+          "from_situation": "HS-OS-006-2"
+        }
+      ],
+
+      "risk_estimation": {
+        "worst_case": {"harm": "HARM-OS-006-1", "S": 5, "P1": 3, "P2": 4},
+        "P1xP2": 12,
+        "P_combined": 3,
+        "RPN_initial": 15
+      },
+
+      "risk_controls": [
+        {"id": "ITEM-OS-RC-006", "description": "escapeString sanitization", "P1_reduction": 0.1, "verification": "UNVERIFIED"}
+      ],
+
+      "residual_risk": {
+        "S": 5, "P1": 2, "P2": 4,
+        "P1_calc": "3 × 0.1 = 0.3 → 2 (IF verified)",
+        "P1xP2": 8, "P_combined": 2, "RPN": 10,
+        "acceptability": "conditional_alarp",
+        "condition": "Requires security testing verification"
+      }
+    },
+
+    {
+      "hazard_id": "ITEM-REM-HAZ-003",
+      "description": "Mandatory patient attribute missing",
+      "source_item": "rule-engine-module",
+
+      "sequences_of_events": [
+        {
+          "seq_id": "SEQ-REM-003-A",
+          "name": "Interviewer fails to collect attribute",
+          "steps": [
+            "1. Patient starts interview",
+            "2. Should collect age/gender",
+            "3. Bug/timeout causes attribute loss",
+            "4. Incomplete data passed to rule engine",
+            "5. Rules execute without required attribute"
+          ],
+          "P1": 3,
+          "P1_rationale": "Occasional: Data transmission issues possible",
+          "leads_to": "HS-REM-003-1"
+        }
+      ],
+
+      "hazardous_situations": [
+        {
+          "hs_id": "HS-REM-003-1",
+          "description": "Rule engine evaluates triage without critical patient attribute",
+          "from_sequences": ["SEQ-REM-003-A"],
+          "leads_to_harms": ["HARM-REM-003-1", "HARM-REM-003-2"]
+        }
+      ],
+
+      "harms": [
+        {
+          "harm_id": "HARM-REM-003-1",
+          "description": "Age-dependent urgent condition triaged as non-urgent",
+          "S": 4,
+          "S_rationale": "Critical: Missing age could miss pediatric/geriatric thresholds",
+          "P2": 2,
+          "P2_rationale": "Remote: Most rules fail gracefully or produce obvious errors",
+          "from_situation": "HS-REM-003-1"
+        },
+        {
+          "harm_id": "HARM-REM-003-2",
+          "description": "Gender-specific condition not properly evaluated",
+          "S": 3,
+          "S_rationale": "Serious: Gender affects limited subset of assessments",
+          "P2": 2,
+          "P2_rationale": "Remote: Gender affects few rules",
+          "from_situation": "HS-REM-003-1"
+        }
+      ],
+
+      "risk_estimation": {
+        "worst_case": {"harm": "HARM-REM-003-1", "S": 4, "P1": 3, "P2": 2},
+        "P1xP2": 6,
+        "P_combined": 2,
+        "RPN_initial": 8
+      },
+
+      "risk_controls": [
+        {"id": "ITEM-REM-RC-003", "description": "Zod schema validation", "P1_reduction": 0.1}
+      ],
+
+      "residual_risk": {
+        "S": 4, "P1": 2, "P2": 2,
+        "P1_calc": "3 × 0.1 = 0.3 → 2",
+        "P1xP2": 4, "P_combined": 2, "RPN": 8,
+        "acceptability": "alarp"
+      }
+    },
+
+    {
+      "hazard_id": "ITEM-ACTIONS-HAZ-008",
+      "description": "Wrong patient executes action",
+      "source_item": "actions",
+
+      "sequences_of_events": [
+        {
+          "seq_id": "SEQ-ACT-008-A",
+          "name": "Session context confusion",
+          "steps": [
+            "1. Patient A completes triage",
+            "2. Session expires or tab shared",
+            "3. Patient B accesses same device",
+            "4. Patient B triggers action with Patient A's context",
+            "5. Action executes for wrong patient"
+          ],
+          "P1": 3,
+          "P1_rationale": "Occasional: Shared devices common in clinical settings",
+          "leads_to": "HS-ACT-008-1"
+        }
+      ],
+
+      "hazardous_situations": [
+        {
+          "hs_id": "HS-ACT-008-1",
+          "description": "Care action executed for wrong patient based on another's triage",
+          "from_sequences": ["SEQ-ACT-008-A"],
+          "leads_to_harms": ["HARM-ACT-008-1", "HARM-ACT-008-2"]
+        }
+      ],
+
+      "harms": [
+        {
+          "harm_id": "HARM-ACT-008-1",
+          "description": "Wrong patient receives care appointment based on another's triage",
+          "S": 4,
+          "S_rationale": "Critical: Wrong care type for wrong patient",
+          "P2": 3,
+          "P2_rationale": "Occasional: Downstream systems may not detect mismatch",
+          "from_situation": "HS-ACT-008-1"
+        },
+        {
+          "harm_id": "HARM-ACT-008-2",
+          "description": "Correct patient does not receive needed care",
+          "S": 3,
+          "S_rationale": "Serious: Original patient's care delayed",
+          "P2": 3,
+          "P2_rationale": "Occasional: Original patient may notice and re-triage",
+          "from_situation": "HS-ACT-008-1"
+        }
+      ],
+
+      "risk_estimation": {
+        "worst_case": {"harm": "HARM-ACT-008-1", "S": 4, "P1": 3, "P2": 3},
+        "P1xP2": 9,
+        "P_combined": 3,
+        "RPN_initial": 12
+      },
+
+      "risk_controls": [
+        {"id": "ITEM-ACTIONS-RC-008", "description": "Patient ID validation", "P1_reduction": 0.2},
+        {"id": "ITEM-ACTIONS-RC-009", "description": "Session binding", "P1_reduction": 0.5}
+      ],
+
+      "residual_risk": {
+        "S": 4, "P1": 2, "P2": 2,
+        "P1_calc": "3 × 0.2 × 0.5 = 0.3 → 2",
+        "P2_residual_rationale": "Remote: Booking systems have additional verification",
+        "P1xP2": 4, "P_combined": 2, "RPN": 8,
+        "acceptability": "alarp"
+      }
+    },
+
+    {
+      "hazard_id": "ITEM-TRIAGE-UI-HAZ-001",
+      "description": "Patient enters incorrect symptom data due to confusing UI",
+      "source_item": "triage-ui",
+
+      "sequences_of_events": [
+        {
+          "seq_id": "SEQ-TUI-001-A",
+          "name": "Confusing question wording",
+          "steps": [
+            "1. Patient reaches symptom question",
+            "2. Medical terminology used",
+            "3. Patient doesn't understand",
+            "4. Patient guesses/selects wrong option",
+            "5. Incorrect answer recorded"
+          ],
+          "P1": 4,
+          "P1_rationale": "Probable: Medical terminology common, B1-B2 language users",
+          "leads_to": "HS-TUI-001-1"
+        },
+        {
+          "seq_id": "SEQ-TUI-001-B",
+          "name": "Accidental wrong selection",
+          "steps": [
+            "1. Patient views multiple choice",
+            "2. Accidentally taps wrong option",
+            "3. Doesn't notice or can't correct",
+            "4. Wrong answer recorded"
+          ],
+          "P1": 3,
+          "P1_rationale": "Occasional: Touch errors common on mobile",
+          "leads_to": "HS-TUI-001-1"
+        }
+      ],
+
+      "hazardous_situations": [
+        {
+          "hs_id": "HS-TUI-001-1",
+          "description": "Triage logic evaluates incorrect patient-reported symptoms",
+          "from_sequences": ["SEQ-TUI-001-A", "SEQ-TUI-001-B"],
+          "leads_to_harms": ["HARM-TUI-001-1", "HARM-TUI-001-2"]
+        }
+      ],
+
+      "harms": [
+        {
+          "harm_id": "HARM-TUI-001-1",
+          "description": "Patient directed to lower urgency care than needed",
+          "S": 3,
+          "S_rationale": "Serious: May delay needed treatment but typically recoverable",
+          "P2": 3,
+          "P2_rationale": "Occasional: Wrong symptom affects triage in ~10-50% of cases",
+          "from_situation": "HS-TUI-001-1"
+        },
+        {
+          "harm_id": "HARM-TUI-001-2",
+          "description": "Patient directed to higher urgency than needed (over-triage)",
+          "S": 2,
+          "S_rationale": "Minor: Unnecessary anxiety, wasted resources",
+          "P2": 3,
+          "P2_rationale": "Occasional: Over-triage also possible from incorrect input",
+          "from_situation": "HS-TUI-001-1"
+        }
+      ],
+
+      "risk_estimation": {
+        "worst_case": {"harm": "HARM-TUI-001-1", "S": 3, "P1": 4, "P2": 3},
+        "P1xP2": 12,
+        "P_combined": 3,
+        "RPN_initial": 9
+      },
+
+      "risk_controls": [
+        {"id": "ITEM-TRIAGE-UI-RC-010", "description": "Answer editing", "P1_reduction": 0.5, "affects": "SEQ-TUI-001-B only"}
+      ],
+
+      "residual_risk": {
+        "S": 3, "P1": 3, "P2": 3,
+        "P1_calc": "SEQ-A unchanged (4), SEQ-B reduced → combined 3",
+        "P1xP2": 9, "P_combined": 3, "RPN": 9,
+        "acceptability": "alarp"
+      }
+    }
+  ],
+
+  "summary": {
+    "total_hazards": 6,
+    "total_sequences": 9,
+    "total_hazardous_situations": 7,
+    "total_harms": 14,
+    "harm_severity_distribution": {"S5": 3, "S4": 6, "S3": 4, "S2": 1},
+    "harm_p2_distribution": {"P2=4": 2, "P2=3": 8, "P2=2": 4},
+    "blocking": [
+      {"hazard": "ITEM-TCU-HAZ-006", "RPN": 16, "reason": "Usability testing required"},
+      {"hazard": "ITEM-OS-HAZ-006", "RPN": "10 (conditional)", "reason": "Security testing required"}
+    ]
+  }
+}

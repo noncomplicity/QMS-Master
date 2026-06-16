@@ -1,0 +1,2350 @@
+{
+  "extraction_metadata": {
+    "repository": "health-manager",
+    "commit": "16e0273739eda65f73af5410323e1caf53362f16",
+    "extracted_at": "2026-03-06T09:10:40Z",
+    "standard": "IEC 62304:2006",
+    "clause": "5.3 - Software architectural design",
+    "extractor": "Automated extraction from source code"
+  },
+  "software_system": {
+    "name": "Health Manager Service",
+    "description": "Medical appointment and healthcare management microservice handling patient appointments, practitioner schedules, clinical consultations, medical records, prescriptions, billing, and integrations with external healthcare systems. Core service for managing healthcare encounters and clinical workflows in a telemedicine platform.",
+    "safety_class": "B",
+    "entry_points": [
+      "svc/src/main/java/se/alerisx/mhp/manager/Boot.java:10"
+    ],
+    "technology_stack": {
+      "language": "Java 21",
+      "framework": "Spring Boot",
+      "persistence": "Spring Data JPA / Hibernate",
+      "database": "MySQL/MariaDB",
+      "messaging": "JMS (Apache Artemis)",
+      "query": "QueryDSL",
+      "migration": "Flyway",
+      "build": "Maven"
+    }
+  },
+  "software_items": [
+    {
+      "item_id": "SI-01",
+      "name": "Health Manager System",
+      "path": "svc/src/main/java/se/alerisx/mhp/manager",
+      "level": "system",
+      "description": "Complete health manager microservice providing appointment management, practitioner workflows, patient interactions, and clinical data management",
+      "safety_class": "B",
+      "parent": null,
+      "children": [
+        "SI-01-01",
+        "SI-01-02",
+        "SI-01-03",
+        "SI-01-04",
+        "SI-01-05",
+        "SI-01-06",
+        "SI-01-07",
+        "SI-01-08"
+      ],
+      "dependencies": {
+        "internal": [],
+        "external": [
+          {"soup_id": "SOUP-01", "usage": "Spring Boot application framework"},
+          {"soup_id": "SOUP-02", "usage": "JPA/Hibernate ORM"},
+          {"soup_id": "SOUP-03", "usage": "MySQL database driver"},
+          {"soup_id": "SOUP-04", "usage": "JMS messaging via Artemis"}
+        ]
+      },
+      "interfaces_provided": ["IF-001", "IF-002", "IF-003", "IF-004"],
+      "interfaces_consumed": ["IF-010", "IF-011", "IF-012", "IF-013", "IF-014", "IF-015", "IF-016", "IF-017", "IF-018", "IF-019"]
+    },
+    {
+      "item_id": "SI-01-01",
+      "name": "REST API Layer",
+      "path": "svc/src/main/java/se/alerisx/mhp/manager/controller",
+      "level": "subsystem",
+      "description": "RESTful HTTP controllers exposing appointment, practitioner, patient, and clinical data endpoints across v1, v2, and v3 API versions",
+      "safety_class": "B",
+      "parent": "SI-01",
+      "children": [
+        "SI-01-01-01",
+        "SI-01-01-02",
+        "SI-01-01-03",
+        "SI-01-01-04"
+      ],
+      "dependencies": {
+        "internal": [
+          {"item_id": "SI-01-02", "interface": "Service interfaces", "coupling": "loose"}
+        ],
+        "external": [
+          {"soup_id": "SOUP-01", "usage": "Spring MVC annotations"}
+        ]
+      },
+      "interfaces_provided": ["IF-001", "IF-002", "IF-003", "IF-004"],
+      "interfaces_consumed": []
+    },
+    {
+      "item_id": "SI-01-01-01",
+      "name": "v1 Controllers",
+      "path": "svc/src/main/java/se/alerisx/mhp/manager/controller/v1",
+      "level": "module",
+      "description": "Version 1 REST endpoints for appointments, practitioners, patients, consultations, prescriptions, ratings, shifts, and billing. 69 controller classes providing core healthcare operations.",
+      "safety_class": "B",
+      "parent": "SI-01-01",
+      "children": [
+        "SI-01-01-01-01",
+        "SI-01-01-01-02",
+        "SI-01-01-01-03",
+        "SI-01-01-01-04",
+        "SI-01-01-01-05",
+        "SI-01-01-01-06",
+        "SI-01-01-01-07",
+        "SI-01-01-01-08"
+      ],
+      "dependencies": {
+        "internal": [
+          {"item_id": "SI-01-02", "interface": "Business services", "coupling": "loose"}
+        ],
+        "external": []
+      },
+      "interfaces_provided": ["IF-001"],
+      "interfaces_consumed": []
+    },
+    {
+      "item_id": "SI-01-01-01-01",
+      "name": "AppointmentController",
+      "path": "svc/src/main/java/se/alerisx/mhp/manager/controller/v1/AppointmentController.java",
+      "level": "unit",
+      "description": "Core appointment management endpoints: create, update, cancel, handover, state transitions. Handles HANDOVER_PROPOSE, HANDOVER_ACCEPT, HANDOVER_DENY, HANDOVER_CANCEL actions.",
+      "safety_class": "B",
+      "parent": "SI-01-01-01",
+      "children": [],
+      "dependencies": {
+        "internal": [
+          {"item_id": "SI-01-02-02", "interface": "UpdateAppointmentService", "coupling": "loose"}
+        ],
+        "external": []
+      },
+      "interfaces_provided": ["IF-001"],
+      "interfaces_consumed": []
+    },
+    {
+      "item_id": "SI-01-01-01-02",
+      "name": "ClinicAppointmentController",
+      "path": "svc/src/main/java/se/alerisx/mhp/manager/controller/v1/clinic/ClinicAppointmentController.java",
+      "level": "unit",
+      "description": "Clinic-facing appointment list endpoints for practitioners, filtering by status, care unit, date ranges, and practitioner assignments",
+      "safety_class": "B",
+      "parent": "SI-01-01-01",
+      "children": [],
+      "dependencies": {
+        "internal": [
+          {"item_id": "SI-01-02-06", "interface": "ClinicAppointmentListService", "coupling": "loose"}
+        ],
+        "external": []
+      },
+      "interfaces_provided": ["IF-001"],
+      "interfaces_consumed": []
+    },
+    {
+      "item_id": "SI-01-01-01-03",
+      "name": "PatientAppointmentController",
+      "path": "svc/src/main/java/se/alerisx/mhp/manager/controller/v1/PatientAppointmentController.java",
+      "level": "unit",
+      "description": "Patient-facing appointment endpoints: view upcoming appointments, historical appointments, appointment details",
+      "safety_class": "B",
+      "parent": "SI-01-01-01",
+      "children": [],
+      "dependencies": {
+        "internal": [
+          {"item_id": "SI-01-02-03", "interface": "PatientAppointmentService", "coupling": "loose"}
+        ],
+        "external": []
+      },
+      "interfaces_provided": ["IF-001"],
+      "interfaces_consumed": []
+    },
+    {
+      "item_id": "SI-01-01-01-04",
+      "name": "AppointmentNoteController",
+      "path": "svc/src/main/java/se/alerisx/mhp/manager/controller/v1/AppointmentNoteController.java",
+      "level": "unit",
+      "description": "Clinical note management for appointments: create, update, view clinical notes, structured data capture",
+      "safety_class": "B",
+      "parent": "SI-01-01-01",
+      "children": [],
+      "dependencies": {
+        "internal": [
+          {"item_id": "SI-01-02-07", "interface": "AppointmentNoteService", "coupling": "loose"}
+        ],
+        "external": []
+      },
+      "interfaces_provided": ["IF-001"],
+      "interfaces_consumed": []
+    },
+    {
+      "item_id": "SI-01-01-01-05",
+      "name": "PractitionerController",
+      "path": "svc/src/main/java/se/alerisx/mhp/manager/controller/v1/PractitionerController.java",
+      "level": "unit",
+      "description": "Practitioner profile and status endpoints: online status, shifts, preferences, statistics",
+      "safety_class": "B",
+      "parent": "SI-01-01-01",
+      "children": [],
+      "dependencies": {
+        "internal": [
+          {"item_id": "SI-01-02-08", "interface": "PractitionerService", "coupling": "loose"}
+        ],
+        "external": []
+      },
+      "interfaces_provided": ["IF-001"],
+      "interfaces_consumed": []
+    },
+    {
+      "item_id": "SI-01-01-01-06",
+      "name": "EpisodeOfCareController",
+      "path": "svc/src/main/java/se/alerisx/mhp/manager/controller/v1/EpisodeOfCareController.java",
+      "level": "unit",
+      "description": "Episode of care management: create, view, update healthcare episodes linking related appointments",
+      "safety_class": "B",
+      "parent": "SI-01-01-01",
+      "children": [],
+      "dependencies": {
+        "internal": [
+          {"item_id": "SI-01-02-09", "interface": "EpisodeOfCareService", "coupling": "loose"}
+        ],
+        "external": []
+      },
+      "interfaces_provided": ["IF-001"],
+      "interfaces_consumed": []
+    },
+    {
+      "item_id": "SI-01-01-01-07",
+      "name": "ReferralController",
+      "path": "svc/src/main/java/se/alerisx/mhp/manager/controller/v1/ReferralController.java",
+      "level": "unit",
+      "description": "Medical referral management: create, update, send referrals to external care providers",
+      "safety_class": "B",
+      "parent": "SI-01-01-01",
+      "children": [],
+      "dependencies": {
+        "internal": [
+          {"item_id": "SI-01-02-10", "interface": "ReferralService", "coupling": "loose"}
+        ],
+        "external": []
+      },
+      "interfaces_provided": ["IF-001"],
+      "interfaces_consumed": []
+    },
+    {
+      "item_id": "SI-01-01-01-08",
+      "name": "BillingListController",
+      "path": "svc/src/main/java/se/alerisx/mhp/manager/controller/v1/clinic/BillingListController.java",
+      "level": "unit",
+      "description": "Billing and invoicing endpoints: generate billing reports, export CSV, filter by date/practitioner/care unit",
+      "safety_class": "B",
+      "parent": "SI-01-01-01",
+      "children": [],
+      "dependencies": {
+        "internal": [
+          {"item_id": "SI-01-02-11", "interface": "BillingListReportGenerator", "coupling": "loose"}
+        ],
+        "external": []
+      },
+      "interfaces_provided": ["IF-001"],
+      "interfaces_consumed": []
+    },
+    {
+      "item_id": "SI-01-01-02",
+      "name": "v2 Controllers",
+      "path": "svc/src/main/java/se/alerisx/mhp/manager/controller/v2",
+      "level": "module",
+      "description": "Version 2 REST endpoints with enhanced functionality and breaking changes from v1",
+      "safety_class": "B",
+      "parent": "SI-01-01",
+      "children": [],
+      "dependencies": {
+        "internal": [
+          {"item_id": "SI-01-02", "interface": "Business services", "coupling": "loose"}
+        ],
+        "external": []
+      },
+      "interfaces_provided": ["IF-002"],
+      "interfaces_consumed": []
+    },
+    {
+      "item_id": "SI-01-01-03",
+      "name": "v3 Controllers",
+      "path": "svc/src/main/java/se/alerisx/mhp/manager/controller/v3",
+      "level": "module",
+      "description": "Version 3 REST endpoints with latest API improvements and additions",
+      "safety_class": "B",
+      "parent": "SI-01-01",
+      "children": [],
+      "dependencies": {
+        "internal": [
+          {"item_id": "SI-01-02", "interface": "Business services", "coupling": "loose"}
+        ],
+        "external": []
+      },
+      "interfaces_provided": ["IF-003"],
+      "interfaces_consumed": []
+    },
+    {
+      "item_id": "SI-01-01-04",
+      "name": "System Controllers",
+      "path": "svc/src/main/java/se/alerisx/mhp/manager/controller/v1/system",
+      "level": "module",
+      "description": "System administration endpoints: data erasure, troubleshooting, system configuration",
+      "safety_class": "B",
+      "parent": "SI-01-01",
+      "children": [],
+      "dependencies": {
+        "internal": [
+          {"item_id": "SI-01-02-12", "interface": "DataErasureService", "coupling": "loose"}
+        ],
+        "external": []
+      },
+      "interfaces_provided": ["IF-004"],
+      "interfaces_consumed": []
+    },
+    {
+      "item_id": "SI-01-02",
+      "name": "Service Layer",
+      "path": "svc/src/main/java/se/alerisx/mhp/manager/service",
+      "level": "subsystem",
+      "description": "Business logic layer implementing healthcare workflows, appointment orchestration, handover processes, clinical data management, and external system integrations. 101 service classes.",
+      "safety_class": "B",
+      "parent": "SI-01",
+      "children": [
+        "SI-01-02-01",
+        "SI-01-02-02",
+        "SI-01-02-03",
+        "SI-01-02-04",
+        "SI-01-02-05",
+        "SI-01-02-06",
+        "SI-01-02-07",
+        "SI-01-02-08",
+        "SI-01-02-09",
+        "SI-01-02-10",
+        "SI-01-02-11",
+        "SI-01-02-12",
+        "SI-01-02-13"
+      ],
+      "dependencies": {
+        "internal": [
+          {"item_id": "SI-01-03", "interface": "Repository interfaces", "coupling": "loose"},
+          {"item_id": "SI-01-05", "interface": "External service clients", "coupling": "loose"},
+          {"item_id": "SI-01-06", "interface": "Event publishers", "coupling": "loose"}
+        ],
+        "external": [
+          {"soup_id": "SOUP-01", "usage": "Spring @Service and @Transactional"}
+        ]
+      },
+      "interfaces_provided": [],
+      "interfaces_consumed": []
+    },
+    {
+      "item_id": "SI-01-02-01",
+      "name": "AppointmentHandoverService",
+      "path": "svc/src/main/java/se/alerisx/mhp/manager/service/impl/AppointmentHandoverServiceImpl.java",
+      "level": "module",
+      "description": "Handover state machine implementation: proposeHandover, acceptHandover, denyHandover, cancelHandover. Manages practitioner transfers with validation, notifications, and audit trail. 432 lines of core business logic.",
+      "safety_class": "B",
+      "parent": "SI-01-02",
+      "children": [],
+      "dependencies": {
+        "internal": [
+          {"item_id": "SI-01-03-01", "interface": "AppointmentRepository", "coupling": "loose"},
+          {"item_id": "SI-01-03-02", "interface": "AppointmentHandoverProcessRepository", "coupling": "loose"},
+          {"item_id": "SI-01-03-03", "interface": "AppointmentHandoverEventRepository", "coupling": "loose"},
+          {"item_id": "SI-01-05-01", "interface": "DirectoryService", "coupling": "loose"},
+          {"item_id": "SI-01-05-02", "interface": "NotifierClient", "coupling": "loose"},
+          {"item_id": "SI-01-05-03", "interface": "MeetingPlaceService", "coupling": "loose"},
+          {"item_id": "SI-01-06-01", "interface": "AppointmentEventSender", "coupling": "loose"}
+        ],
+        "external": []
+      },
+      "interfaces_provided": [],
+      "interfaces_consumed": []
+    },
+    {
+      "item_id": "SI-01-02-02",
+      "name": "UpdateAppointmentService",
+      "path": "svc/src/main/java/se/alerisx/mhp/manager/service/impl/UpdateAppointmentServiceImpl.java",
+      "level": "module",
+      "description": "Appointment update orchestration: coordinates state changes, handover actions, cancellations, practitioner assignments",
+      "safety_class": "B",
+      "parent": "SI-01-02",
+      "children": [],
+      "dependencies": {
+        "internal": [
+          {"item_id": "SI-01-02-01", "interface": "AppointmentHandoverService", "coupling": "loose"},
+          {"item_id": "SI-01-03-01", "interface": "AppointmentRepository", "coupling": "loose"}
+        ],
+        "external": []
+      },
+      "interfaces_provided": [],
+      "interfaces_consumed": []
+    },
+    {
+      "item_id": "SI-01-02-03",
+      "name": "PatientAppointmentService",
+      "path": "svc/src/main/java/se/alerisx/mhp/manager/service/impl/PatientAppointmentServiceImpl.java",
+      "level": "module",
+      "description": "Patient-specific appointment operations: retrieve patient appointments, apply patient privacy rules, enrich appointment data",
+      "safety_class": "B",
+      "parent": "SI-01-02",
+      "children": [],
+      "dependencies": {
+        "internal": [
+          {"item_id": "SI-01-03-01", "interface": "AppointmentRepository", "coupling": "loose"}
+        ],
+        "external": []
+      },
+      "interfaces_provided": [],
+      "interfaces_consumed": []
+    },
+    {
+      "item_id": "SI-01-02-04",
+      "name": "RequestAppointmentV3Service",
+      "path": "svc/src/main/java/se/alerisx/mhp/manager/service/impl/RequestAppointmentV3ServiceImpl.java",
+      "level": "module",
+      "description": "Appointment request processing: validate requests, assign practitioners, create appointments, handle scheduling rules",
+      "safety_class": "B",
+      "parent": "SI-01-02",
+      "children": [],
+      "dependencies": {
+        "internal": [
+          {"item_id": "SI-01-03-01", "interface": "AppointmentRepository", "coupling": "loose"},
+          {"item_id": "SI-01-05-04", "interface": "InterviewerService", "coupling": "loose"}
+        ],
+        "external": []
+      },
+      "interfaces_provided": [],
+      "interfaces_consumed": []
+    },
+    {
+      "item_id": "SI-01-02-05",
+      "name": "ConsultationService",
+      "path": "svc/src/main/java/se/alerisx/mhp/manager/service/impl/ConsultationServiceImpl.java",
+      "level": "module",
+      "description": "Clinical consultation management: start/end consultations, record clinical data, manage consultation state",
+      "safety_class": "B",
+      "parent": "SI-01-02",
+      "children": [],
+      "dependencies": {
+        "internal": [
+          {"item_id": "SI-01-03-04", "interface": "ConsultationRepository", "coupling": "loose"}
+        ],
+        "external": []
+      },
+      "interfaces_provided": [],
+      "interfaces_consumed": []
+    },
+    {
+      "item_id": "SI-01-02-06",
+      "name": "ClinicAppointmentListService",
+      "path": "svc/src/main/java/se/alerisx/mhp/manager/service/impl/ClinicAppointmentListServiceImpl.java",
+      "level": "module",
+      "description": "Clinic appointment list queries using QueryDSL: filter by status, date, practitioner, care unit. Implements complex query building for clinic pages.",
+      "safety_class": "B",
+      "parent": "SI-01-02",
+      "children": [],
+      "dependencies": {
+        "internal": [
+          {"item_id": "SI-01-03-05", "interface": "QueryableAppointmentRepository", "coupling": "loose"}
+        ],
+        "external": [
+          {"soup_id": "SOUP-05", "usage": "QueryDSL query construction"}
+        ]
+      },
+      "interfaces_provided": [],
+      "interfaces_consumed": []
+    },
+    {
+      "item_id": "SI-01-02-07",
+      "name": "AppointmentNoteService",
+      "path": "svc/src/main/java/se/alerisx/mhp/manager/appointments/notes/service/impl",
+      "level": "module",
+      "description": "Clinical note management: create, update, fetch notes, handle structured note templates, export to external systems",
+      "safety_class": "B",
+      "parent": "SI-01-02",
+      "children": [],
+      "dependencies": {
+        "internal": [
+          {"item_id": "SI-01-03-06", "interface": "AppointmentNoteRepository", "coupling": "loose"}
+        ],
+        "external": []
+      },
+      "interfaces_provided": [],
+      "interfaces_consumed": []
+    },
+    {
+      "item_id": "SI-01-02-08",
+      "name": "PractitionerService",
+      "path": "svc/src/main/java/se/alerisx/mhp/manager/service/impl/PractitionerServiceImpl.java",
+      "level": "module",
+      "description": "Practitioner management: online status tracking, shift management, capability management, practitioner resolution",
+      "safety_class": "B",
+      "parent": "SI-01-02",
+      "children": [],
+      "dependencies": {
+        "internal": [
+          {"item_id": "SI-01-03-07", "interface": "ShiftRepository", "coupling": "loose"},
+          {"item_id": "SI-01-05-01", "interface": "DirectoryService", "coupling": "loose"}
+        ],
+        "external": []
+      },
+      "interfaces_provided": [],
+      "interfaces_consumed": []
+    },
+    {
+      "item_id": "SI-01-02-09",
+      "name": "EpisodeOfCareService",
+      "path": "svc/src/main/java/se/alerisx/mhp/manager/service/impl/EpisodeOfCareServiceImpl.java",
+      "level": "module",
+      "description": "Episode of care lifecycle management: create episodes, link appointments, expire episodes, track care continuity",
+      "safety_class": "B",
+      "parent": "SI-01-02",
+      "children": [],
+      "dependencies": {
+        "internal": [
+          {"item_id": "SI-01-03-08", "interface": "EpisodeOfCareEntityRepository", "coupling": "loose"}
+        ],
+        "external": []
+      },
+      "interfaces_provided": [],
+      "interfaces_consumed": []
+    },
+    {
+      "item_id": "SI-01-02-10",
+      "name": "ReferralService",
+      "path": "svc/src/main/java/se/alerisx/mhp/manager/service/impl/ReferralServiceImpl.java",
+      "level": "module",
+      "description": "Medical referral processing: create referrals, route to external systems (BokaDoktorn, EuroAccident, SEB), track referral status",
+      "safety_class": "B",
+      "parent": "SI-01-02",
+      "children": [],
+      "dependencies": {
+        "internal": [
+          {"item_id": "SI-01-03-09", "interface": "ReferralRepository", "coupling": "loose"}
+        ],
+        "external": []
+      },
+      "interfaces_provided": [],
+      "interfaces_consumed": []
+    },
+    {
+      "item_id": "SI-01-02-11",
+      "name": "BillingListReportGenerator",
+      "path": "svc/src/main/java/se/alerisx/mhp/manager/service/billing/report/BillingListReportGenerator.java",
+      "level": "module",
+      "description": "Billing report generation: aggregate appointment billing data, generate CSV exports, apply pricing rules",
+      "safety_class": "B",
+      "parent": "SI-01-02",
+      "children": [],
+      "dependencies": {
+        "internal": [
+          {"item_id": "SI-01-03-05", "interface": "QueryableAppointmentRepository", "coupling": "loose"}
+        ],
+        "external": [
+          {"soup_id": "SOUP-06", "usage": "Jackson CSV for report export"}
+        ]
+      },
+      "interfaces_provided": [],
+      "interfaces_consumed": []
+    },
+    {
+      "item_id": "SI-01-02-12",
+      "name": "DataErasureService",
+      "path": "svc/src/main/java/se/alerisx/mhp/manager/service/DataErasureService.java",
+      "level": "module",
+      "description": "GDPR data erasure: anonymize patient data, delete appointments, maintain referential integrity",
+      "safety_class": "B",
+      "parent": "SI-01-02",
+      "children": [],
+      "dependencies": {
+        "internal": [
+          {"item_id": "SI-01-03-01", "interface": "AppointmentRepository", "coupling": "loose"}
+        ],
+        "external": []
+      },
+      "interfaces_provided": [],
+      "interfaces_consumed": []
+    },
+    {
+      "item_id": "SI-01-02-13",
+      "name": "TakeCareNoteService",
+      "path": "svc/src/main/java/se/alerisx/mhp/manager/takecare/TakeCareNoteServiceImpl.java",
+      "level": "module",
+      "description": "TakeCare EHR integration: transfer clinical notes to TakeCare system, map data structures, handle X.509 authentication",
+      "safety_class": "B",
+      "parent": "SI-01-02",
+      "children": [],
+      "dependencies": {
+        "internal": [
+          {"item_id": "SI-01-03-10", "interface": "TakeCareNoteRepository", "coupling": "loose"}
+        ],
+        "external": [
+          {"soup_id": "SOUP-07", "usage": "TakeCare client library"}
+        ]
+      },
+      "interfaces_provided": [],
+      "interfaces_consumed": []
+    },
+    {
+      "item_id": "SI-01-03",
+      "name": "Repository Layer",
+      "path": "svc/src/main/java/se/alerisx/mhp/manager/repository",
+      "level": "subsystem",
+      "description": "Data access layer implementing JPA repositories and QueryDSL queries for all domain entities. 48 repository interfaces.",
+      "safety_class": "B",
+      "parent": "SI-01",
+      "children": [
+        "SI-01-03-01",
+        "SI-01-03-02",
+        "SI-01-03-03",
+        "SI-01-03-04",
+        "SI-01-03-05",
+        "SI-01-03-06",
+        "SI-01-03-07",
+        "SI-01-03-08",
+        "SI-01-03-09",
+        "SI-01-03-10"
+      ],
+      "dependencies": {
+        "internal": [
+          {"item_id": "SI-01-04", "interface": "Domain entities", "coupling": "tight"}
+        ],
+        "external": [
+          {"soup_id": "SOUP-02", "usage": "Spring Data JPA"},
+          {"soup_id": "SOUP-05", "usage": "QueryDSL"}
+        ]
+      },
+      "interfaces_provided": [],
+      "interfaces_consumed": []
+    },
+    {
+      "item_id": "SI-01-03-01",
+      "name": "AppointmentRepository",
+      "path": "svc/src/main/java/se/alerisx/mhp/manager/repository/AppointmentRepository.java",
+      "level": "module",
+      "description": "JPA repository for Appointment entity: CRUD operations, custom queries for appointment retrieval by patient, practitioner, date ranges",
+      "safety_class": "B",
+      "parent": "SI-01-03",
+      "children": [],
+      "dependencies": {
+        "internal": [
+          {"item_id": "SI-01-04-01", "interface": "Appointment entity", "coupling": "tight"}
+        ],
+        "external": [
+          {"soup_id": "SOUP-02", "usage": "JpaRepository interface"}
+        ]
+      },
+      "interfaces_provided": [],
+      "interfaces_consumed": []
+    },
+    {
+      "item_id": "SI-01-03-02",
+      "name": "AppointmentHandoverProcessRepository",
+      "path": "svc/src/main/java/se/alerisx/mhp/manager/repository/AppointmentHandoverProcessRepository.java",
+      "level": "module",
+      "description": "Repository for active handover processes: findByAppointmentId, UNIQUE constraint enforcement on appointment_id",
+      "safety_class": "B",
+      "parent": "SI-01-03",
+      "children": [],
+      "dependencies": {
+        "internal": [
+          {"item_id": "SI-01-04-02", "interface": "AppointmentHandoverProcess entity", "coupling": "tight"}
+        ],
+        "external": [
+          {"soup_id": "SOUP-02", "usage": "JpaRepository interface"}
+        ]
+      },
+      "interfaces_provided": [],
+      "interfaces_consumed": []
+    },
+    {
+      "item_id": "SI-01-03-03",
+      "name": "AppointmentHandoverEventRepository",
+      "path": "svc/src/main/java/se/alerisx/mhp/manager/repository/AppointmentHandoverEventRepository.java",
+      "level": "module",
+      "description": "Repository for immutable handover audit events: persist state transitions, query event history",
+      "safety_class": "B",
+      "parent": "SI-01-03",
+      "children": [],
+      "dependencies": {
+        "internal": [
+          {"item_id": "SI-01-04-03", "interface": "AppointmentHandoverEvent entity", "coupling": "tight"}
+        ],
+        "external": [
+          {"soup_id": "SOUP-02", "usage": "JpaRepository interface"}
+        ]
+      },
+      "interfaces_provided": [],
+      "interfaces_consumed": []
+    },
+    {
+      "item_id": "SI-01-03-04",
+      "name": "ConsultationRepository",
+      "path": "svc/src/main/java/se/alerisx/mhp/manager/repository/ConsultationRepository.java",
+      "level": "module",
+      "description": "Repository for clinical consultation entities: track consultation lifecycle, link to appointments",
+      "safety_class": "B",
+      "parent": "SI-01-03",
+      "children": [],
+      "dependencies": {
+        "internal": [
+          {"item_id": "SI-01-04-04", "interface": "Consultation entity", "coupling": "tight"}
+        ],
+        "external": [
+          {"soup_id": "SOUP-02", "usage": "JpaRepository interface"}
+        ]
+      },
+      "interfaces_provided": [],
+      "interfaces_consumed": []
+    },
+    {
+      "item_id": "SI-01-03-05",
+      "name": "QueryableAppointmentRepository",
+      "path": "svc/src/main/java/se/alerisx/mhp/manager/repository/QueryableAppointmentRepository.java",
+      "level": "module",
+      "description": "QueryDSL repository for complex appointment queries: dynamic filtering, pagination, sorting for clinic lists",
+      "safety_class": "B",
+      "parent": "SI-01-03",
+      "children": [],
+      "dependencies": {
+        "internal": [
+          {"item_id": "SI-01-04-01", "interface": "Appointment entity", "coupling": "tight"}
+        ],
+        "external": [
+          {"soup_id": "SOUP-05", "usage": "QuerydslPredicateExecutor"}
+        ]
+      },
+      "interfaces_provided": [],
+      "interfaces_consumed": []
+    },
+    {
+      "item_id": "SI-01-03-06",
+      "name": "AppointmentNoteRepository",
+      "path": "svc/src/main/java/se/alerisx/mhp/manager/appointments/notes/repository",
+      "level": "module",
+      "description": "Repository for clinical notes attached to appointments: store structured note data, versions, templates",
+      "safety_class": "B",
+      "parent": "SI-01-03",
+      "children": [],
+      "dependencies": {
+        "internal": [
+          {"item_id": "SI-01-04-05", "interface": "AppointmentNote entity", "coupling": "tight"}
+        ],
+        "external": [
+          {"soup_id": "SOUP-02", "usage": "JpaRepository interface"}
+        ]
+      },
+      "interfaces_provided": [],
+      "interfaces_consumed": []
+    },
+    {
+      "item_id": "SI-01-03-07",
+      "name": "ShiftRepository",
+      "path": "svc/src/main/java/se/alerisx/mhp/manager/repository/ShiftRepository.java",
+      "level": "module",
+      "description": "Repository for practitioner shift schedules: query shifts by date range, practitioner, care unit",
+      "safety_class": "B",
+      "parent": "SI-01-03",
+      "children": [],
+      "dependencies": {
+        "internal": [
+          {"item_id": "SI-01-04-06", "interface": "Shift entity", "coupling": "tight"}
+        ],
+        "external": [
+          {"soup_id": "SOUP-02", "usage": "JpaRepository interface"}
+        ]
+      },
+      "interfaces_provided": [],
+      "interfaces_consumed": []
+    },
+    {
+      "item_id": "SI-01-03-08",
+      "name": "EpisodeOfCareEntityRepository",
+      "path": "svc/src/main/java/se/alerisx/mhp/manager/repository/EpisodeOfCareEntityRepository.java",
+      "level": "module",
+      "description": "Repository for episode of care entities: manage care continuity, link related appointments",
+      "safety_class": "B",
+      "parent": "SI-01-03",
+      "children": [],
+      "dependencies": {
+        "internal": [
+          {"item_id": "SI-01-04-07", "interface": "EpisodeOfCareEntity", "coupling": "tight"}
+        ],
+        "external": [
+          {"soup_id": "SOUP-02", "usage": "JpaRepository interface"}
+        ]
+      },
+      "interfaces_provided": [],
+      "interfaces_consumed": []
+    },
+    {
+      "item_id": "SI-01-03-09",
+      "name": "ReferralRepository",
+      "path": "svc/src/main/java/se/alerisx/mhp/manager/repository/ReferralRepository.java",
+      "level": "module",
+      "description": "Repository for medical referrals: persist referral data, track routing to external systems",
+      "safety_class": "B",
+      "parent": "SI-01-03",
+      "children": [],
+      "dependencies": {
+        "internal": [
+          {"item_id": "SI-01-04-08", "interface": "Referral entity", "coupling": "tight"}
+        ],
+        "external": [
+          {"soup_id": "SOUP-02", "usage": "JpaRepository interface"}
+        ]
+      },
+      "interfaces_provided": [],
+      "interfaces_consumed": []
+    },
+    {
+      "item_id": "SI-01-03-10",
+      "name": "TakeCareNoteRepository",
+      "path": "svc/src/main/java/se/alerisx/mhp/manager/takecare/repository/TakeCareNoteRepository.java",
+      "level": "module",
+      "description": "Repository for TakeCare note transfer tracking: log transfer status, handle retries",
+      "safety_class": "B",
+      "parent": "SI-01-03",
+      "children": [],
+      "dependencies": {
+        "internal": [
+          {"item_id": "SI-01-04-09", "interface": "TakeCareNote entity", "coupling": "tight"}
+        ],
+        "external": [
+          {"soup_id": "SOUP-02", "usage": "JpaRepository interface"}
+        ]
+      },
+      "interfaces_provided": [],
+      "interfaces_consumed": []
+    },
+    {
+      "item_id": "SI-01-04",
+      "name": "Domain Model Layer",
+      "path": "svc/src/main/java/se/alerisx/mhp/manager/domain",
+      "level": "subsystem",
+      "description": "JPA entity classes representing healthcare domain model: appointments, practitioners, patients, clinical data, billing. 120 entity classes.",
+      "safety_class": "B",
+      "parent": "SI-01",
+      "children": [
+        "SI-01-04-01",
+        "SI-01-04-02",
+        "SI-01-04-03",
+        "SI-01-04-04",
+        "SI-01-04-05",
+        "SI-01-04-06",
+        "SI-01-04-07",
+        "SI-01-04-08",
+        "SI-01-04-09"
+      ],
+      "dependencies": {
+        "internal": [],
+        "external": [
+          {"soup_id": "SOUP-02", "usage": "JPA annotations (@Entity, @Table, @Column)"},
+          {"soup_id": "SOUP-08", "usage": "Lombok annotations (@Data, @Builder)"}
+        ]
+      },
+      "interfaces_provided": [],
+      "interfaces_consumed": []
+    },
+    {
+      "item_id": "SI-01-04-01",
+      "name": "Appointment Entity",
+      "path": "svc/src/main/java/se/alerisx/mhp/manager/domain/Appointment.java",
+      "level": "module",
+      "description": "Core appointment aggregate root: patient, practitioner, care unit, status, timestamps, handover relationship (OneToOne with AppointmentHandoverProcess)",
+      "safety_class": "B",
+      "parent": "SI-01-04",
+      "children": [],
+      "dependencies": {
+        "internal": [
+          {"item_id": "SI-01-04-02", "interface": "AppointmentHandoverProcess", "coupling": "tight"}
+        ],
+        "external": [
+          {"soup_id": "SOUP-02", "usage": "@Entity, @OneToOne, @ManyToOne"}
+        ]
+      },
+      "interfaces_provided": [],
+      "interfaces_consumed": []
+    },
+    {
+      "item_id": "SI-01-04-02",
+      "name": "AppointmentHandoverProcess Entity",
+      "path": "svc/src/main/java/se/alerisx/mhp/manager/domain/AppointmentHandoverProcess.java",
+      "level": "module",
+      "description": "Active handover process state: owner, target practitioner/role/care unit, status (HANDOVER_PROPOSED), notes. UNIQUE constraint on appointment_id.",
+      "safety_class": "B",
+      "parent": "SI-01-04",
+      "children": [],
+      "dependencies": {
+        "internal": [],
+        "external": [
+          {"soup_id": "SOUP-02", "usage": "@Entity, @UniqueConstraint"}
+        ]
+      },
+      "interfaces_provided": [],
+      "interfaces_consumed": []
+    },
+    {
+      "item_id": "SI-01-04-03",
+      "name": "AppointmentHandoverEvent Entity",
+      "path": "svc/src/main/java/se/alerisx/mhp/manager/domain/AppointmentHandoverEvent.java",
+      "level": "module",
+      "description": "Immutable audit event for handover state transitions: old status, new status, user, timestamp, handover details. Provides audit trail.",
+      "safety_class": "B",
+      "parent": "SI-01-04",
+      "children": [],
+      "dependencies": {
+        "internal": [],
+        "external": [
+          {"soup_id": "SOUP-02", "usage": "@Entity"}
+        ]
+      },
+      "interfaces_provided": [],
+      "interfaces_consumed": []
+    },
+    {
+      "item_id": "SI-01-04-04",
+      "name": "Consultation Entity",
+      "path": "svc/src/main/java/se/alerisx/mhp/manager/domain/Consultation.java",
+      "level": "module",
+      "description": "Clinical consultation session: start time, end time, practitioner, patient, clinical data captured",
+      "safety_class": "B",
+      "parent": "SI-01-04",
+      "children": [],
+      "dependencies": {
+        "internal": [],
+        "external": [
+          {"soup_id": "SOUP-02", "usage": "@Entity"}
+        ]
+      },
+      "interfaces_provided": [],
+      "interfaces_consumed": []
+    },
+    {
+      "item_id": "SI-01-04-05",
+      "name": "AppointmentNote Entity",
+      "path": "svc/src/main/java/se/alerisx/mhp/manager/appointments/notes/domain",
+      "level": "module",
+      "description": "Clinical note attached to appointment: structured/unstructured content, template, version, author",
+      "safety_class": "B",
+      "parent": "SI-01-04",
+      "children": [],
+      "dependencies": {
+        "internal": [],
+        "external": [
+          {"soup_id": "SOUP-02", "usage": "@Entity"}
+        ]
+      },
+      "interfaces_provided": [],
+      "interfaces_consumed": []
+    },
+    {
+      "item_id": "SI-01-04-06",
+      "name": "Shift Entity",
+      "path": "svc/src/main/java/se/alerisx/mhp/manager/domain/Shift.java",
+      "level": "module",
+      "description": "Practitioner work shift: start/end time, care unit, availability status",
+      "safety_class": "B",
+      "parent": "SI-01-04",
+      "children": [],
+      "dependencies": {
+        "internal": [],
+        "external": [
+          {"soup_id": "SOUP-02", "usage": "@Entity"}
+        ]
+      },
+      "interfaces_provided": [],
+      "interfaces_consumed": []
+    },
+    {
+      "item_id": "SI-01-04-07",
+      "name": "EpisodeOfCareEntity",
+      "path": "svc/src/main/java/se/alerisx/mhp/manager/domain/EpisodeOfCareEntity.java",
+      "level": "module",
+      "description": "Episode of care linking related appointments: patient, care provider, start/end dates, status",
+      "safety_class": "B",
+      "parent": "SI-01-04",
+      "children": [],
+      "dependencies": {
+        "internal": [],
+        "external": [
+          {"soup_id": "SOUP-02", "usage": "@Entity"}
+        ]
+      },
+      "interfaces_provided": [],
+      "interfaces_consumed": []
+    },
+    {
+      "item_id": "SI-01-04-08",
+      "name": "Referral Entity",
+      "path": "svc/src/main/java/se/alerisx/mhp/manager/domain/Referral.java",
+      "level": "module",
+      "description": "Medical referral to external care provider: patient, diagnosis, attachments, routing information",
+      "safety_class": "B",
+      "parent": "SI-01-04",
+      "children": [],
+      "dependencies": {
+        "internal": [],
+        "external": [
+          {"soup_id": "SOUP-02", "usage": "@Entity"}
+        ]
+      },
+      "interfaces_provided": [],
+      "interfaces_consumed": []
+    },
+    {
+      "item_id": "SI-01-04-09",
+      "name": "TakeCareNote Entity",
+      "path": "svc/src/main/java/se/alerisx/mhp/manager/takecare/domain/TakeCareNote.java",
+      "level": "module",
+      "description": "TakeCare note transfer tracking: note content, transfer status, transfer timestamp, error information",
+      "safety_class": "B",
+      "parent": "SI-01-04",
+      "children": [],
+      "dependencies": {
+        "internal": [],
+        "external": [
+          {"soup_id": "SOUP-02", "usage": "@Entity"}
+        ]
+      },
+      "interfaces_provided": [],
+      "interfaces_consumed": []
+    },
+    {
+      "item_id": "SI-01-05",
+      "name": "External Service Clients",
+      "path": "svc/src/main/java/se/alerisx/mhp/manager/client",
+      "level": "subsystem",
+      "description": "REST/SOAP clients for external microservices: directory, bookings, meetingplace, interviewer, notifier, payment, careprovidersетр. Implements resilience patterns.",
+      "safety_class": "B",
+      "parent": "SI-01",
+      "children": [
+        "SI-01-05-01",
+        "SI-01-05-02",
+        "SI-01-05-03",
+        "SI-01-05-04",
+        "SI-01-05-05",
+        "SI-01-05-06",
+        "SI-01-05-07"
+      ],
+      "dependencies": {
+        "internal": [],
+        "external": [
+          {"soup_id": "SOUP-01", "usage": "Spring RestTemplate/WebClient"},
+          {"soup_id": "SOUP-09", "usage": "Apache CXF for SOAP clients"}
+        ]
+      },
+      "interfaces_provided": [],
+      "interfaces_consumed": ["IF-010", "IF-011", "IF-012", "IF-013", "IF-014", "IF-015", "IF-016", "IF-017", "IF-018", "IF-019"]
+    },
+    {
+      "item_id": "SI-01-05-01",
+      "name": "DirectoryService Client",
+      "path": "svc/src/main/java/se/alerisx/mhp/manager/client/directory/DirectoryService.java",
+      "level": "module",
+      "description": "Directory service client: validate practitioners, resolve practitioner details, check practitioner validity for handovers",
+      "safety_class": "B",
+      "parent": "SI-01-05",
+      "children": [],
+      "dependencies": {
+        "internal": [],
+        "external": [
+          {"soup_id": "SOUP-01", "usage": "RestTemplate HTTP client"}
+        ]
+      },
+      "interfaces_provided": [],
+      "interfaces_consumed": ["IF-010"]
+    },
+    {
+      "item_id": "SI-01-05-02",
+      "name": "NotifierClient",
+      "path": "svc/src/main/java/se/alerisx/mhp/manager/client/notifier/NotifierClient.java",
+      "level": "module",
+      "description": "Notifier service client: send clinic notifications (handover proposed, handover responded), push notifications to practitioners",
+      "safety_class": "B",
+      "parent": "SI-01-05",
+      "children": [],
+      "dependencies": {
+        "internal": [],
+        "external": [
+          {"soup_id": "SOUP-01", "usage": "RestTemplate HTTP client"}
+        ]
+      },
+      "interfaces_provided": [],
+      "interfaces_consumed": ["IF-011"]
+    },
+    {
+      "item_id": "SI-01-05-03",
+      "name": "MeetingPlaceService Client",
+      "path": "svc/src/main/java/se/alerisx/mhp/manager/client/meetingplace/MeetingPlaceService.java",
+      "level": "module",
+      "description": "MeetingPlace service client: send handover messages to patient chat, add practitioners to video meetings, manage meeting participants",
+      "safety_class": "B",
+      "parent": "SI-01-05",
+      "children": [],
+      "dependencies": {
+        "internal": [],
+        "external": [
+          {"soup_id": "SOUP-01", "usage": "RestTemplate HTTP client"}
+        ]
+      },
+      "interfaces_provided": [],
+      "interfaces_consumed": ["IF-012"]
+    },
+    {
+      "item_id": "SI-01-05-04",
+      "name": "InterviewerService Client",
+      "path": "svc/src/main/java/se/alerisx/mhp/manager/client/interviewer/InterviewerService.java",
+      "level": "module",
+      "description": "Interviewer service client: fetch patient interview data, medical history, triage information for appointment context",
+      "safety_class": "B",
+      "parent": "SI-01-05",
+      "children": [],
+      "dependencies": {
+        "internal": [],
+        "external": [
+          {"soup_id": "SOUP-01", "usage": "RestTemplate HTTP client"}
+        ]
+      },
+      "interfaces_provided": [],
+      "interfaces_consumed": ["IF-013"]
+    },
+    {
+      "item_id": "SI-01-05-05",
+      "name": "BookingsService Client",
+      "path": "svc/src/main/java/se/alerisx/mhp/manager/client/bookings/BookingsServiceImpl.java",
+      "level": "module",
+      "description": "Bookings service client: fetch third-party bookings, synchronize external appointments",
+      "safety_class": "B",
+      "parent": "SI-01-05",
+      "children": [],
+      "dependencies": {
+        "internal": [],
+        "external": [
+          {"soup_id": "SOUP-01", "usage": "RestTemplate HTTP client"}
+        ]
+      },
+      "interfaces_provided": [],
+      "interfaces_consumed": ["IF-014"]
+    },
+    {
+      "item_id": "SI-01-05-06",
+      "name": "PaymentClient",
+      "path": "svc/src/main/java/se/alerisx/mhp/manager/client/payment/PaymentClient.java",
+      "level": "module",
+      "description": "Payment service client: process payments, handle Klarna integration, manage payment orders",
+      "safety_class": "B",
+      "parent": "SI-01-05",
+      "children": [],
+      "dependencies": {
+        "internal": [],
+        "external": [
+          {"soup_id": "SOUP-01", "usage": "RestTemplate HTTP client"}
+        ]
+      },
+      "interfaces_provided": [],
+      "interfaces_consumed": ["IF-015"]
+    },
+    {
+      "item_id": "SI-01-05-07",
+      "name": "Directory2Service Client",
+      "path": "svc/src/main/java/se/alerisx/mhp/manager/client/directory2/Directory2Service.java",
+      "level": "module",
+      "description": "Directory2 service client: patient demographics, relationships, consents, guardian information",
+      "safety_class": "B",
+      "parent": "SI-01-05",
+      "children": [],
+      "dependencies": {
+        "internal": [],
+        "external": [
+          {"soup_id": "SOUP-01", "usage": "RestTemplate HTTP client"}
+        ]
+      },
+      "interfaces_provided": [],
+      "interfaces_consumed": ["IF-016"]
+    },
+    {
+      "item_id": "SI-01-06",
+      "name": "Event Publishing Layer",
+      "path": "svc/src/main/java/se/alerisx/mhp/manager/event",
+      "level": "subsystem",
+      "description": "JMS event publishers for integration events: handover events, appointment events, consultation events, credit events, referral events",
+      "safety_class": "B",
+      "parent": "SI-01",
+      "children": [
+        "SI-01-06-01"
+      ],
+      "dependencies": {
+        "internal": [],
+        "external": [
+          {"soup_id": "SOUP-04", "usage": "Spring JmsTemplate"}
+        ]
+      },
+      "interfaces_provided": ["IF-005"],
+      "interfaces_consumed": []
+    },
+    {
+      "item_id": "SI-01-06-01",
+      "name": "AppointmentEventSender",
+      "path": "svc/src/main/java/se/alerisx/mhp/manager/event/AppointmentEventSender.java",
+      "level": "module",
+      "description": "JMS event publisher: sends AppointmentHandoverStatusEvent to appointmentHandoverEventTopic on all handover state transitions (PROPOSED, ACCEPTED, DENIED, CANCELLED)",
+      "safety_class": "B",
+      "parent": "SI-01-06",
+      "children": [],
+      "dependencies": {
+        "internal": [],
+        "external": [
+          {"soup_id": "SOUP-04", "usage": "JmsTemplate.convertAndSend"}
+        ]
+      },
+      "interfaces_provided": ["IF-005"],
+      "interfaces_consumed": []
+    },
+    {
+      "item_id": "SI-01-07",
+      "name": "Event Listener Layer",
+      "path": "svc/src/main/java/se/alerisx/mhp/manager/listener",
+      "level": "subsystem",
+      "description": "JMS event listeners consuming events from external services: booking synchronization, meeting messages, patient updates, payment updates",
+      "safety_class": "B",
+      "parent": "SI-01",
+      "children": [
+        "SI-01-07-01",
+        "SI-01-07-02"
+      ],
+      "dependencies": {
+        "internal": [
+          {"item_id": "SI-01-02", "interface": "Service layer", "coupling": "loose"}
+        ],
+        "external": [
+          {"soup_id": "SOUP-04", "usage": "Spring @JmsListener"}
+        ]
+      },
+      "interfaces_provided": [],
+      "interfaces_consumed": ["IF-020", "IF-021"]
+    },
+    {
+      "item_id": "SI-01-07-01",
+      "name": "MessageEventListener",
+      "path": "svc/src/main/java/se/alerisx/mhp/manager/listener/MessageEventListener.java",
+      "level": "module",
+      "description": "Listens to messageEventTopic from MeetingPlace: processes chat messages, updates appointment context with patient communications",
+      "safety_class": "B",
+      "parent": "SI-01-07",
+      "children": [],
+      "dependencies": {
+        "internal": [],
+        "external": [
+          {"soup_id": "SOUP-04", "usage": "@JmsListener annotation"}
+        ]
+      },
+      "interfaces_provided": [],
+      "interfaces_consumed": ["IF-020"]
+    },
+    {
+      "item_id": "SI-01-07-02",
+      "name": "SynchronizedBookingListener",
+      "path": "svc/src/main/java/se/alerisx/mhp/manager/listener/SynchronizedBookingListener.java",
+      "level": "module",
+      "description": "Listens to synchronizedBookingV2Topic from Bookings service: synchronizes third-party bookings into health-manager appointments",
+      "safety_class": "B",
+      "parent": "SI-01-07",
+      "children": [],
+      "dependencies": {
+        "internal": [],
+        "external": [
+          {"soup_id": "SOUP-04", "usage": "@JmsListener annotation"}
+        ]
+      },
+      "interfaces_provided": [],
+      "interfaces_consumed": ["IF-021"]
+    },
+    {
+      "item_id": "SI-01-08",
+      "name": "Configuration Layer",
+      "path": "svc/src/main/java/se/alerisx/mhp/manager/conf",
+      "level": "subsystem",
+      "description": "Spring configuration beans: JMS, async processing, caching, web interceptors, external client configuration, Blaze Persistence setup",
+      "safety_class": "B",
+      "parent": "SI-01",
+      "children": [
+        "SI-01-08-01",
+        "SI-01-08-02",
+        "SI-01-08-03"
+      ],
+      "dependencies": {
+        "internal": [],
+        "external": [
+          {"soup_id": "SOUP-01", "usage": "Spring @Configuration"}
+        ]
+      },
+      "interfaces_provided": [],
+      "interfaces_consumed": []
+    },
+    {
+      "item_id": "SI-01-08-01",
+      "name": "JmsConfiguration",
+      "path": "svc/src/main/java/se/alerisx/mhp/manager/conf/JmsConfiguration.java",
+      "level": "module",
+      "description": "JMS configuration: Artemis broker connection, topic/queue setup, message converters",
+      "safety_class": "B",
+      "parent": "SI-01-08",
+      "children": [],
+      "dependencies": {
+        "internal": [],
+        "external": [
+          {"soup_id": "SOUP-04", "usage": "Spring JMS configuration"}
+        ]
+      },
+      "interfaces_provided": [],
+      "interfaces_consumed": []
+    },
+    {
+      "item_id": "SI-01-08-02",
+      "name": "AsyncConfiguration",
+      "path": "svc/src/main/java/se/alerisx/mhp/manager/conf/AsyncConfiguration.java",
+      "level": "module",
+      "description": "Async processing configuration: thread pools, @Async support, executor services",
+      "safety_class": "B",
+      "parent": "SI-01-08",
+      "children": [],
+      "dependencies": {
+        "internal": [],
+        "external": [
+          {"soup_id": "SOUP-01", "usage": "Spring @EnableAsync"}
+        ]
+      },
+      "interfaces_provided": [],
+      "interfaces_consumed": []
+    },
+    {
+      "item_id": "SI-01-08-03",
+      "name": "CacheConfig",
+      "path": "svc/src/main/java/se/alerisx/mhp/manager/conf/CacheConfig.java",
+      "level": "module",
+      "description": "Caching configuration: Caffeine cache setup, TTL configurations, cache names for appointments, practitioners, authorization",
+      "safety_class": "B",
+      "parent": "SI-01-08",
+      "children": [],
+      "dependencies": {
+        "internal": [],
+        "external": [
+          {"soup_id": "SOUP-10", "usage": "Caffeine cache"}
+        ]
+      },
+      "interfaces_provided": [],
+      "interfaces_consumed": []
+    }
+  ],
+  "interfaces": [
+    {
+      "interface_id": "IF-001",
+      "name": "Health Manager REST API v1",
+      "type": "api",
+      "provider": "SI-01-01-01",
+      "consumers": ["External client applications", "Web frontends", "Mobile apps"],
+      "protocol": "HTTP/REST",
+      "data_format": "json",
+      "schema_location": "dto/src/main/java/se/alerisx/mhp/manager/dto",
+      "error_handling": "Standard HTTP status codes: 400 Bad Request, 404 Not Found, 500 Internal Server Error. HealthManagerException mapped to appropriate HTTP responses.",
+      "endpoints": [
+        "POST /v1/appointments - Create appointment",
+        "PUT /v1/appointments/{id} - Update appointment (handover actions)",
+        "GET /v1/appointments/{id} - Get appointment details",
+        "GET /v1/clinic/appointments - List clinic appointments",
+        "GET /v1/patient/appointments - List patient appointments"
+      ]
+    },
+    {
+      "interface_id": "IF-002",
+      "name": "Health Manager REST API v2",
+      "type": "api",
+      "provider": "SI-01-01-02",
+      "consumers": ["External client applications"],
+      "protocol": "HTTP/REST",
+      "data_format": "json",
+      "schema_location": "dto/src/main/java/se/alerisx/mhp/manager/dto",
+      "error_handling": "Standard HTTP status codes with enhanced error details"
+    },
+    {
+      "interface_id": "IF-003",
+      "name": "Health Manager REST API v3",
+      "type": "api",
+      "provider": "SI-01-01-03",
+      "consumers": ["External client applications"],
+      "protocol": "HTTP/REST",
+      "data_format": "json",
+      "schema_location": "dto/src/main/java/se/alerisx/mhp/manager/dto",
+      "error_handling": "Standard HTTP status codes with enhanced error details"
+    },
+    {
+      "interface_id": "IF-004",
+      "name": "System Administration API",
+      "type": "api",
+      "provider": "SI-01-01-04",
+      "consumers": ["System administrators", "GDPR compliance tools"],
+      "protocol": "HTTP/REST",
+      "data_format": "json",
+      "schema_location": "dto/src/main/java/se/alerisx/mhp/manager/dto",
+      "error_handling": "Standard HTTP status codes",
+      "endpoints": [
+        "POST /v1/system/data-erasure - GDPR data erasure"
+      ]
+    },
+    {
+      "interface_id": "IF-005",
+      "name": "Appointment Handover Event Topic",
+      "type": "event",
+      "provider": "SI-01-06-01",
+      "consumers": ["External event consumers", "Audit systems", "Analytics"],
+      "protocol": "JMS (Apache Artemis)",
+      "data_format": "json",
+      "schema_location": "dto/src/main/java/se/alerisx/mhp/manager/event/AppointmentHandoverStatusEvent.java",
+      "error_handling": "JMS broker handles message delivery, retry on failure",
+      "topic_name": "appointmentHandoverEventTopic",
+      "event_types": [
+        "HANDOVER_PROPOSED",
+        "HANDOVER_ACCEPTED",
+        "HANDOVER_DENIED",
+        "HANDOVER_CANCELLED"
+      ]
+    },
+    {
+      "interface_id": "IF-010",
+      "name": "Directory Service API",
+      "type": "api",
+      "provider": "External: Directory Service",
+      "consumers": ["SI-01-05-01"],
+      "protocol": "HTTP/REST",
+      "data_format": "json",
+      "schema_location": "svc/src/main/java/se/alerisx/mhp/manager/client/directory/dto",
+      "error_handling": "HTTP client retries, circuit breaker pattern",
+      "endpoints": [
+        "GET /practitioners/{id}/valid - Validate practitioner",
+        "GET /practitioners/{id} - Get practitioner details"
+      ]
+    },
+    {
+      "interface_id": "IF-011",
+      "name": "Notifier Service API",
+      "type": "api",
+      "provider": "External: Notifier Service",
+      "consumers": ["SI-01-05-02"],
+      "protocol": "HTTP/REST",
+      "data_format": "json",
+      "schema_location": "svc/src/main/java/se/alerisx/mhp/manager/client/notifier/dto",
+      "error_handling": "HTTP client retries, async notification with best effort delivery",
+      "endpoints": [
+        "POST /notify - Send clinic notification"
+      ]
+    },
+    {
+      "interface_id": "IF-012",
+      "name": "MeetingPlace Service API",
+      "type": "api",
+      "provider": "External: MeetingPlace Service",
+      "consumers": ["SI-01-05-03"],
+      "protocol": "HTTP/REST",
+      "data_format": "json",
+      "schema_location": "svc/src/main/java/se/alerisx/mhp/manager/client/meetingplace/dto",
+      "error_handling": "HTTP client retries",
+      "endpoints": [
+        "POST /message - Send handover message to patient chat",
+        "POST /meeting/{id}/participant - Add practitioner to meeting"
+      ]
+    },
+    {
+      "interface_id": "IF-013",
+      "name": "Interviewer Service API",
+      "type": "api",
+      "provider": "External: Interviewer Service",
+      "consumers": ["SI-01-05-04"],
+      "protocol": "HTTP/REST",
+      "data_format": "json",
+      "schema_location": "svc/src/main/java/se/alerisx/mhp/manager/client/interviewer/dto",
+      "error_handling": "HTTP client retries, cached responses",
+      "endpoints": [
+        "GET /interviews/{id} - Get patient interview data",
+        "GET /medical-history/{patientId} - Get medical history"
+      ]
+    },
+    {
+      "interface_id": "IF-014",
+      "name": "Bookings Service API",
+      "type": "api",
+      "provider": "External: Bookings Service",
+      "consumers": ["SI-01-05-05"],
+      "protocol": "HTTP/REST",
+      "data_format": "json",
+      "schema_location": "svc/src/main/java/se/alerisx/mhp/manager/client/bookings/dto",
+      "error_handling": "HTTP client retries",
+      "endpoints": [
+        "GET /bookings - Get third-party bookings"
+      ]
+    },
+    {
+      "interface_id": "IF-015",
+      "name": "Payment Service API",
+      "type": "api",
+      "provider": "External: Payment Service",
+      "consumers": ["SI-01-05-06"],
+      "protocol": "HTTP/REST",
+      "data_format": "json",
+      "schema_location": "svc/src/main/java/se/alerisx/mhp/manager/client/payment/dto",
+      "error_handling": "HTTP client retries, idempotency for payment operations",
+      "endpoints": [
+        "POST /orders - Create payment order",
+        "POST /orders/{id}/capture - Capture payment"
+      ]
+    },
+    {
+      "interface_id": "IF-016",
+      "name": "Directory2 Service API",
+      "type": "api",
+      "provider": "External: Directory2 Service",
+      "consumers": ["SI-01-05-07"],
+      "protocol": "HTTP/REST",
+      "data_format": "json",
+      "schema_location": "svc/src/main/java/se/alerisx/mhp/manager/client/directory2/dto",
+      "error_handling": "HTTP client retries, cached patient data",
+      "endpoints": [
+        "GET /patients/{id} - Get patient demographics",
+        "GET /patients/{id}/relationships - Get patient relationships"
+      ]
+    },
+    {
+      "interface_id": "IF-017",
+      "name": "TakeCare EHR Integration",
+      "type": "api",
+      "provider": "External: TakeCare System",
+      "consumers": ["SI-01-02-13"],
+      "protocol": "SOAP/HTTP with X.509 certificate authentication",
+      "data_format": "xml",
+      "schema_location": "External WSDL",
+      "error_handling": "SOAP fault handling, retry with exponential backoff, X.509 certificate validation",
+      "endpoints": [
+        "CaseNoteWrite - Transfer clinical notes to TakeCare"
+      ]
+    },
+    {
+      "interface_id": "IF-018",
+      "name": "CareProviders Service API",
+      "type": "api",
+      "provider": "External: CareProviders Service",
+      "consumers": ["SI-01-05"],
+      "protocol": "HTTP/REST",
+      "data_format": "json",
+      "schema_location": "svc/src/main/java/se/alerisx/mhp/manager/client/careproviders/dto",
+      "error_handling": "HTTP client retries, cached care provider data",
+      "endpoints": [
+        "GET /care-providers - List care providers",
+        "GET /care-units/{id} - Get care unit details"
+      ]
+    },
+    {
+      "interface_id": "IF-019",
+      "name": "System Configuration Service API",
+      "type": "api",
+      "provider": "External: System Configuration Service",
+      "consumers": ["SI-01-02"],
+      "protocol": "HTTP/REST",
+      "data_format": "json",
+      "schema_location": "External",
+      "error_handling": "HTTP client retries, cached configuration",
+      "endpoints": [
+        "GET /customizations - Get feature flags and customizations",
+        "GET /care-units/{id}/config - Get care unit configuration"
+      ]
+    },
+    {
+      "interface_id": "IF-020",
+      "name": "MeetingPlace Message Event Topic",
+      "type": "event",
+      "provider": "External: MeetingPlace Service",
+      "consumers": ["SI-01-07-01"],
+      "protocol": "JMS (Apache Artemis)",
+      "data_format": "json",
+      "schema_location": "External",
+      "error_handling": "JMS listener with transaction rollback on processing failure",
+      "topic_name": "messageEventTopic"
+    },
+    {
+      "interface_id": "IF-021",
+      "name": "Synchronized Booking Event Topic",
+      "type": "event",
+      "provider": "External: Bookings Service",
+      "consumers": ["SI-01-07-02"],
+      "protocol": "JMS (Apache Artemis)",
+      "data_format": "json",
+      "schema_location": "External",
+      "error_handling": "JMS listener with transaction rollback on processing failure",
+      "topic_name": "synchronizedBookingV2Topic"
+    }
+  ],
+  "soup_components": [
+    {
+      "soup_id": "SOUP-01",
+      "name": "Spring Boot",
+      "version": "Managed by parent POM alerisx-mhp-parent:2.30.0",
+      "source": "maven",
+      "purpose": "Application framework providing dependency injection, web framework, data access, security, and integration capabilities",
+      "functionality_used": [
+        "Spring MVC for REST controllers",
+        "Spring Data JPA for repositories",
+        "Spring Transaction Management",
+        "Spring Security for authentication/authorization",
+        "Spring Boot Auto-configuration",
+        "Spring @Async for async processing",
+        "Spring Caching abstraction",
+        "Spring RestTemplate/WebClient for HTTP clients"
+      ],
+      "dependent_items": ["SI-01", "SI-01-01", "SI-01-02", "SI-01-03", "SI-01-05", "SI-01-08"],
+      "safety_class": "B",
+      "anomalies": [],
+      "verification": "Integration tests validate Spring framework behavior. Framework widely used in production medical device software.",
+      "functional_requirements": [
+        "Provide dependency injection container",
+        "Handle HTTP request routing and processing",
+        "Manage database transactions with ACID guarantees",
+        "Support declarative security rules",
+        "Enable asynchronous task execution"
+      ],
+      "performance_requirements": {
+        "timing": "REST endpoint response time < 500ms for 95th percentile",
+        "throughput": "Support 100 concurrent HTTP requests",
+        "capacity": "Handle 10,000 appointments per day"
+      },
+      "hardware_requirements": {
+        "cpu": "Multi-core processor recommended for thread pool execution",
+        "memory": "Minimum 2GB heap memory, 4GB recommended for production",
+        "storage": "Minimal framework storage, application JAR ~200MB",
+        "other": "None"
+      },
+      "software_environment": {
+        "os": ["Linux", "Windows", "macOS"],
+        "runtime": "Java Runtime Environment 21",
+        "dependencies": ["JVM 21 or higher"]
+      }
+    },
+    {
+      "soup_id": "SOUP-02",
+      "name": "Hibernate ORM / Spring Data JPA",
+      "version": "Managed by parent POM",
+      "source": "maven",
+      "purpose": "Object-relational mapping framework for persisting Java entities to MySQL database",
+      "functionality_used": [
+        "JPA entity mapping (@Entity, @Table, @Column)",
+        "JPA relationships (@OneToOne, @OneToMany, @ManyToOne)",
+        "JpaRepository CRUD operations",
+        "Transaction management integration",
+        "Query generation from method names",
+        "Lazy loading of associations",
+        "Entity lifecycle callbacks"
+      ],
+      "dependent_items": ["SI-01-03", "SI-01-04"],
+      "safety_class": "B",
+      "anomalies": [
+        "N+1 query problem requires careful query optimization",
+        "LazyInitializationException if entities accessed outside transaction"
+      ],
+      "verification": "Integration tests with H2 database validate JPA mappings. Repository tests verify CRUD operations.",
+      "functional_requirements": [
+        "Persist entity state to relational database",
+        "Load entity graphs efficiently",
+        "Support JPQL and native SQL queries",
+        "Enforce referential integrity constraints",
+        "Handle optimistic locking with @Version"
+      ],
+      "performance_requirements": {
+        "timing": "Database query execution < 100ms for simple queries",
+        "throughput": "Support 1000 database operations per second",
+        "capacity": "Handle tables with millions of rows"
+      },
+      "hardware_requirements": {
+        "cpu": "Standard CPU sufficient",
+        "memory": "Entity cache and query plan cache require 512MB-1GB",
+        "storage": "None beyond application storage",
+        "other": "Database connection pool"
+      },
+      "software_environment": {
+        "os": ["Linux", "Windows", "macOS"],
+        "runtime": "Java Runtime Environment 21",
+        "dependencies": ["JDBC driver", "MySQL 8.0 or MariaDB"]
+      }
+    },
+    {
+      "soup_id": "SOUP-03",
+      "name": "MySQL Connector/J and MariaDB Java Client",
+      "version": "mysql-connector-j:8.4.0, mariadb-java-client:1.8.0",
+      "source": "maven",
+      "purpose": "JDBC drivers for MySQL/MariaDB database connectivity",
+      "functionality_used": [
+        "Database connection establishment",
+        "SQL statement execution",
+        "Result set processing",
+        "Prepared statement parameter binding",
+        "Connection pooling via HikariCP"
+      ],
+      "dependent_items": ["SI-01"],
+      "safety_class": "B",
+      "anomalies": [
+        "Connection timeout handling requires explicit configuration (configured at 5 seconds)"
+      ],
+      "verification": "Database integration tests validate connectivity and query execution",
+      "functional_requirements": [
+        "Establish TCP connection to MySQL/MariaDB server",
+        "Execute SQL queries and updates",
+        "Support prepared statements with parameter binding",
+        "Handle database transactions",
+        "Support SSL/TLS encrypted connections"
+      ],
+      "performance_requirements": {
+        "timing": "Connection establishment < 5 seconds (configured timeout)",
+        "throughput": "Support connection pool of 100 connections (configured max)",
+        "capacity": "Maintain minimum 10 idle connections (configured min)"
+      },
+      "hardware_requirements": {
+        "cpu": "Standard CPU sufficient",
+        "memory": "Each connection ~1MB, pool of 100 = ~100MB",
+        "storage": "None",
+        "other": "Network connectivity to database server"
+      },
+      "software_environment": {
+        "os": ["Linux", "Windows", "macOS"],
+        "runtime": "Java Runtime Environment 21",
+        "dependencies": ["MySQL 8.0+ or MariaDB 10.x+"]
+      }
+    },
+    {
+      "soup_id": "SOUP-04",
+      "name": "Spring JMS / Apache Artemis",
+      "version": "spring-boot-starter-artemis (managed by parent), artemis-jms-server (provided)",
+      "source": "maven",
+      "purpose": "JMS messaging for asynchronous event publishing and consumption",
+      "functionality_used": [
+        "JmsTemplate for message sending",
+        "@JmsListener for message consumption",
+        "Topic-based pub/sub messaging",
+        "Queue-based point-to-point messaging",
+        "Message conversion (JSON)",
+        "Transaction support for message processing"
+      ],
+      "dependent_items": ["SI-01-06", "SI-01-07"],
+      "safety_class": "B",
+      "anomalies": [
+        "Message redelivery on listener failure requires idempotent message handling"
+      ],
+      "verification": "Integration tests validate message publishing and consumption. Event processing verified with test containers.",
+      "functional_requirements": [
+        "Publish events to JMS topics",
+        "Consume events from JMS topics/queues",
+        "Guarantee message delivery (at-least-once)",
+        "Support message filtering and selection",
+        "Enable distributed event-driven architecture"
+      ],
+      "performance_requirements": {
+        "timing": "Message publish latency < 10ms",
+        "throughput": "Support 1000 messages per second",
+        "capacity": "Handle topic with multiple consumers"
+      },
+      "hardware_requirements": {
+        "cpu": "Standard CPU sufficient",
+        "memory": "Message buffer requires 100-500MB",
+        "storage": "Persistent messages stored to disk",
+        "other": "Network connectivity to Artemis broker"
+      },
+      "software_environment": {
+        "os": ["Linux", "Windows", "macOS"],
+        "runtime": "Java Runtime Environment 21",
+        "dependencies": ["Apache Artemis broker"]
+      }
+    },
+    {
+      "soup_id": "SOUP-05",
+      "name": "QueryDSL",
+      "version": "Managed by parent POM",
+      "source": "maven",
+      "purpose": "Type-safe query construction for complex JPA queries",
+      "functionality_used": [
+        "QuerydslPredicateExecutor for repository queries",
+        "BooleanBuilder for dynamic query construction",
+        "Q-classes for type-safe query building",
+        "Join expressions",
+        "Projection queries",
+        "OrderBy and pagination"
+      ],
+      "dependent_items": ["SI-01-02-06", "SI-01-03-05"],
+      "safety_class": "B",
+      "anomalies": [],
+      "verification": "Unit tests validate query construction. Integration tests verify query execution against database.",
+      "functional_requirements": [
+        "Build type-safe JPA queries",
+        "Support dynamic query construction based on runtime filters",
+        "Generate efficient SQL for complex joins",
+        "Enable pagination and sorting",
+        "Support projections for performance optimization"
+      ],
+      "performance_requirements": {
+        "timing": "Query construction overhead < 1ms",
+        "throughput": "Support 100 concurrent query constructions",
+        "capacity": "Handle queries with 10+ join conditions"
+      },
+      "hardware_requirements": {
+        "cpu": "Standard CPU sufficient",
+        "memory": "Q-class metadata ~50MB",
+        "storage": "Generated Q-classes in JAR",
+        "other": "None"
+      },
+      "software_environment": {
+        "os": ["Linux", "Windows", "macOS"],
+        "runtime": "Java Runtime Environment 21",
+        "dependencies": ["Hibernate JPA", "APT code generation at build time"]
+      }
+    },
+    {
+      "soup_id": "SOUP-06",
+      "name": "Jackson CSV",
+      "version": "jackson-dataformat-csv (managed by parent)",
+      "source": "maven",
+      "purpose": "CSV serialization for billing report exports",
+      "functionality_used": [
+        "CSV schema mapping",
+        "Object to CSV serialization",
+        "CSV writer with custom delimiters",
+        "Header row generation"
+      ],
+      "dependent_items": ["SI-01-02-11"],
+      "safety_class": "B",
+      "anomalies": [],
+      "verification": "Unit tests validate CSV output format and encoding",
+      "functional_requirements": [
+        "Serialize billing data to CSV format",
+        "Support custom column headers",
+        "Handle special characters and escaping",
+        "Generate UTF-8 encoded output"
+      ],
+      "performance_requirements": {
+        "timing": "CSV generation for 10,000 rows < 5 seconds",
+        "throughput": "Handle large datasets incrementally",
+        "capacity": "Support CSV files up to 100MB"
+      },
+      "hardware_requirements": {
+        "cpu": "Standard CPU sufficient",
+        "memory": "Streaming mode requires minimal memory",
+        "storage": "Output CSV file size",
+        "other": "None"
+      },
+      "software_environment": {
+        "os": ["Linux", "Windows", "macOS"],
+        "runtime": "Java Runtime Environment 21",
+        "dependencies": ["Jackson core library"]
+      }
+    },
+    {
+      "soup_id": "SOUP-07",
+      "name": "TakeCare Client Library",
+      "version": "takecare.client:1.2.0",
+      "source": "maven",
+      "purpose": "Integration with TakeCare EHR system for clinical note transfer",
+      "functionality_used": [
+        "SOAP client for TakeCare web services",
+        "X.509 certificate authentication",
+        "Case note submission",
+        "User mapping specification"
+      ],
+      "dependent_items": ["SI-01-02-13"],
+      "safety_class": "B",
+      "anomalies": [
+        "X.509 certificate expiration requires manual renewal",
+        "SOAP fault handling requires specific error parsing"
+      ],
+      "verification": "Integration tests with TakeCare test environment. X.509 certificate validation in staging.",
+      "functional_requirements": [
+        "Authenticate with TakeCare using X.509 certificates",
+        "Submit clinical notes in TakeCare format",
+        "Map internal user IDs to TakeCare user IDs",
+        "Handle TakeCare-specific error responses"
+      ],
+      "performance_requirements": {
+        "timing": "Note transfer completion < 30 seconds",
+        "throughput": "Support 100 note transfers per hour",
+        "capacity": "Handle notes up to 10MB"
+      },
+      "hardware_requirements": {
+        "cpu": "Standard CPU sufficient",
+        "memory": "SOAP processing requires 100MB",
+        "storage": "Certificate keystore ~10KB",
+        "other": "Network connectivity to TakeCare servers"
+      },
+      "software_environment": {
+        "os": ["Linux", "Windows", "macOS"],
+        "runtime": "Java Runtime Environment 21",
+        "dependencies": ["Apache CXF", "X.509 certificates in keystore"]
+      }
+    },
+    {
+      "soup_id": "SOUP-08",
+      "name": "Lombok",
+      "version": "1.18.30",
+      "source": "maven",
+      "purpose": "Annotation processor for boilerplate code generation (getters, setters, builders, constructors)",
+      "functionality_used": [
+        "@Data annotation for getters/setters/toString/equals/hashCode",
+        "@Builder for builder pattern",
+        "@NoArgsConstructor, @AllArgsConstructor",
+        "@Slf4j for logger injection"
+      ],
+      "dependent_items": ["SI-01-04"],
+      "safety_class": "B",
+      "anomalies": [],
+      "verification": "Compile-time code generation. Delombok plugin generates source for javadoc verification.",
+      "functional_requirements": [
+        "Generate boilerplate methods at compile time",
+        "Reduce code duplication in entity classes",
+        "Support builder pattern for immutable objects"
+      ],
+      "performance_requirements": {
+        "timing": "Compile-time only, no runtime impact",
+        "throughput": "N/A",
+        "capacity": "N/A"
+      },
+      "hardware_requirements": {
+        "cpu": "Build-time CPU for annotation processing",
+        "memory": "Build-time memory for code generation",
+        "storage": "None at runtime",
+        "other": "None"
+      },
+      "software_environment": {
+        "os": ["Linux", "Windows", "macOS"],
+        "runtime": "Java Compiler (javac)",
+        "dependencies": ["Java Development Kit 21"]
+      }
+    },
+    {
+      "soup_id": "SOUP-09",
+      "name": "Apache CXF",
+      "version": "3.6.3",
+      "source": "maven",
+      "purpose": "SOAP web service client framework for TakeCare and efrikort integrations",
+      "functionality_used": [
+        "JAX-WS client generation from WSDL",
+        "SOAP message marshalling/unmarshalling",
+        "WS-Security support",
+        "X.509 certificate handling"
+      ],
+      "dependent_items": ["SI-01-02-13"],
+      "safety_class": "B",
+      "anomalies": [],
+      "verification": "Integration tests with SOAP endpoints. WS-Security configuration validated in test environment.",
+      "functional_requirements": [
+        "Generate SOAP client from WSDL definition",
+        "Marshal Java objects to SOAP XML",
+        "Unmarshal SOAP XML responses to Java objects",
+        "Support WS-Security with X.509 certificates",
+        "Handle SOAP faults"
+      ],
+      "performance_requirements": {
+        "timing": "SOAP request/response cycle < 5 seconds",
+        "throughput": "Support 50 concurrent SOAP requests",
+        "capacity": "Handle SOAP messages up to 10MB"
+      },
+      "hardware_requirements": {
+        "cpu": "Standard CPU sufficient",
+        "memory": "XML processing requires 200MB",
+        "storage": "None",
+        "other": "Network connectivity to SOAP endpoints"
+      },
+      "software_environment": {
+        "os": ["Linux", "Windows", "macOS"],
+        "runtime": "Java Runtime Environment 21",
+        "dependencies": ["WSDL files", "X.509 certificates"]
+      }
+    },
+    {
+      "soup_id": "SOUP-10",
+      "name": "Caffeine Cache",
+      "version": "Managed by Spring Boot parent",
+      "source": "maven",
+      "purpose": "High-performance in-memory caching for practitioners, appointments, authorization checks",
+      "functionality_used": [
+        "Time-based expiration (expireAfterWrite)",
+        "Size-based eviction (maximumSize)",
+        "Automatic cache loading",
+        "Cache statistics"
+      ],
+      "dependent_items": ["SI-01-08-03"],
+      "safety_class": "B",
+      "anomalies": [],
+      "verification": "Cache hit/miss metrics monitored via Actuator. Integration tests validate cache behavior.",
+      "functional_requirements": [
+        "Store frequently accessed data in memory",
+        "Evict entries after TTL expiration",
+        "Limit cache size to prevent memory exhaustion",
+        "Provide thread-safe cache operations"
+      ],
+      "performance_requirements": {
+        "timing": "Cache hit retrieval < 1ms",
+        "throughput": "Support 10,000 cache operations per second",
+        "capacity": "Configurable max cache entries (typically 1000-10000 per cache)"
+      },
+      "hardware_requirements": {
+        "cpu": "Standard CPU sufficient",
+        "memory": "Cache size dependent on max entries and object size. Typical: 100MB-500MB total across all caches",
+        "storage": "None (in-memory only)",
+        "other": "None"
+      },
+      "software_environment": {
+        "os": ["Linux", "Windows", "macOS"],
+        "runtime": "Java Runtime Environment 21",
+        "dependencies": ["Spring Cache abstraction"]
+      }
+    },
+    {
+      "soup_id": "SOUP-11",
+      "name": "Flyway",
+      "version": "Managed by Spring Boot parent",
+      "source": "maven",
+      "purpose": "Database schema migration and versioning",
+      "functionality_used": [
+        "SQL migration scripts (V*.sql)",
+        "Schema version tracking",
+        "Baseline migration",
+        "Migration validation"
+      ],
+      "dependent_items": ["SI-01"],
+      "safety_class": "B",
+      "anomalies": [
+        "Failed migrations require manual intervention"
+      ],
+      "verification": "Migration scripts tested in integration test environment. Rollback procedures documented.",
+      "functional_requirements": [
+        "Apply database schema changes in version order",
+        "Track applied migrations in flyway_schema_history_v2 table",
+        "Validate migration checksums",
+        "Support baseline migration for existing databases"
+      ],
+      "performance_requirements": {
+        "timing": "Migration application at startup < 30 seconds",
+        "throughput": "N/A (startup only)",
+        "capacity": "Handle 100+ migration files"
+      },
+      "hardware_requirements": {
+        "cpu": "Standard CPU sufficient",
+        "memory": "Minimal memory usage",
+        "storage": "Migration scripts in JAR",
+        "other": "Database connectivity"
+      },
+      "software_environment": {
+        "os": ["Linux", "Windows", "macOS"],
+        "runtime": "Java Runtime Environment 21",
+        "dependencies": ["MySQL/MariaDB database", "JDBC driver"]
+      }
+    },
+    {
+      "soup_id": "SOUP-12",
+      "name": "Blaze Persistence",
+      "version": "1.6.11",
+      "source": "maven",
+      "purpose": "Advanced JPA query features for complex queries and pagination",
+      "functionality_used": [
+        "Entity view projections",
+        "Keyset pagination",
+        "QueryDSL integration",
+        "Advanced join optimization"
+      ],
+      "dependent_items": ["SI-01-02-06"],
+      "safety_class": "B",
+      "anomalies": [],
+      "verification": "Integration tests validate entity views and pagination performance",
+      "functional_requirements": [
+        "Optimize JPA queries for large result sets",
+        "Support efficient pagination with keyset",
+        "Enable entity view projections for DTOs",
+        "Integrate with QueryDSL for query building"
+      ],
+      "performance_requirements": {
+        "timing": "Pagination query execution < 100ms",
+        "throughput": "Support paginated list queries at scale",
+        "capacity": "Handle result sets with 100,000+ rows efficiently"
+      },
+      "hardware_requirements": {
+        "cpu": "Standard CPU sufficient",
+        "memory": "Minimal overhead beyond Hibernate",
+        "storage": "None",
+        "other": "None"
+      },
+      "software_environment": {
+        "os": ["Linux", "Windows", "macOS"],
+        "runtime": "Java Runtime Environment 21",
+        "dependencies": ["Hibernate 5.6", "QueryDSL"]
+      }
+    },
+    {
+      "soup_id": "SOUP-13",
+      "name": "Klarna Checkout SDKs",
+      "version": "kco-rest:4.0.3, java-checkout:3.0.0, klarna-order-api:3.0.1",
+      "source": "maven",
+      "purpose": "Payment processing integration with Klarna payment provider",
+      "functionality_used": [
+        "Klarna Checkout v3 API",
+        "Klarna Checkout v2 API",
+        "Order creation and capture",
+        "Payment order status tracking"
+      ],
+      "dependent_items": ["SI-01-05-06"],
+      "safety_class": "B",
+      "anomalies": [
+        "API version compatibility requires careful configuration",
+        "Sandbox vs production environment switching"
+      ],
+      "verification": "Integration tests with Klarna sandbox environment. Payment flow verified in staging.",
+      "functional_requirements": [
+        "Create Klarna checkout sessions",
+        "Capture payments after appointment completion",
+        "Handle payment callbacks",
+        "Support refunds and cancellations"
+      ],
+      "performance_requirements": {
+        "timing": "Klarna API call completion < 5 seconds",
+        "throughput": "Support 100 payment operations per hour",
+        "capacity": "Handle payment amounts up to 10,000 SEK"
+      },
+      "hardware_requirements": {
+        "cpu": "Standard CPU sufficient",
+        "memory": "HTTP client overhead ~50MB",
+        "storage": "None",
+        "other": "Network connectivity to Klarna API servers"
+      },
+      "software_environment": {
+        "os": ["Linux", "Windows", "macOS"],
+        "runtime": "Java Runtime Environment 21",
+        "dependencies": ["Klarna API credentials", "HTTPS connectivity"]
+      }
+    },
+    {
+      "soup_id": "SOUP-14",
+      "name": "Apache PDFBox",
+      "version": "3.0.2",
+      "source": "maven",
+      "purpose": "PDF generation and manipulation for medical documents",
+      "functionality_used": [
+        "PDF document creation",
+        "Text rendering",
+        "PDF form filling"
+      ],
+      "dependent_items": ["SI-01-02"],
+      "safety_class": "B",
+      "anomalies": [],
+      "verification": "Unit tests validate PDF output. Manual review of generated PDFs.",
+      "functional_requirements": [
+        "Generate PDF documents from medical data",
+        "Support UTF-8 text encoding",
+        "Embed fonts for proper rendering",
+        "Create accessible PDF/A documents"
+      ],
+      "performance_requirements": {
+        "timing": "PDF generation for typical document < 2 seconds",
+        "throughput": "Support 100 PDF generations per hour",
+        "capacity": "Handle documents up to 100 pages"
+      },
+      "hardware_requirements": {
+        "cpu": "Standard CPU sufficient",
+        "memory": "PDF generation requires 100-200MB",
+        "storage": "Output PDF file size",
+        "other": "None"
+      },
+      "software_environment": {
+        "os": ["Linux", "Windows", "macOS"],
+        "runtime": "Java Runtime Environment 21",
+        "dependencies": ["Font files if custom fonts used"]
+      }
+    },
+    {
+      "soup_id": "SOUP-15",
+      "name": "Easy Rules",
+      "version": "3.4.0",
+      "source": "maven",
+      "purpose": "Business rules engine for appointment assignment and routing logic",
+      "functionality_used": [
+        "Rule definition and registration",
+        "Rule execution engine",
+        "Facts management",
+        "Rule chaining"
+      ],
+      "dependent_items": ["SI-01-02"],
+      "safety_class": "B",
+      "anomalies": [],
+      "verification": "Unit tests validate rule definitions and execution logic",
+      "functional_requirements": [
+        "Define business rules for appointment routing",
+        "Execute rules based on appointment context",
+        "Support rule priority and ordering",
+        "Enable dynamic rule modification"
+      ],
+      "performance_requirements": {
+        "timing": "Rule evaluation < 10ms",
+        "throughput": "Support 1000 rule evaluations per second",
+        "capacity": "Handle 100+ registered rules"
+      },
+      "hardware_requirements": {
+        "cpu": "Standard CPU sufficient",
+        "memory": "Rule registry ~10MB",
+        "storage": "None",
+        "other": "None"
+      },
+      "software_environment": {
+        "os": ["Linux", "Windows", "macOS"],
+        "runtime": "Java Runtime Environment 21",
+        "dependencies": ["None"]
+      }
+    },
+    {
+      "soup_id": "SOUP-16",
+      "name": "ShedLock",
+      "version": "5.12.0",
+      "source": "maven",
+      "purpose": "Distributed lock for scheduled tasks to prevent duplicate execution in clustered environment",
+      "functionality_used": [
+        "JDBC-based lock provider",
+        "@SchedulerLock annotation",
+        "Lock expiration management"
+      ],
+      "dependent_items": ["SI-01-02"],
+      "safety_class": "B",
+      "anomalies": [
+        "Lock expiration requires careful configuration to prevent task overlap or starvation"
+      ],
+      "verification": "Integration tests validate single task execution in multi-instance environment",
+      "functional_requirements": [
+        "Ensure scheduled tasks execute only once across cluster",
+        "Provide database-backed distributed lock",
+        "Handle lock expiration and cleanup",
+        "Support configurable lock duration"
+      ],
+      "performance_requirements": {
+        "timing": "Lock acquisition < 100ms",
+        "throughput": "Support scheduled tasks every minute",
+        "capacity": "Handle 20+ scheduled tasks"
+      },
+      "hardware_requirements": {
+        "cpu": "Standard CPU sufficient",
+        "memory": "Minimal memory usage",
+        "storage": "Lock table in database",
+        "other": "Database connectivity"
+      },
+      "software_environment": {
+        "os": ["Linux", "Windows", "macOS"],
+        "runtime": "Java Runtime Environment 21",
+        "dependencies": ["Spring JDBC", "Database lock table"]
+      }
+    }
+  ],
+  "safety_segregation": {
+    "mechanisms": [
+      {
+        "type": "process_isolation",
+        "description": "Health-manager runs as independent microservice with dedicated JVM process, isolated from other platform services",
+        "protected_items": ["SI-01"]
+      },
+      {
+        "type": "container",
+        "description": "Deployed in Kubernetes pod with resource limits (CPU, memory) and network isolation via service mesh",
+        "protected_items": ["SI-01"]
+      },
+      {
+        "type": "database_isolation",
+        "description": "Dedicated MySQL database schema with access controlled via unique credentials. No shared tables with other services.",
+        "protected_items": ["SI-01-03", "SI-01-04"]
+      },
+      {
+        "type": "transaction_boundaries",
+        "description": "Spring @Transactional annotations enforce ACID properties for database operations. Handover operations execute in single transaction to prevent partial state.",
+        "protected_items": ["SI-01-02-01", "SI-01-03"]
+      },
+      {
+        "type": "authentication_authorization",
+        "description": "JWT-based authentication with role-based access control. Security interceptors validate user permissions before controller method execution.",
+        "protected_items": ["SI-01-01"]
+      },
+      {
+        "type": "input_validation",
+        "description": "Controller layer validates all input DTOs. Service layer enforces business rule validation (practitioner validity, care unit validation, handover state machine constraints).",
+        "protected_items": ["SI-01-01", "SI-01-02"]
+      }
+    ],
+    "failure_propagation_controls": [
+      "Circuit breaker pattern on external service clients prevents cascading failures",
+      "JMS message listener transactions rollback on processing failure, preventing data corruption",
+      "Database constraints (UNIQUE, NOT NULL, FK) prevent invalid state persistence",
+      "Exception handling at controller layer prevents stack trace exposure to clients",
+      "Scheduled task execution isolated via ShedLock prevents resource exhaustion from duplicate execution",
+      "Connection pool limits prevent database connection exhaustion",
+      "Cache size limits prevent memory exhaustion from unbounded cache growth"
+    ]
+  },
+  "architectural_patterns": [
+    "Layered Architecture (Controller → Service → Repository → Domain)",
+    "Microservices Architecture",
+    "Domain-Driven Design (Aggregate roots, entities, value objects, domain events)",
+    "Repository Pattern (Spring Data JPA repositories)",
+    "Event-Driven Architecture (JMS topics for integration events)",
+    "Service Orchestration (Service layer coordinates external calls and transactions)",
+    "Factory Pattern (AppointmentHandoverProcess.buildByInput)",
+    "State Machine (Handover status transitions with explicit state validation)",
+    "CQRS-lite (Separate read models via QueryDSL for complex queries)",
+    "API Versioning (v1, v2, v3 controllers)",
+    "Dual Audit Pattern (Database event log + JMS event publication)"
+  ],
+  "deployment_topology": {
+    "environments": ["dev", "staging", "production"],
+    "components": [
+      {
+        "name": "health-manager-service",
+        "software_items": ["SI-01"],
+        "infrastructure": "kubernetes",
+        "description": "Spring Boot application deployed as Kubernetes deployment with multiple replicas for high availability. Exposed via Kubernetes service and ingress.",
+        "scaling": "Horizontal pod autoscaling based on CPU and memory metrics",
+        "monitoring": "Prometheus metrics exported via Actuator endpoints, logs aggregated via ELK stack"
+      },
+      {
+        "name": "health-manager-database",
+        "software_items": [],
+        "infrastructure": "managed-mysql",
+        "description": "MySQL 8.0 or MariaDB managed database service with automated backups, replication for high availability",
+        "scaling": "Vertical scaling for database resources, read replicas for read-heavy workloads",
+        "monitoring": "Database metrics via cloud provider monitoring, slow query logs"
+      },
+      {
+        "name": "artemis-broker",
+        "software_items": [],
+        "infrastructure": "kubernetes",
+        "description": "Apache Artemis JMS broker deployed in Kubernetes for event messaging. Configured for topic-based pub/sub.",
+        "scaling": "Clustered broker for high availability",
+        "monitoring": "Artemis metrics via JMX, message queue depth monitoring"
+      }
+    ]
+  },
+  "verification_evidence": {
+    "architecture_implements_requirements": "handover_architecture.md Section 12 provides traceability from software requirements to architectural components",
+    "risk_control_implementation": "handover_architecture.md Section 10 maps architectural controls to identified risks R01-R12",
+    "interface_documentation": "All external service interfaces documented with DTOs, protocols, error handling strategies",
+    "soup_requirements_specified": "All SOUP components include functional requirements, performance requirements, hardware requirements, software environment per IEC 62304 5.3.3-5.3.4"
+  },
+  "notes": [
+    "This architecture extraction focuses on the complete health-manager microservice system, not just the handover feature",
+    "120 domain entities represent rich healthcare domain model",
+    "101 service classes implement complex healthcare workflows and business logic",
+    "48 repository interfaces provide data access layer",
+    "69 controllers across 3 API versions (v1, v2, v3) provide extensive REST API surface",
+    "Extensive external integrations: directory, bookings, meetingplace, interviewer, notifier, payment, directory2, careproviders, TakeCare EHR, Klarna",
+    "Safety class B classification requires comprehensive verification per IEC 62304 clause 5.6",
+    "Architecture supports regulated medical device software with audit trails, GDPR compliance, and regulatory traceability"
+  ]
+}

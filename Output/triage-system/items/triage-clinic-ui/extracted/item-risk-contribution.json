@@ -1,0 +1,753 @@
+{
+  "extraction_metadata": {
+    "repository": "git@gitlab-p24:doktor24/frontends/triage-clinic-ui.git",
+    "commit": "508e38805caef9da954d652bf97ea2355a45ffff",
+    "extracted_at": "2026-03-06T19:46:00Z",
+    "extractor_version": "3.0",
+    "standard": "IEC 62304:2006+AMD1:2015 / ISO 14971:2019",
+    "hierarchy": {
+      "level": "item",
+      "item_id": "triage-clinic-ui",
+      "item_name": "Triage Clinic UI",
+      "parent_module": "user-interfaces",
+      "parent_system": "triage-system"
+    }
+  },
+
+  "software_item": {
+    "id": "ITEM-TCU",
+    "name": "triage-clinic-ui",
+    "description": "React-based microfrontend for practitioners to review triage results, view clinical flags, search conditions, and access patient data within the clinic application",
+    "safety_class": "B",
+    "safety_class_rationale": "Displays safety-critical triage results and clinical flags to practitioners who make care decisions. Incorrect display could lead to misdiagnosis or delayed treatment. However, it is not the sole determinant of harm - practitioners review and validate the information. Contains safety-critical clinic condition search module (Class C).",
+    "version": "1.0.0",
+    "repository_url": "git@gitlab-p24:doktor24/frontends/triage-clinic-ui.git",
+    "technology_stack": ["TypeScript", "React 17", "Ant Design 5", "styled-components", "axios", "React Query"],
+    "deployment_type": "microfrontend"
+  },
+
+  "item_risk_contribution": {
+    "item_id": "triage-clinic-ui",
+
+    "hazard_contributions": [
+      {
+        "id": "ITEM-TCU-HAZ-001",
+        "description": "Triage result or clinical flag not displayed to practitioner",
+        "cause": "API call to /api/triage/clinic/results/interview/{id} or /api/interviewer/clinic/v3/interviews/{id} fails silently or returns incomplete data that is not detected",
+        "potential_harm": "Practitioner unaware of critical clinical flags or triage recommendations, leading to inappropriate care decisions, delayed treatment, or missed urgent conditions",
+        "severity_contribution": "serious",
+        "affected_functions": ["useTriageResultsAndInterview", "TriageResultPanels"],
+        "source": {
+          "files": ["src/hooks/useTriageResultsAndInterview.ts:44-95", "src/components/TriageResultPanels/TriageResultPanels.tsx:17-30"]
+        }
+      },
+      {
+        "id": "ITEM-TCU-HAZ-002",
+        "description": "Clinical flag displayed with incorrect or misleading content",
+        "cause": "Guidance data (flags) rendered without validation or sanitization, markdown rendering introduces display errors, or interview data mismatch causes wrong flag attribution",
+        "potential_harm": "Practitioner receives incorrect clinical information, leading to inappropriate treatment decisions or incorrect urgency assessment",
+        "severity_contribution": "critical",
+        "affected_functions": ["GuidanceRenderer", "GuidanceCollection", "useGuidanceItemsCollection"],
+        "source": {
+          "files": ["src/components/GuidanceRenderer/GuidanceRenderer.tsx:22-41", "src/hooks/useGuidanceItemsCollection.ts:39-85"]
+        }
+      },
+      {
+        "id": "ITEM-TCU-HAZ-003",
+        "description": "Wrong patient data displayed in search or triage results",
+        "cause": "Patient search query returns incorrect matches, race condition between patient selection and data fetch, or patient ID mapping error in API responses",
+        "potential_harm": "Practitioner views triage results for wrong patient, leading to treatment decisions based on incorrect patient information",
+        "severity_contribution": "catastrophic",
+        "affected_functions": ["PatientSearchDropdown", "usePatientSearch", "usePatientUserData"],
+        "source": {
+          "files": ["src/components/PatientSearchDropdown/PatientSearchDropdown.tsx:48-124", "src/hooks/usePatientSearch.ts:8-39"]
+        }
+      },
+      {
+        "id": "ITEM-TCU-HAZ-004",
+        "description": "Network error causes partial or incomplete data display without clear warning",
+        "cause": "API timeout or network failure results in partial data being displayed, error reporting to user fails, or error is logged but not surfaced to practitioner UI",
+        "potential_harm": "Practitioner makes decisions based on incomplete information, believing they have full triage results",
+        "severity_contribution": "serious",
+        "affected_functions": ["ErrorHandlerProvider", "useTriageResultsAndInterview", "useErrorHandler"],
+        "source": {
+          "files": ["src/context/ErrorHandlerProvider.tsx:62-118", "src/hooks/useTriageResultsAndInterview.ts:76-95"]
+        }
+      },
+      {
+        "id": "ITEM-TCU-HAZ-005",
+        "description": "Incorrect condition selected in NLP-based assisted triage search",
+        "cause": "NLP search returns irrelevant or incorrect condition matches, user selects wrong condition due to unclear labeling, or search filtering excludes relevant conditions incorrectly",
+        "potential_harm": "Practitioner initiates triage interview for wrong condition, leading to inappropriate questioning and potentially missed diagnosis",
+        "severity_contribution": "serious",
+        "affected_functions": ["ConditionsSearchWidget", "useNLPConditionQueryResults"],
+        "source": {
+          "files": ["src/components/ConditionsSearchWidget/ConditionsSearchWidget.tsx:54-106", "src/hooks/useNLPConditionQueryResults.ts:8-32"]
+        }
+      },
+      {
+        "id": "ITEM-TCU-HAZ-006",
+        "description": "Triage urgency or level of care information not prominently displayed",
+        "cause": "UI design does not emphasize critical urgency indicators, collapsible panels hide important information by default, or styling/theming issues reduce visibility",
+        "potential_harm": "Practitioner overlooks urgent triage recommendation, leading to delayed treatment for time-sensitive conditions",
+        "severity_contribution": "critical",
+        "affected_functions": ["TriageResultPanel", "TriageResultPanels"],
+        "source": {
+          "files": ["src/components/TriageResultPanel/TriageResultPanel.tsx:22-37", "src/types/index.ts:33-41"]
+        }
+      },
+      {
+        "id": "ITEM-TCU-HAZ-007",
+        "description": "Component crashes or fails to render, leaving practitioner without triage data",
+        "cause": "Unhandled exception in React component lifecycle, null/undefined data not handled defensively, or incompatible data structure from API causes rendering failure",
+        "potential_harm": "Practitioner unable to access triage results, must rely solely on patient interview without system support, potential for missed diagnoses",
+        "severity_contribution": "serious",
+        "affected_functions": ["ErrorHandlerProvider.componentDidCatch", "TriageResultPanels"],
+        "source": {
+          "files": ["src/context/ErrorHandlerProvider.tsx:174-182", "src/components/TriageResultPanels/TriageResultPanels.tsx:28-30"]
+        }
+      },
+      {
+        "id": "ITEM-TCU-HAZ-008",
+        "description": "Guardian selection error assigns triage results to wrong responsible user",
+        "cause": "Guardian list not validated before selection, default guardian selected without explicit user confirmation, or guardian ID mapping error",
+        "potential_harm": "Triage results or care actions attributed to wrong guardian, potential consent and liability issues",
+        "severity_contribution": "minor",
+        "affected_functions": ["PatientSearchDropdown", "GuardiansAndPrimaryContactRadio"],
+        "source": {
+          "files": ["src/components/PatientSearchDropdown/PatientSearchDropdown.tsx:65-85"]
+        }
+      },
+      {
+        "id": "ITEM-TCU-HAZ-009",
+        "description": "Stale or cached triage data displayed after data has been updated",
+        "cause": "React Query cache not invalidated after data updates, no polling or real-time updates for triage results, or AbortController cancels fresh data fetch leaving stale data visible",
+        "potential_harm": "Practitioner makes decisions based on outdated triage assessment that no longer reflects patient's current condition",
+        "severity_contribution": "serious",
+        "affected_functions": ["useTriageResultsAndInterview", "usePatientSearch"],
+        "source": {
+          "files": ["src/hooks/useTriageResultsAndInterview.ts:30-36", "src/hooks/usePatientSearch.ts:27-32"]
+        }
+      },
+      {
+        "id": "ITEM-TCU-HAZ-010",
+        "description": "Unauthorized access to patient triage data",
+        "cause": "Component does not enforce access control checks, relies solely on backend authorization without client-side validation, or session expiry not detected before displaying sensitive data",
+        "potential_harm": "Breach of patient confidentiality, unauthorized practitioner accesses sensitive triage results",
+        "severity_contribution": "serious",
+        "affected_functions": ["All API hooks"],
+        "source": {
+          "files": ["src/hooks/useTriageResultsAndInterview.ts:46-61"]
+        }
+      }
+    ],
+
+    "risk_controls_implemented": [
+      {
+        "id": "ITEM-TCU-RC-001",
+        "description": "Error handling with Promise.allSettled for parallel API calls",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-TCU-HAZ-001"],
+        "implementation": "Uses Promise.allSettled to fetch multiple interviews and triage results, allowing partial success. Detects failures and reports to host application.",
+        "verification_status": "partial",
+        "verification_evidence": {
+          "test_file": "src/context/__tests__/ErrorHandlerProvider.test.tsx",
+          "test_function": "ErrorHandlerProvider network error tests"
+        },
+        "source": {
+          "files": ["src/hooks/useTriageResultsAndInterview.ts:44-95"]
+        }
+      },
+      {
+        "id": "ITEM-TCU-RC-002",
+        "description": "Null/empty data checks before rendering",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-TCU-HAZ-001", "ITEM-TCU-HAZ-007"],
+        "implementation": "Components check for empty triageResults, null interviews, empty guidanceCollection before rendering. Returns null to prevent display of incomplete data.",
+        "verification_status": "unverified",
+        "verification_evidence": {},
+        "source": {
+          "files": ["src/components/TriageResultPanels/TriageResultPanels.tsx:28-30", "src/components/GuidancePanel/GuidancePanel.tsx:16-18"]
+        }
+      },
+      {
+        "id": "ITEM-TCU-RC-003",
+        "description": "Error boundary with error logging and rethrowing",
+        "control_type": "information_for_safety",
+        "mitigates": ["ITEM-TCU-HAZ-007"],
+        "implementation": "ErrorHandlerProvider implements componentDidCatch to log runtime errors to analytics and rethrow to host application's error boundary for user-facing error screen.",
+        "verification_status": "verified",
+        "verification_evidence": {
+          "test_file": "src/context/__tests__/ErrorHandlerProvider.test.tsx",
+          "test_function": "runtime errors test - should rethrow error from ErrorHandlerProvider ErrorBoundary"
+        },
+        "source": {
+          "files": ["src/context/ErrorHandlerProvider.tsx:174-182"]
+        }
+      },
+      {
+        "id": "ITEM-TCU-RC-004",
+        "description": "Axios interceptor for network error detection and logging",
+        "control_type": "information_for_safety",
+        "mitigates": ["ITEM-TCU-HAZ-004"],
+        "implementation": "ErrorHandlerProvider adds axios response interceptor that detects timeout (408), network errors, and logs them to analytics with detailed context (URL, method, status).",
+        "verification_status": "verified",
+        "verification_evidence": {
+          "test_file": "src/context/__tests__/ErrorHandlerProvider.test.tsx",
+          "test_function": "network error test - should send TRIAGE_CLINIC_REST_API error / TRIAGE_CLINIC_NETWORK error to analytics"
+        },
+        "source": {
+          "files": ["src/context/ErrorHandlerProvider.tsx:45-118"]
+        }
+      },
+      {
+        "id": "ITEM-TCU-RC-005",
+        "description": "Request cancellation via AbortController on component unmount",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-TCU-HAZ-009"],
+        "implementation": "useEffect cleanup function calls controller.abort() to cancel in-flight requests when component unmounts, preventing state updates on unmounted components.",
+        "verification_status": "unverified",
+        "verification_evidence": {},
+        "source": {
+          "files": ["src/hooks/useTriageResultsAndInterview.ts:30-36", "src/hooks/useInterviews.ts:20-26"]
+        }
+      },
+      {
+        "id": "ITEM-TCU-RC-006",
+        "description": "Debounced search queries to reduce API load and race conditions",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-TCU-HAZ-003", "ITEM-TCU-HAZ-005"],
+        "implementation": "useDebounce hook with 500ms delay prevents rapid API calls during user typing, reducing likelihood of race conditions and outdated results.",
+        "verification_status": "unverified",
+        "verification_evidence": {},
+        "source": {
+          "files": ["src/hooks/usePatientSearch.ts:9", "src/hooks/useNLPConditionQueryResults.ts:13"]
+        }
+      },
+      {
+        "id": "ITEM-TCU-RC-007",
+        "description": "Explicit error reporting to host application",
+        "control_type": "information_for_safety",
+        "mitigates": ["ITEM-TCU-HAZ-001", "ITEM-TCU-HAZ-004"],
+        "implementation": "reportErrorToHost function provided via context, called when critical data fetching fails. Allows host application to display user-facing error messages.",
+        "verification_status": "verified",
+        "verification_evidence": {
+          "test_file": "src/context/__tests__/ErrorHandlerProvider.test.tsx",
+          "test_function": "reportErrorToHost method in context - should provide children with reportErrorToHost method"
+        },
+        "source": {
+          "files": ["src/context/ErrorHandlerProvider.tsx:140-142", "src/hooks/useTriageResultsAndInterview.ts:84"]
+        }
+      },
+      {
+        "id": "ITEM-TCU-RC-008",
+        "description": "Minimum query length validation for patient search",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-TCU-HAZ-003"],
+        "implementation": "Patient search query requires minimum 3 characters (enabled: debouncedQuery.length >= 3) before triggering API call, reducing false matches.",
+        "verification_status": "unverified",
+        "verification_evidence": {},
+        "source": {
+          "files": ["src/hooks/usePatientSearch.ts:31"]
+        }
+      },
+      {
+        "id": "ITEM-TCU-RC-009",
+        "description": "Markdown rendering with sanitization via react-markdown",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-TCU-HAZ-002"],
+        "implementation": "Uses react-markdown library to render guidance content, which sanitizes HTML by default and prevents XSS. Flags display textContent as markdown.",
+        "verification_status": "unverified",
+        "verification_evidence": {},
+        "source": {
+          "files": ["src/components/GuidanceRenderer/GuidanceRenderer.tsx:38", "src/components/Markdown/Markdown.tsx"]
+        }
+      },
+      {
+        "id": "ITEM-TCU-RC-010",
+        "description": "Filter out 'general' condition from NLP search results",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-TCU-HAZ-005"],
+        "implementation": "NLP condition search explicitly filters out 'general' condition ID to prevent selection of non-specific condition that could lead to inappropriate triage.",
+        "verification_status": "unverified",
+        "verification_evidence": {},
+        "source": {
+          "files": ["src/hooks/useNLPConditionQueryResults.ts:14-15"]
+        }
+      },
+      {
+        "id": "ITEM-TCU-RC-011",
+        "description": "Guardian validation and default selection for minors",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-TCU-HAZ-008"],
+        "implementation": "Checks canSeekCareForThemself, automatically sets userId for self-seekers, defaults to first guardian in list for minors when ENABLE_EQUAL_ACCESS_FOR_GUARDIANS is enabled.",
+        "verification_status": "partial",
+        "verification_evidence": {
+          "test_file": "src/components/PatientSearchDropdown/__tests__/PatientSearchDropdown.test.tsx",
+          "test_function": "PatientSearchDropdown tests"
+        },
+        "source": {
+          "files": ["src/components/PatientSearchDropdown/PatientSearchDropdown.tsx:65-85"]
+        }
+      },
+      {
+        "id": "ITEM-TCU-RC-012",
+        "description": "Interview ID correlation for flag attribution",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-TCU-HAZ-002"],
+        "implementation": "Each guidance flag is tagged with interviewId, verified against interviews collection before rendering. Guidance without matching interview is excluded.",
+        "verification_status": "unverified",
+        "verification_evidence": {},
+        "source": {
+          "files": ["src/hooks/useGuidanceItemsCollection.ts:54-64"]
+        }
+      }
+    ],
+
+    "risk_controls_required_upstream": [
+      {
+        "id": "ITEM-TCU-RC-UP-001",
+        "description": "Backend API must validate data integrity before returning triage results",
+        "rationale": "Frontend cannot independently validate that triage result urgency/level of care matches the interview responses. This requires clinical logic in backend.",
+        "recommended_level": "module",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-TCU-HAZ-002", "ITEM-TCU-HAZ-006"]
+      },
+      {
+        "id": "ITEM-TCU-RC-UP-002",
+        "description": "Backend must enforce strict authorization checks on triage result and patient data endpoints",
+        "rationale": "Frontend receives data via configured axios from host application. Cannot implement independent authentication/authorization checks.",
+        "recommended_level": "system",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-TCU-HAZ-010"]
+      },
+      {
+        "id": "ITEM-TCU-RC-UP-003",
+        "description": "Backend must provide data versioning or timestamps to prevent stale data issues",
+        "rationale": "Frontend cannot determine if cached data is stale without server-provided metadata (e.g., last modified timestamp, ETag).",
+        "recommended_level": "module",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-TCU-HAZ-009"]
+      },
+      {
+        "id": "ITEM-TCU-RC-UP-004",
+        "description": "Practitioner training on interpretation of triage flags and urgency indicators",
+        "rationale": "Software displays information but cannot ensure practitioner correctly interprets urgency or acts appropriately.",
+        "recommended_level": "system",
+        "control_type": "information_for_safety",
+        "mitigates": ["ITEM-TCU-HAZ-006"]
+      },
+      {
+        "id": "ITEM-TCU-RC-UP-005",
+        "description": "Clinical workflow procedures for handling incomplete or unavailable triage data",
+        "rationale": "When data fetch fails, practitioners need clear procedures for how to proceed without system support.",
+        "recommended_level": "system",
+        "control_type": "information_for_safety",
+        "mitigates": ["ITEM-TCU-HAZ-001", "ITEM-TCU-HAZ-004", "ITEM-TCU-HAZ-007"]
+      },
+      {
+        "id": "ITEM-TCU-RC-UP-006",
+        "description": "Patient identity verification procedure independent of software",
+        "rationale": "Software displays patient data based on search/selection, but cannot verify physical patient identity matches selected record.",
+        "recommended_level": "system",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-TCU-HAZ-003"]
+      },
+      {
+        "id": "ITEM-TCU-RC-UP-007",
+        "description": "System-level monitoring and alerting for API failures affecting triage UI",
+        "rationale": "Frontend logs errors to analytics but cannot implement operational monitoring or alerting infrastructure.",
+        "recommended_level": "system",
+        "control_type": "information_for_safety",
+        "mitigates": ["ITEM-TCU-HAZ-001", "ITEM-TCU-HAZ-004"]
+      }
+    ],
+
+    "failure_modes": [
+      {
+        "id": "ITEM-TCU-FM-001",
+        "name": "React component unhandled exception",
+        "category": "software_crash",
+        "component": "React component lifecycle",
+        "effect_on_software_item": "Component crashes, ErrorBoundary catches and logs error, host application error boundary displays error screen",
+        "effect_on_system": "Practitioner cannot view triage results for affected patient, must use alternative means to gather clinical information",
+        "detection_mechanism": "ErrorHandlerProvider.componentDidCatch logs to analytics, host application error boundary displays error screen",
+        "recovery_mechanism": "Manual page refresh by practitioner, or navigation to different patient",
+        "related_hazards": ["ITEM-TCU-HAZ-007"],
+        "source": {
+          "files": ["src/context/ErrorHandlerProvider.tsx:174-182"]
+        }
+      },
+      {
+        "id": "ITEM-TCU-FM-002",
+        "name": "API timeout on triage result fetch",
+        "category": "communication_failure",
+        "component": "useTriageResultsAndInterview",
+        "effect_on_software_item": "Promise.allSettled returns rejected promise, error logged to analytics, error reported to host",
+        "effect_on_system": "Triage panel shows no data or partial data, practitioner may not realize data is incomplete",
+        "detection_mechanism": "Axios interceptor detects 408 or timeout error code, logs to analytics with TRIAGE_CLINIC_REST_API type",
+        "recovery_mechanism": "No automatic retry implemented. Practitioner must manually refresh or navigate away and back",
+        "related_hazards": ["ITEM-TCU-HAZ-004", "ITEM-TCU-HAZ-001"],
+        "source": {
+          "files": ["src/hooks/useTriageResultsAndInterview.ts:44-95", "src/context/ErrorHandlerProvider.tsx:86-98"]
+        }
+      },
+      {
+        "id": "ITEM-TCU-FM-003",
+        "name": "Network connectivity loss during data fetch",
+        "category": "external_dependency",
+        "component": "Axios HTTP client",
+        "effect_on_software_item": "Network error detected by axios interceptor, logged as TRIAGE_CLINIC_NETWORK error type",
+        "effect_on_system": "UI may show stale data or empty state, error message may be displayed by host application",
+        "detection_mechanism": "Axios interceptor detects network error (no response received), logs to analytics",
+        "recovery_mechanism": "No automatic retry. Requires manual refresh when connectivity is restored",
+        "related_hazards": ["ITEM-TCU-HAZ-004"],
+        "source": {
+          "files": ["src/context/ErrorHandlerProvider.tsx:102-107"]
+        }
+      },
+      {
+        "id": "ITEM-TCU-FM-004",
+        "name": "Incorrect patient selected from search results",
+        "category": "user_error",
+        "component": "PatientSearchDropdown",
+        "effect_on_software_item": "Correct patientId is passed to API based on user selection, but user selected wrong patient from list",
+        "effect_on_system": "Triage results for wrong patient displayed, practitioner may make clinical decisions for wrong patient",
+        "detection_mechanism": "No automatic detection - relies on practitioner visual verification of patient name and ID",
+        "recovery_mechanism": "Practitioner must notice error and clear search to select correct patient",
+        "related_hazards": ["ITEM-TCU-HAZ-003"],
+        "source": {
+          "files": ["src/components/PatientSearchDropdown/PatientSearchDropdown.tsx:94-124"]
+        }
+      },
+      {
+        "id": "ITEM-TCU-FM-005",
+        "name": "Ambiguous search results lead to wrong patient match",
+        "category": "usability_issue",
+        "component": "PatientSearchDropdown",
+        "effect_on_software_item": "Multiple patients with similar names returned by API, user interface shows all matches without sufficient disambiguation",
+        "effect_on_system": "Practitioner selects wrong patient due to insufficient identifying information in dropdown",
+        "detection_mechanism": "No automatic detection - relies on practitioner verification",
+        "recovery_mechanism": "Practitioner must notice mismatch between expected and displayed patient data",
+        "related_hazards": ["ITEM-TCU-HAZ-003"],
+        "source": {
+          "files": ["src/components/PatientSearchDropdown/PatientSearchDropdown.tsx:116-119"]
+        }
+      },
+      {
+        "id": "ITEM-TCU-FM-006",
+        "name": "Backend returns malformed triage result JSON",
+        "category": "data_integrity",
+        "component": "useTriageResultsAndInterview",
+        "effect_on_software_item": "Axios successfully fetches data but TypeScript interfaces don't match actual structure, leading to undefined values or rendering errors",
+        "effect_on_system": "Component may fail to render, or display incomplete/incorrect data without clear error",
+        "detection_mechanism": "May trigger runtime error caught by ErrorBoundary, or may silently display undefined/null values",
+        "recovery_mechanism": "Error boundary displays error screen if rendering fails, otherwise practitioner sees incomplete data",
+        "related_hazards": ["ITEM-TCU-HAZ-001", "ITEM-TCU-HAZ-002", "ITEM-TCU-HAZ-007"],
+        "source": {
+          "files": ["src/hooks/useTriageResultsAndInterview.ts:63-72"]
+        }
+      },
+      {
+        "id": "ITEM-TCU-FM-007",
+        "name": "Condition search returns irrelevant results",
+        "category": "software_defect",
+        "component": "useNLPConditionQueryResults",
+        "effect_on_software_item": "NLP search API returns conditions that don't match practitioner intent, but component displays all results from API",
+        "effect_on_system": "Practitioner may select incorrect condition for assisted triage, leading to inappropriate interview questions",
+        "detection_mechanism": "No automatic detection - relies on practitioner judgment to select appropriate condition",
+        "recovery_mechanism": "Practitioner must clear selection and search again with different query",
+        "related_hazards": ["ITEM-TCU-HAZ-005"],
+        "source": {
+          "files": ["src/hooks/useNLPConditionQueryResults.ts:18-29"]
+        }
+      },
+      {
+        "id": "ITEM-TCU-FM-008",
+        "name": "Critical urgency flag not visually prominent",
+        "category": "usability_issue",
+        "component": "GuidanceRenderer, TriageResultPanel",
+        "effect_on_software_item": "Flags rendered with equal visual weight regardless of urgency, collapsed panel hides flags by default",
+        "effect_on_system": "Practitioner overlooks critical urgency indicator, leading to delayed treatment for urgent conditions",
+        "detection_mechanism": "No automatic detection - post-market surveillance via incident reporting",
+        "recovery_mechanism": "Practitioner must actively expand panel and read all flags",
+        "related_hazards": ["ITEM-TCU-HAZ-006"],
+        "source": {
+          "files": ["src/components/GuidanceRenderer/GuidanceRenderer.tsx:22-41", "src/components/TriageResultPanel/TriageResultPanel.tsx:22-37"]
+        }
+      },
+      {
+        "id": "ITEM-TCU-FM-009",
+        "name": "Stale data displayed after cache invalidation failure",
+        "category": "synchronization_error",
+        "component": "React Query cache",
+        "effect_on_software_item": "Cache not invalidated after data update, useQuery returns stale data from cache instead of fetching fresh data",
+        "effect_on_system": "Practitioner sees outdated triage results that no longer reflect patient's current state",
+        "detection_mechanism": "No automatic detection - practitioner may notice timestamp mismatch or inconsistent data",
+        "recovery_mechanism": "Manual page refresh forces cache invalidation and fresh data fetch",
+        "related_hazards": ["ITEM-TCU-HAZ-009"],
+        "source": {
+          "files": ["src/hooks/useTriageResultsAndInterview.ts:27-32"]
+        }
+      },
+      {
+        "id": "ITEM-TCU-FM-010",
+        "name": "Component renders with null/undefined data due to race condition",
+        "category": "synchronization_error",
+        "component": "TriageResultPanels",
+        "effect_on_software_item": "Component renders before async data fetch completes, null check prevents render but also prevents subsequent re-render",
+        "effect_on_system": "Triage panel never displays even after data loads successfully",
+        "detection_mechanism": "Practitioner sees empty triage section, no error message displayed",
+        "recovery_mechanism": "Manual page refresh or navigation away and back triggers new render cycle",
+        "related_hazards": ["ITEM-TCU-HAZ-001"],
+        "source": {
+          "files": ["src/components/TriageResultPanels/TriageResultPanels.tsx:28-30"]
+        }
+      },
+      {
+        "id": "ITEM-TCU-FM-011",
+        "name": "Session expiry during triage result fetch",
+        "category": "authentication_failure",
+        "component": "Axios HTTP client with clinic-core configuration",
+        "effect_on_software_item": "API returns 401 Unauthorized, axios interceptor may handle or pass through error",
+        "effect_on_system": "Practitioner sees error or empty triage data, may not understand cause is session expiry",
+        "detection_mechanism": "Axios interceptor logs error (if not filtered), host application may detect and redirect to login",
+        "recovery_mechanism": "Practitioner must re-authenticate, then reload page to fetch data",
+        "related_hazards": ["ITEM-TCU-HAZ-010"],
+        "source": {
+          "files": ["src/context/ErrorHandlerProvider.tsx:84-99"]
+        }
+      },
+      {
+        "id": "ITEM-TCU-FM-012",
+        "name": "Interview data mismatch causes flag misattribution",
+        "category": "data_integrity",
+        "component": "useGuidanceItemsCollection",
+        "effect_on_software_item": "Guidance flag has interviewId that doesn't match any interview in fetched interviews collection, flag is excluded from display",
+        "effect_on_system": "Critical clinical flag not displayed to practitioner, potential for missed important information",
+        "detection_mechanism": "Logic at line 62-64 silently excludes flag if interview not found, no error logged",
+        "recovery_mechanism": "No automatic recovery - flag permanently hidden unless data fetch retried",
+        "related_hazards": ["ITEM-TCU-HAZ-001", "ITEM-TCU-HAZ-002"],
+        "source": {
+          "files": ["src/hooks/useGuidanceItemsCollection.ts:54-64"]
+        }
+      }
+    ],
+
+    "interfaces_with_safety_impact": [
+      {
+        "id": "ITEM-TCU-IF-001",
+        "interface": "/api/triage/clinic/results/interview/{interviewId}",
+        "type": "REST",
+        "direction": "inbound",
+        "safety_impact": "Primary source of triage results including urgency, level of care, clinical flags. Failure prevents display of critical clinical decision support.",
+        "failure_handling": "Promise.allSettled catches failure, error logged to analytics, error reported to host, component renders empty/null",
+        "timeout": "Default axios timeout (inherited from clinic-core configuration)",
+        "retry_policy": "No automatic retry",
+        "source": {
+          "files": ["src/hooks/useTriageResultsAndInterview.ts:50-54"]
+        }
+      },
+      {
+        "id": "ITEM-TCU-IF-002",
+        "interface": "/api/interviewer/clinic/v3/interviews/{interviewId}",
+        "type": "REST",
+        "direction": "inbound",
+        "safety_impact": "Provides interview metadata for correlating flags with source questionnaires. Failure prevents display of clinical flags.",
+        "failure_handling": "Promise.allSettled catches failure, error logged and reported, component renders without flags",
+        "timeout": "Default axios timeout",
+        "retry_policy": "No automatic retry",
+        "source": {
+          "files": ["src/hooks/useTriageResultsAndInterview.ts:46-48"]
+        }
+      },
+      {
+        "id": "ITEM-TCU-IF-003",
+        "interface": "/rest/healthmanager/clinic/patientquery/v3",
+        "type": "REST",
+        "direction": "inbound",
+        "safety_impact": "Patient search results for identifying correct patient. Wrong results or failure could lead to viewing wrong patient's data.",
+        "failure_handling": "React Query handles error state, component sets hasError flag, no explicit error display in component",
+        "timeout": "Default axios timeout",
+        "retry_policy": "React Query default retry policy (3 retries)",
+        "source": {
+          "files": ["src/hooks/usePatientSearch.ts:13-16"]
+        }
+      },
+      {
+        "id": "ITEM-TCU-IF-004",
+        "interface": "/rest/interviewer/clinic/v3/search",
+        "type": "REST",
+        "direction": "inbound",
+        "safety_impact": "NLP-based condition search for assisted triage. Incorrect results could lead to inappropriate triage interview selection.",
+        "failure_handling": "React Query handles error state, component may display empty results or loading spinner",
+        "timeout": "Default axios timeout",
+        "retry_policy": "React Query default retry policy",
+        "source": {
+          "files": ["src/hooks/useNLPConditionQueryResults.ts:21-27"]
+        }
+      },
+      {
+        "id": "ITEM-TCU-IF-005",
+        "interface": "ErrorReporter callback (onError prop)",
+        "type": "callback",
+        "direction": "outbound",
+        "safety_impact": "Reports critical errors to host application for user-facing error messages. Failure to report means practitioner unaware of data fetch failures.",
+        "failure_handling": "No error handling on callback invocation - assumes host application handles errors",
+        "timeout": "N/A",
+        "retry_policy": "N/A",
+        "source": {
+          "files": ["src/context/ErrorHandlerProvider.tsx:140-142", "src/hooks/useTriageResultsAndInterview.ts:84"]
+        }
+      },
+      {
+        "id": "ITEM-TCU-IF-006",
+        "interface": "@platform24/analytics logError",
+        "type": "library",
+        "direction": "outbound",
+        "safety_impact": "Logs errors and events for post-market surveillance and operational monitoring. Failure prevents detection of systematic issues.",
+        "failure_handling": "Axios interceptor excludes event-analytics endpoint from error logging to prevent infinite loop. No retry if logging fails.",
+        "timeout": "N/A",
+        "retry_policy": "N/A",
+        "source": {
+          "files": ["src/context/ErrorHandlerProvider.tsx:133-138"]
+        }
+      },
+      {
+        "id": "ITEM-TCU-IF-007",
+        "interface": "@platform24/clinic-core useConfiguredAxios",
+        "type": "library",
+        "direction": "inbound",
+        "safety_impact": "Provides configured axios instance with authentication and base URL. If returns null, all API calls fail.",
+        "failure_handling": "Components check for null configuredAxios and return early without rendering. No error message to user.",
+        "timeout": "N/A",
+        "retry_policy": "N/A",
+        "source": {
+          "files": ["src/hooks/useTriageResultsAndInterview.ts:16", "src/federations/PatientTriageResult.tsx:43-45"]
+        }
+      }
+    ],
+
+    "verification_gaps": [
+      {
+        "id": "ITEM-TCU-GAP-001",
+        "type": "untested_control",
+        "description": "Null/empty data checks in TriageResultPanels and GuidancePanel lack unit tests",
+        "affected_items": ["ITEM-TCU-RC-002"],
+        "priority": "high",
+        "recommendation": "Add unit tests verifying components return null when triageResults is empty, interviews is null, or guidanceCollection is empty. Test that no partial rendering occurs."
+      },
+      {
+        "id": "ITEM-TCU-GAP-002",
+        "type": "untested_control",
+        "description": "AbortController cleanup in useEffect hooks not verified",
+        "affected_items": ["ITEM-TCU-RC-005"],
+        "priority": "medium",
+        "recommendation": "Add tests verifying controller.abort() is called on component unmount and that in-flight requests are cancelled without causing state updates."
+      },
+      {
+        "id": "ITEM-TCU-GAP-003",
+        "type": "untested_control",
+        "description": "Debounce behavior for patient and condition search not tested",
+        "affected_items": ["ITEM-TCU-RC-006"],
+        "priority": "medium",
+        "recommendation": "Add integration tests verifying 500ms debounce prevents excessive API calls and that only final query after debounce is executed."
+      },
+      {
+        "id": "ITEM-TCU-GAP-004",
+        "type": "missing_failure_test",
+        "description": "No test for malformed JSON response from triage result API",
+        "affected_items": ["ITEM-TCU-FM-006"],
+        "priority": "high",
+        "recommendation": "Add test case where API returns 200 but with unexpected JSON structure. Verify error boundary catches rendering failures and error is logged."
+      },
+      {
+        "id": "ITEM-TCU-GAP-005",
+        "type": "untested_control",
+        "description": "Interview ID correlation logic in useGuidanceItemsCollection not verified",
+        "affected_items": ["ITEM-TCU-RC-012"],
+        "priority": "high",
+        "recommendation": "Add unit tests verifying flags without matching interviews are excluded, and that flags with correct interviewId are included with proper tooltip messages."
+      },
+      {
+        "id": "ITEM-TCU-GAP-006",
+        "type": "missing_failure_test",
+        "description": "No test for partial failure in Promise.allSettled (some interviews succeed, some fail)",
+        "affected_items": ["ITEM-TCU-RC-001", "ITEM-TCU-FM-002"],
+        "priority": "high",
+        "recommendation": "Add integration test where one interviewId succeeds and another fails. Verify error is reported but successful data is still displayed."
+      },
+      {
+        "id": "ITEM-TCU-GAP-007",
+        "type": "unverified_interface",
+        "description": "No test coverage for minimum query length validation in patient search",
+        "affected_items": ["ITEM-TCU-RC-008"],
+        "priority": "medium",
+        "recommendation": "Add test verifying API query is not triggered when query length < 3 characters, and that enabled flag correctly prevents premature queries."
+      },
+      {
+        "id": "ITEM-TCU-GAP-008",
+        "type": "untested_control",
+        "description": "Markdown rendering security not verified",
+        "affected_items": ["ITEM-TCU-RC-009"],
+        "priority": "medium",
+        "recommendation": "Add security tests verifying react-markdown sanitizes HTML and prevents XSS when guidance content contains malicious markdown."
+      },
+      {
+        "id": "ITEM-TCU-GAP-009",
+        "type": "untested_control",
+        "description": "NLP search filter for 'general' condition not tested",
+        "affected_items": ["ITEM-TCU-RC-010"],
+        "priority": "low",
+        "recommendation": "Add test verifying 'general' conditionId is filtered from results even if returned by API."
+      },
+      {
+        "id": "ITEM-TCU-GAP-010",
+        "type": "missing_failure_test",
+        "description": "No test for stale data scenario with React Query cache",
+        "affected_items": ["ITEM-TCU-FM-009"],
+        "priority": "medium",
+        "recommendation": "Add test simulating cache not being invalidated after data update. Verify stale data behavior and document cache invalidation strategy."
+      },
+      {
+        "id": "ITEM-TCU-GAP-011",
+        "type": "missing_failure_test",
+        "description": "No test for session expiry / 401 response during triage data fetch",
+        "affected_items": ["ITEM-TCU-FM-011"],
+        "priority": "medium",
+        "recommendation": "Add test case where API returns 401 Unauthorized. Verify error is logged and appropriate error state is set in components."
+      },
+      {
+        "id": "ITEM-TCU-GAP-012",
+        "type": "untested_control",
+        "description": "Guardian default selection logic not verified for edge cases",
+        "affected_items": ["ITEM-TCU-RC-011"],
+        "priority": "medium",
+        "recommendation": "Add tests for edge cases: empty guardian list, canSeekCareForThemself changing after initial load, ENABLE_EQUAL_ACCESS_FOR_GUARDIANS feature flag toggling."
+      }
+    ]
+  },
+
+  "aggregation_hints": {
+    "cross_item_interfaces": [
+      "API endpoints /api/triage/clinic/results/interview/{id} and /api/interviewer/clinic/v3/interviews/{id} connect to triage-engine and interviewer4 items",
+      "ErrorReporter callback connects to clinic-app host application",
+      "@platform24/analytics logError connects to analytics infrastructure",
+      "@platform24/clinic-core provides shared authentication and axios configuration"
+    ],
+    "shared_hazards": [
+      "Wrong patient data displayed (shared with any UI displaying patient information)",
+      "Network/timeout failures affecting data display (shared with all items using REST APIs)",
+      "Stale cached data (shared with any item using React Query or client-side caching)",
+      "Session expiry causing data access failures (shared across all authenticated items)"
+    ],
+    "system_level_controls_needed": [
+      "Coordinated cache invalidation strategy across all clinic UI microfrontends",
+      "Consistent error messaging and user guidance for network/timeout failures",
+      "System-wide monitoring dashboard for API failures affecting clinical workflows",
+      "Practitioner training on interpreting triage urgency levels and clinical flags",
+      "Standard operating procedures for when triage system is unavailable",
+      "Patient identity verification procedures independent of software search"
+    ]
+  }
+}

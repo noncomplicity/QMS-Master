@@ -1,0 +1,1416 @@
+{
+  "aggregation_metadata": {
+    "system_id": "Triage24",
+    "system_name": "Digital Triage System",
+    "aggregated_at": "2026-03-06T22:00:00Z",
+    "risk_assessed_at": "2026-03-06",
+    "aggregator_version": "3.0",
+    "standard": "IEC 62304:2006+AMD1:2015 / ISO 14971:2019 / IEC 82304-1:2016",
+    "assessment_methodology": "ISO 14971:2019 two-factor probability model (P1 × P2)",
+    "hierarchy": {
+      "level": "system"
+    },
+    "source_modules": [
+      {"module_id": "triage-engine", "module_name": "Triage Engine"},
+      {"module_id": "actions-module", "module_name": "Actions Module"},
+      {"module_id": "infrastructure", "module_name": "Infrastructure Services"},
+      {"module_id": "user-interfaces", "module_name": "User Interfaces"}
+    ],
+    "operator_inputs": {
+      "intended_use": "system/defined/intended-use.json",
+      "safety_characteristics": "system/defined/safety-characteristics.json",
+      "risk_criteria": "system/defined/risk-criteria.json",
+      "hazard_assessments": "system/defined/hazard-assessments.json"
+    }
+  },
+
+  "product_context": {
+    "mdr_class": "IIa",
+    "mdr_rule": "Rule 11",
+    "basic_udi_di": "735012722P24001LR",
+    "safety_class": "B",
+    "safety_class_rationale": "Software that can contribute to hazardous situations through incorrect triage recommendations. Contraindications exclude life-threatening conditions, and practitioner oversight provides additional safety layer."
+  },
+
+  "risk_model": {
+    "chain": "Hazard → Sequence (P1) → Hazardous Situation → Harm (S, P2)",
+    "severity_scale": {"1": "Negligible", "2": "Minor", "3": "Serious", "4": "Critical", "5": "Catastrophic"},
+    "probability_scale": {"1": "Incredible", "2": "Remote", "3": "Occasional", "4": "Probable", "5": "Frequent"},
+    "p1_description": "Probability sequence leads to hazardous situation",
+    "p2_description": "Probability hazardous situation results in specific harm",
+    "rpn_calculation": "RPN = S × P (where P derived from P1 × P2)",
+    "acceptability": {"low": "RPN ≤ 6", "alarp": "RPN 7-12", "unacceptable": "RPN > 12"}
+  },
+
+  "intended_uses": [
+    {
+      "id": "IU-001",
+      "name": "Patient triage to appropriate level of care",
+      "description": "Triage24 is intended to provide patients with a recommendation of an appropriate level of care, based on urgency of symptoms reported by the user.",
+      "medical_purpose": "Investigation of a patient's pathological state through patient-reported symptoms to determine appropriate level of care",
+      "target_population": "Outpatient care patients seeking care for common conditions, ages 0-120",
+      "contraindications": [
+        "Patients with life-threatening symptoms, serious conditions or trauma",
+        "Patients physically or cognitively unable to use digital technology",
+        "Patients lacking sufficient language proficiency (conversational variant)"
+      ],
+      "user_intents": ["UI-P01", "UI-P02", "UI-P03", "UI-P04", "UI-P05", "UI-P06"]
+    },
+    {
+      "id": "IU-002",
+      "name": "Assisted triage by healthcare practitioners",
+      "description": "Healthcare practitioners perform automated triage on behalf of patients who cannot use the digital interface",
+      "medical_purpose": "Enable standardized triage using the same medical content and business rules as patient self-triage",
+      "target_population": "Patients who cannot use digital patient interface",
+      "contraindications": [],
+      "user_intents": ["UI-H01", "UI-H02"]
+    },
+    {
+      "id": "IU-003",
+      "name": "Medical content and business rules configuration",
+      "description": "Configure triage logic to fit specific healthcare provider needs",
+      "medical_purpose": "Enable healthcare providers to configure triage logic for their workflows",
+      "target_population": "Healthcare providers",
+      "contraindications": [],
+      "user_intents": ["UI-M01", "UI-M02", "UI-M03"]
+    }
+  ],
+
+  "user_intents": [
+    {
+      "id": "UI-P01",
+      "name": "Seek appropriate level of care",
+      "user_type": "patient",
+      "intended_use_id": "IU-001",
+      "core_functionalities": ["CF-01", "CF-02", "CF-04", "CF-05"]
+    },
+    {
+      "id": "UI-P02",
+      "name": "Describe symptoms for triage",
+      "user_type": "patient",
+      "intended_use_id": "IU-001",
+      "core_functionalities": ["CF-01", "CF-03", "CF-FB01", "CF-FB02"]
+    },
+    {
+      "id": "UI-P03",
+      "name": "Review and modify responses",
+      "user_type": "patient",
+      "intended_use_id": "IU-001",
+      "core_functionalities": ["CF-06", "CF-FB04"]
+    },
+    {
+      "id": "UI-P04",
+      "name": "Receive self-care advice",
+      "user_type": "patient",
+      "intended_use_id": "IU-001",
+      "core_functionalities": ["CF-05"]
+    },
+    {
+      "id": "UI-P06",
+      "name": "Receive urgent care warnings",
+      "user_type": "patient",
+      "intended_use_id": "IU-001",
+      "core_functionalities": ["CF-03", "CF-06"]
+    },
+    {
+      "id": "UI-H01",
+      "name": "Perform assisted triage",
+      "user_type": "practitioner",
+      "intended_use_id": "IU-002",
+      "core_functionalities": ["CF-01", "CF-02", "CF-03", "CF-04"]
+    },
+    {
+      "id": "UI-H02",
+      "name": "View triage results and exit attributes",
+      "user_type": "practitioner",
+      "intended_use_id": "IU-002",
+      "core_functionalities": ["CF-05"]
+    }
+  ],
+
+  "safety_characteristics": [
+    {
+      "id": "SC-001",
+      "annex_c_ref": "C.2.1",
+      "question": "What is the intended use?",
+      "applicable": true,
+      "assessment": "Digital triage for primary care - collects symptoms, applies clinical rules, guides care pathway"
+    },
+    {
+      "id": "SC-005",
+      "annex_c_ref": "C.2.12",
+      "question": "Is the device intended to be interpretive?",
+      "applicable": true,
+      "assessment": "Rule engine interprets symptoms via clinical decision rules to determine urgency levels"
+    },
+    {
+      "id": "SC-007",
+      "annex_c_ref": "C.2.19",
+      "question": "Is software incorporated?",
+      "applicable": true,
+      "assessment": "System is SaMD. 7 software items, Safety Class B."
+    },
+    {
+      "id": "SC-010",
+      "annex_c_ref": "C.2.28",
+      "question": "Is successful use critically dependent on human factors?",
+      "applicable": true,
+      "assessment": "Patient data entry critical for accuracy. Practitioner interpretation required."
+    },
+    {
+      "id": "SC-012",
+      "annex_c_ref": "C.2.30",
+      "question": "Could the device be susceptible to deliberate misuse?",
+      "applicable": true,
+      "assessment": "Patient could provide false symptoms. SessionStorage manipulation possible."
+    },
+    {
+      "id": "SC-013",
+      "annex_c_ref": "C.2.31",
+      "question": "Does the device hold data critical to patient care?",
+      "applicable": true,
+      "assessment": "Stores symptom data, triage results, consent records, appointment data"
+    },
+    {
+      "id": "SC-014",
+      "annex_c_ref": "C.2.33",
+      "question": "Does the device have essential performance?",
+      "applicable": true,
+      "assessment": "Triage accuracy and availability are essential for safe care routing"
+    }
+  ],
+
+  "core_functionalities": [
+    {
+      "id": "CF-01",
+      "name": "Triage interview execution",
+      "description": "Interviewer Service executes triage interviews by processing patient information, evaluating responses against medical content",
+      "user_intent_ids": ["UI-P01", "UI-P02", "UI-H01"],
+      "implementing_modules": ["triage-engine", "user-interfaces"],
+      "implementing_items": ["interviewer4", "triage-ui"],
+      "failure_modes": ["MOD-TE-FM-001", "MOD-TE-FM-002", "MOD-UI-FM-003", "MOD-UI-FM-004"]
+    },
+    {
+      "id": "CF-02",
+      "name": "Business rules evaluation",
+      "description": "Business Rules Engine generates recommendations by applying configured rules to exit attributes",
+      "user_intent_ids": ["UI-P01", "UI-H01"],
+      "implementing_modules": ["triage-engine"],
+      "implementing_items": ["rule-engine-module"],
+      "failure_modes": ["MOD-TE-FM-007", "MOD-TE-FM-008"]
+    },
+    {
+      "id": "CF-03",
+      "name": "Medical content interpretation",
+      "description": "Interprets configured medical content for appropriate questions and exit conditions",
+      "user_intent_ids": ["UI-P02", "UI-P06", "UI-H01"],
+      "implementing_modules": ["triage-engine"],
+      "implementing_items": ["interviewer4", "rule-engine-module"],
+      "failure_modes": ["MOD-TE-FM-010", "MOD-TE-FM-011"]
+    },
+    {
+      "id": "CF-04",
+      "name": "Exit attribute generation",
+      "description": "Generates standardized exit attributes: urgency level, capability, level of care",
+      "user_intent_ids": ["UI-P01", "UI-H01"],
+      "implementing_modules": ["triage-engine"],
+      "implementing_items": ["interviewer4"],
+      "failure_modes": ["MOD-TE-FM-011"]
+    },
+    {
+      "id": "CF-05",
+      "name": "Recommendation page generation",
+      "description": "Generates recommendation with care routing options based on exit attributes",
+      "user_intent_ids": ["UI-P01", "UI-P04", "UI-H02"],
+      "implementing_modules": ["actions-module", "user-interfaces"],
+      "implementing_items": ["actions", "patient-ui", "triage-clinic-ui"],
+      "failure_modes": ["MOD-ACT-FM-001", "MOD-UI-FM-008", "MOD-UI-FM-009"]
+    },
+    {
+      "id": "CF-06",
+      "name": "Interview locking",
+      "description": "Locks interview after completion or alarming exit, preventing further modification",
+      "user_intent_ids": ["UI-P03", "UI-P06"],
+      "implementing_modules": ["triage-engine"],
+      "implementing_items": ["interviewer4"],
+      "failure_modes": ["MOD-TE-FM-004", "MOD-TE-FM-005"]
+    },
+    {
+      "id": "CF-FB01",
+      "name": "Find condition module (form-based)",
+      "description": "Search functionality for symptom/condition selection triggering appropriate questionnaire",
+      "user_intent_ids": ["UI-P02", "UI-H01"],
+      "implementing_modules": ["user-interfaces"],
+      "implementing_items": ["patient-ui", "triage-clinic-ui"],
+      "failure_modes": ["MOD-UI-FM-011"]
+    },
+    {
+      "id": "CF-FB02",
+      "name": "Structured questionnaire presentation",
+      "description": "Questions presented with predefined answer options",
+      "user_intent_ids": ["UI-P02", "UI-H01"],
+      "implementing_modules": ["user-interfaces"],
+      "implementing_items": ["triage-ui"],
+      "failure_modes": ["MOD-UI-FM-003", "MOD-UI-FM-004", "MOD-UI-FM-005"]
+    },
+    {
+      "id": "CF-FB04",
+      "name": "Question navigation",
+      "description": "Navigation within interview to edit previously answered questions",
+      "user_intent_ids": ["UI-P03"],
+      "implementing_modules": ["user-interfaces"],
+      "implementing_items": ["triage-ui"],
+      "failure_modes": ["MOD-UI-FM-005"]
+    }
+  ],
+
+  "software_items": [
+    {
+      "id": "ITEM-INTERVIEWER4",
+      "name": "interviewer4",
+      "module": "triage-engine",
+      "safety_class": "B",
+      "description": "Interview and questionnaire service for collecting patient symptoms"
+    },
+    {
+      "id": "ITEM-REM",
+      "name": "rule-engine-module",
+      "module": "triage-engine",
+      "safety_class": "B",
+      "description": "Rule engine evaluating clinical triage rules"
+    },
+    {
+      "id": "ITEM-ACTIONS",
+      "name": "actions",
+      "module": "actions-module",
+      "safety_class": "B",
+      "description": "Patient action management service"
+    },
+    {
+      "id": "ITEM-OS",
+      "name": "object-storage",
+      "module": "infrastructure",
+      "safety_class": "A",
+      "description": "File storage service with AES-256 encryption"
+    },
+    {
+      "id": "ITEM-PATIENT-UI",
+      "name": "patient-ui",
+      "module": "user-interfaces",
+      "safety_class": "B",
+      "description": "Patient-facing web application"
+    },
+    {
+      "id": "ITEM-TRIAGE-UI",
+      "name": "triage-ui",
+      "module": "user-interfaces",
+      "safety_class": "B",
+      "description": "Triage interview UI microfrontend"
+    },
+    {
+      "id": "ITEM-TCU",
+      "name": "triage-clinic-ui",
+      "module": "user-interfaces",
+      "safety_class": "B",
+      "description": "Clinic practitioner UI"
+    }
+  ],
+
+  "system_hazards": [
+    {
+      "id": "SYS-HAZ-001",
+      "description": "Patient receives incorrect triage recommendation due to rule engine or interview data failure",
+      "contributing_modules": ["triage-engine", "user-interfaces"],
+      "contributing_module_hazards": ["MOD-TE-HAZ-003", "MOD-TE-HAZ-004", "MOD-UI-HAZ-001", "MOD-UI-HAZ-002"],
+      "contributing_failure_modes": ["MOD-TE-FM-007", "MOD-TE-FM-008", "MOD-TE-FM-011", "MOD-UI-FM-003"],
+      "related_safety_characteristics": ["SC-005", "SC-010", "SC-014"],
+      "related_intended_uses": ["IU-001"],
+      "risk_controls": ["SYS-RC-001", "SYS-RC-002", "SYS-RC-003"],
+
+      "sequences_of_events": [
+        {
+          "seq_id": "SEQ-SYS-001-A",
+          "name": "Rule engine returns wrong recommendation",
+          "steps": [
+            "1. Patient completes symptom interview",
+            "2. Interview data passed to rule engine",
+            "3. Rule package has defect or misconfiguration",
+            "4. Wrong urgency/exit attributes generated",
+            "5. Patient receives incorrect care recommendation"
+          ],
+          "P1": 3,
+          "P1_rationale": "Occasional: Rule packages validated before deploy, but complex interactions possible",
+          "leads_to": "HS-SYS-001-1"
+        },
+        {
+          "seq_id": "SEQ-SYS-001-B",
+          "name": "Patient enters incorrect symptoms",
+          "steps": [
+            "1. Patient reaches symptom question",
+            "2. UI confusing or medical terminology unclear",
+            "3. Patient selects wrong answer",
+            "4. Triage logic evaluates wrong symptoms",
+            "5. Wrong recommendation generated"
+          ],
+          "P1": 4,
+          "P1_rationale": "Probable: B1-B2 language proficiency users, medical terminology common",
+          "leads_to": "HS-SYS-001-1"
+        }
+      ],
+
+      "hazardous_situations": [
+        {
+          "hs_id": "HS-SYS-001-1",
+          "description": "Patient directed to inappropriate level of care based on wrong triage result",
+          "from_sequences": ["SEQ-SYS-001-A", "SEQ-SYS-001-B"],
+          "leads_to_harms": ["HARM-SYS-001-1", "HARM-SYS-001-2"]
+        }
+      ],
+
+      "harms": [
+        {
+          "harm_id": "HARM-SYS-001-1",
+          "description": "Delayed treatment for urgent condition (under-triage)",
+          "S": 4,
+          "S_rationale": "Critical: Delayed urgent care could cause permanent impairment",
+          "P2": 3,
+          "P2_rationale": "Occasional: Wrong triage leads to harm in ~10-50% of cases",
+          "from_situation": "HS-SYS-001-1"
+        },
+        {
+          "harm_id": "HARM-SYS-001-2",
+          "description": "Unnecessary emergency visit, patient anxiety (over-triage)",
+          "S": 2,
+          "S_rationale": "Minor: Anxiety and wasted resources, no physical harm",
+          "P2": 3,
+          "P2_rationale": "Occasional: Over-triage also possible outcome",
+          "from_situation": "HS-SYS-001-1"
+        }
+      ],
+
+      "risk_estimation": {
+        "worst_case": {"harm": "HARM-SYS-001-1", "S": 4, "P1": 4, "P2": 3},
+        "P1xP2": 12,
+        "P_combined": 3,
+        "RPN_initial": 12
+      },
+
+      "residual_risk": {
+        "S": 4,
+        "P1": 2,
+        "P2": 3,
+        "P1_calc": "Rule validation + practitioner training reduce P1",
+        "P1xP2": 6,
+        "P_combined": 2,
+        "RPN": 8,
+        "acceptability": "alarp"
+      }
+    },
+
+    {
+      "id": "SYS-HAZ-002",
+      "description": "Wrong patient data displayed to practitioner causing treatment for wrong patient",
+      "contributing_modules": ["user-interfaces"],
+      "contributing_module_hazards": ["MOD-UI-HAZ-008"],
+      "contributing_failure_modes": ["MOD-UI-FM-011"],
+      "related_safety_characteristics": ["SC-010", "SC-013"],
+      "related_intended_uses": ["IU-002"],
+      "risk_controls": ["SYS-RC-004", "SYS-RC-005"],
+
+      "sequences_of_events": [
+        {
+          "seq_id": "SEQ-SYS-002-A",
+          "name": "Race condition in patient search",
+          "steps": [
+            "1. Practitioner searches for patient by name",
+            "2. Multiple patients with similar names returned",
+            "3. Practitioner clicks patient A",
+            "4. API response for patient B arrives late and overwrites display",
+            "5. Practitioner views patient B's data as patient A"
+          ],
+          "P1": 3,
+          "P1_rationale": "Occasional: Race conditions possible with slow network",
+          "leads_to": "HS-SYS-002-1"
+        },
+        {
+          "seq_id": "SEQ-SYS-002-B",
+          "name": "Practitioner selects wrong patient",
+          "steps": [
+            "1. Practitioner searches for patient",
+            "2. Multiple similar names displayed",
+            "3. Practitioner clicks wrong patient (distraction/UI similarity)",
+            "4. Wrong patient's data loaded"
+          ],
+          "P1": 4,
+          "P1_rationale": "Probable: Human error common with similar names",
+          "leads_to": "HS-SYS-002-1"
+        }
+      ],
+
+      "hazardous_situations": [
+        {
+          "hs_id": "HS-SYS-002-1",
+          "description": "Practitioner conducts clinical decision-making using wrong patient's data",
+          "from_sequences": ["SEQ-SYS-002-A", "SEQ-SYS-002-B"],
+          "leads_to_harms": ["HARM-SYS-002-1", "HARM-SYS-002-2", "HARM-SYS-002-3"]
+        }
+      ],
+
+      "harms": [
+        {
+          "harm_id": "HARM-SYS-002-1",
+          "description": "Patient receives contraindicated treatment based on wrong history/allergies",
+          "S": 5,
+          "S_rationale": "Catastrophic: Contraindicated treatment could cause death",
+          "P2": 2,
+          "P2_rationale": "Remote: Contraindication match between wrong patient's data and correct patient's condition unlikely",
+          "from_situation": "HS-SYS-002-1"
+        },
+        {
+          "harm_id": "HARM-SYS-002-2",
+          "description": "Urgent condition missed - wrong patient's symptoms appear non-urgent",
+          "S": 4,
+          "S_rationale": "Critical: Delayed urgent care could cause permanent impairment",
+          "P2": 3,
+          "P2_rationale": "Occasional: Symptom mismatch may hide urgency",
+          "from_situation": "HS-SYS-002-1"
+        },
+        {
+          "harm_id": "HARM-SYS-002-3",
+          "description": "Inappropriate care routing delays needed treatment",
+          "S": 3,
+          "S_rationale": "Serious: Delay may require additional intervention but recoverable",
+          "P2": 4,
+          "P2_rationale": "Probable: Wrong data likely leads to suboptimal routing",
+          "from_situation": "HS-SYS-002-1"
+        }
+      ],
+
+      "risk_estimation": {
+        "worst_case": {"harm": "HARM-SYS-002-1", "S": 5, "P1": 4, "P2": 2},
+        "P1xP2": 8,
+        "P_combined": 3,
+        "RPN_initial": 15
+      },
+
+      "residual_risk": {
+        "S": 5,
+        "P1": 2,
+        "P2": 2,
+        "P1_calc": "Patient verification dialog + session isolation + independent verification procedure",
+        "P1xP2": 4,
+        "P_combined": 2,
+        "RPN": 10,
+        "acceptability": "alarp"
+      }
+    },
+
+    {
+      "id": "SYS-HAZ-003",
+      "description": "Clinical rules fail to load or update, system operates with stale rules",
+      "contributing_modules": ["triage-engine", "infrastructure"],
+      "contributing_module_hazards": ["MOD-TE-HAZ-005", "MOD-INF-HAZ-005"],
+      "contributing_failure_modes": ["MOD-TE-FM-009", "MOD-INF-FM-002"],
+      "related_safety_characteristics": ["SC-005", "SC-014"],
+      "related_intended_uses": ["IU-001", "IU-002"],
+      "risk_controls": ["SYS-RC-006", "SYS-RC-007"],
+
+      "sequences_of_events": [
+        {
+          "seq_id": "SEQ-SYS-003-A",
+          "name": "Rule package fails to load",
+          "steps": [
+            "1. System starts or requires rule update",
+            "2. Rule package file corrupted or unavailable",
+            "3. RuleVerifier rejects package",
+            "4. System operates without current rules or falls back",
+            "5. Patients triaged with stale/missing rules"
+          ],
+          "P1": 2,
+          "P1_rationale": "Remote: Deployment validation, monitoring in place",
+          "leads_to": "HS-SYS-003-1"
+        },
+        {
+          "seq_id": "SEQ-SYS-003-B",
+          "name": "Silent rule corruption",
+          "steps": [
+            "1. Rule package deployed",
+            "2. Partial data corruption goes undetected",
+            "3. RuleVerifier passes syntax but logic wrong",
+            "4. Incorrect rules execute for extended period"
+          ],
+          "P1": 2,
+          "P1_rationale": "Remote: Checksums and validation reduce probability",
+          "leads_to": "HS-SYS-003-2"
+        }
+      ],
+
+      "hazardous_situations": [
+        {
+          "hs_id": "HS-SYS-003-1",
+          "description": "System operates without current clinical rules",
+          "from_sequences": ["SEQ-SYS-003-A"],
+          "leads_to_harms": ["HARM-SYS-003-1"]
+        },
+        {
+          "hs_id": "HS-SYS-003-2",
+          "description": "Corrupted rules execute affecting multiple patients",
+          "from_sequences": ["SEQ-SYS-003-B"],
+          "leads_to_harms": ["HARM-SYS-003-2"]
+        }
+      ],
+
+      "harms": [
+        {
+          "harm_id": "HARM-SYS-003-1",
+          "description": "Multiple patients triaged with outdated logic until detected",
+          "S": 4,
+          "S_rationale": "Critical: Outdated rules may miss new conditions or use superseded thresholds",
+          "P2": 3,
+          "P2_rationale": "Occasional: Impact depends on what changed in rules",
+          "from_situation": "HS-SYS-003-1"
+        },
+        {
+          "harm_id": "HARM-SYS-003-2",
+          "description": "Systematic triage errors affect patient population",
+          "S": 4,
+          "S_rationale": "Critical: Corrupted logic could systematically under-triage",
+          "P2": 3,
+          "P2_rationale": "Occasional: Corruption may affect critical paths",
+          "from_situation": "HS-SYS-003-2"
+        }
+      ],
+
+      "risk_estimation": {
+        "worst_case": {"harm": "HARM-SYS-003-2", "S": 4, "P1": 2, "P2": 3},
+        "P1xP2": 6,
+        "P_combined": 2,
+        "RPN_initial": 8
+      },
+
+      "residual_risk": {
+        "S": 4,
+        "P1": 1,
+        "P2": 3,
+        "P1_calc": "Rule validation + graceful degradation + monitoring",
+        "P1xP2": 3,
+        "P_combined": 2,
+        "RPN": 8,
+        "acceptability": "alarp"
+      }
+    },
+
+    {
+      "id": "SYS-HAZ-004",
+      "description": "Urgent condition not identified due to missed alarming exit",
+      "contributing_modules": ["triage-engine", "user-interfaces"],
+      "contributing_module_hazards": ["MOD-TE-HAZ-001", "MOD-UI-HAZ-009"],
+      "contributing_failure_modes": ["MOD-TE-FM-001", "MOD-UI-FM-010"],
+      "related_safety_characteristics": ["SC-014"],
+      "related_intended_uses": ["IU-001"],
+      "risk_controls": ["SYS-RC-001", "SYS-RC-008"],
+
+      "sequences_of_events": [
+        {
+          "seq_id": "SEQ-SYS-004-A",
+          "name": "Alarming exit not triggered by symptoms",
+          "steps": [
+            "1. Patient with urgent symptoms starts triage",
+            "2. Symptoms entered but alarming criteria not matched",
+            "3. Medical content missing edge case",
+            "4. Normal exit instead of alarming exit",
+            "5. Patient not directed to emergency care"
+          ],
+          "P1": 3,
+          "P1_rationale": "Occasional: Medical content extensively validated, but edge cases possible",
+          "leads_to": "HS-SYS-004-1"
+        },
+        {
+          "seq_id": "SEQ-SYS-004-B",
+          "name": "Urgency indicator not noticed",
+          "steps": [
+            "1. System correctly determines urgent condition",
+            "2. Urgency displayed but poorly visible",
+            "3. Practitioner misses indicator during high workload",
+            "4. Patient triaged as non-urgent"
+          ],
+          "P1": 4,
+          "P1_rationale": "Probable: Usability not verified, high workload normal",
+          "leads_to": "HS-SYS-004-1"
+        }
+      ],
+
+      "hazardous_situations": [
+        {
+          "hs_id": "HS-SYS-004-1",
+          "description": "Patient with urgent condition not directed to appropriate emergency care",
+          "from_sequences": ["SEQ-SYS-004-A", "SEQ-SYS-004-B"],
+          "leads_to_harms": ["HARM-SYS-004-1", "HARM-SYS-004-2"]
+        }
+      ],
+
+      "harms": [
+        {
+          "harm_id": "HARM-SYS-004-1",
+          "description": "Delayed emergency care for life-threatening condition",
+          "S": 5,
+          "S_rationale": "Catastrophic: Missed emergency could result in death",
+          "P2": 2,
+          "P2_rationale": "Remote: Contraindications exclude life-threatening, but edge cases exist",
+          "from_situation": "HS-SYS-004-1"
+        },
+        {
+          "harm_id": "HARM-SYS-004-2",
+          "description": "Urgent condition deteriorates due to delayed treatment",
+          "S": 4,
+          "S_rationale": "Critical: Permanent impairment possible from delay",
+          "P2": 3,
+          "P2_rationale": "Occasional: Delayed urgent care leads to worsening in 10-50% of cases",
+          "from_situation": "HS-SYS-004-1"
+        }
+      ],
+
+      "risk_estimation": {
+        "worst_case": {"harm": "HARM-SYS-004-1", "S": 5, "P1": 4, "P2": 2},
+        "P1xP2": 8,
+        "P_combined": 3,
+        "RPN_initial": 15
+      },
+
+      "residual_risk": {
+        "S": 5,
+        "P1": 2,
+        "P2": 2,
+        "P1_calc": "Contraindications + 112 warnings reduce exposure to life-threatening, but usability gap remains",
+        "P1xP2": 4,
+        "P_combined": 2,
+        "RPN": 10,
+        "acceptability": "conditional_alarp",
+        "condition": "Requires usability testing for urgency indicator visibility"
+      }
+    },
+
+    {
+      "id": "SYS-HAZ-005",
+      "description": "Wrong patient executes clinical action (booking, referral)",
+      "contributing_modules": ["actions-module"],
+      "contributing_module_hazards": ["MOD-ACT-HAZ-006"],
+      "contributing_failure_modes": ["MOD-ACT-FM-009"],
+      "related_safety_characteristics": ["SC-012", "SC-013"],
+      "related_intended_uses": ["IU-001"],
+      "risk_controls": ["SYS-RC-004", "SYS-RC-009"],
+
+      "sequences_of_events": [
+        {
+          "seq_id": "SEQ-SYS-005-A",
+          "name": "Session context confusion on shared device",
+          "steps": [
+            "1. Patient A completes triage on shared device",
+            "2. Session expires or tab left open",
+            "3. Patient B accesses same device",
+            "4. Patient B triggers action with Patient A's context",
+            "5. Action executes for wrong patient"
+          ],
+          "P1": 3,
+          "P1_rationale": "Occasional: Shared devices common in waiting rooms",
+          "leads_to": "HS-SYS-005-1"
+        }
+      ],
+
+      "hazardous_situations": [
+        {
+          "hs_id": "HS-SYS-005-1",
+          "description": "Care action executed for wrong patient based on another's triage",
+          "from_sequences": ["SEQ-SYS-005-A"],
+          "leads_to_harms": ["HARM-SYS-005-1", "HARM-SYS-005-2", "HARM-SYS-005-3"]
+        }
+      ],
+
+      "harms": [
+        {
+          "harm_id": "HARM-SYS-005-1",
+          "description": "Wrong patient receives care appointment based on another's triage",
+          "S": 4,
+          "S_rationale": "Critical: Wrong care type could cause harm",
+          "P2": 3,
+          "P2_rationale": "Occasional: Downstream systems may not detect mismatch",
+          "from_situation": "HS-SYS-005-1"
+        },
+        {
+          "harm_id": "HARM-SYS-005-2",
+          "description": "Correct patient does not receive needed care",
+          "S": 3,
+          "S_rationale": "Serious: Original patient's care delayed but will re-triage",
+          "P2": 3,
+          "P2_rationale": "Occasional: Patient may notice missing appointment",
+          "from_situation": "HS-SYS-005-1"
+        },
+        {
+          "harm_id": "HARM-SYS-005-3",
+          "description": "Confidentiality breach - patient sees another's care plan",
+          "S": 3,
+          "S_rationale": "Serious: Privacy violation, regulatory implications",
+          "P2": 4,
+          "P2_rationale": "Probable: If session confused, data exposure likely",
+          "from_situation": "HS-SYS-005-1"
+        }
+      ],
+
+      "risk_estimation": {
+        "worst_case": {"harm": "HARM-SYS-005-1", "S": 4, "P1": 3, "P2": 3},
+        "P1xP2": 9,
+        "P_combined": 3,
+        "RPN_initial": 12
+      },
+
+      "residual_risk": {
+        "S": 4,
+        "P1": 2,
+        "P2": 2,
+        "P1_calc": "Patient ID validation + session binding + action state validation",
+        "P2_residual_rationale": "Remote: Booking systems have additional verification",
+        "P1xP2": 4,
+        "P_combined": 2,
+        "RPN": 8,
+        "acceptability": "alarp"
+      }
+    },
+
+    {
+      "id": "SYS-HAZ-006",
+      "description": "SQL injection compromises system database and encryption keys",
+      "contributing_modules": ["infrastructure"],
+      "contributing_module_hazards": ["MOD-INF-HAZ-004"],
+      "contributing_failure_modes": ["MOD-INF-FM-006"],
+      "related_safety_characteristics": ["SC-013"],
+      "related_intended_uses": ["IU-001", "IU-002", "IU-003"],
+      "risk_controls": ["SYS-RC-010", "SYS-RC-011"],
+
+      "sequences_of_events": [
+        {
+          "seq_id": "SEQ-SYS-006-A",
+          "name": "Malicious SQL injection attack",
+          "steps": [
+            "1. Attacker identifies API endpoint accepting labels",
+            "2. Attacker crafts SQL injection payload",
+            "3. Payload bypasses API validation",
+            "4. Label reaches escapeString function",
+            "5. If escapeString fails, payload reaches SQL",
+            "6. Arbitrary database commands execute"
+          ],
+          "P1": 3,
+          "P1_rationale": "Occasional: Requires attacker access, escapeString protection UNVERIFIED",
+          "leads_to": "HS-SYS-006-1"
+        },
+        {
+          "seq_id": "SEQ-SYS-006-B",
+          "name": "Internal malformed label causes SQL error",
+          "steps": [
+            "1. Internal system generates label with SQL metacharacters",
+            "2. Patient freetext contains quotes/semicolons",
+            "3. escapeString fails edge case",
+            "4. SQL query malformed"
+          ],
+          "P1": 2,
+          "P1_rationale": "Remote: Internal systems generate safe labels typically",
+          "leads_to": "HS-SYS-006-2"
+        }
+      ],
+
+      "hazardous_situations": [
+        {
+          "hs_id": "HS-SYS-006-1",
+          "description": "Attacker gains arbitrary database access",
+          "from_sequences": ["SEQ-SYS-006-A"],
+          "leads_to_harms": ["HARM-SYS-006-1", "HARM-SYS-006-2", "HARM-SYS-006-3"]
+        },
+        {
+          "hs_id": "HS-SYS-006-2",
+          "description": "Database query returns corrupted results",
+          "from_sequences": ["SEQ-SYS-006-B"],
+          "leads_to_harms": ["HARM-SYS-006-4"]
+        }
+      ],
+
+      "harms": [
+        {
+          "harm_id": "HARM-SYS-006-1",
+          "description": "Mass patient data breach - PHI exposed",
+          "S": 5,
+          "S_rationale": "Catastrophic: Privacy breach affecting all patients",
+          "P2": 4,
+          "P2_rationale": "Probable: If injection succeeds, exfiltration straightforward",
+          "from_situation": "HS-SYS-006-1"
+        },
+        {
+          "harm_id": "HARM-SYS-006-2",
+          "description": "Database corruption/deletion affecting care",
+          "S": 5,
+          "S_rationale": "Catastrophic: Loss of patient data affects all patients",
+          "P2": 3,
+          "P2_rationale": "Occasional: Attacker may corrupt/delete, but exfiltration usually primary goal",
+          "from_situation": "HS-SYS-006-1"
+        },
+        {
+          "harm_id": "HARM-SYS-006-3",
+          "description": "System compromised for lateral attacks",
+          "S": 4,
+          "S_rationale": "Critical: Lateral movement to other healthcare systems",
+          "P2": 3,
+          "P2_rationale": "Occasional: DB access may enable privilege escalation",
+          "from_situation": "HS-SYS-006-1"
+        },
+        {
+          "harm_id": "HARM-SYS-006-4",
+          "description": "Wrong patient data returned causing clinical error",
+          "S": 4,
+          "S_rationale": "Critical: Wrong data could lead to wrong decision",
+          "P2": 2,
+          "P2_rationale": "Remote: Malformed query more likely to fail than return plausible wrong data",
+          "from_situation": "HS-SYS-006-2"
+        }
+      ],
+
+      "risk_estimation": {
+        "worst_case": {"harm": "HARM-SYS-006-1", "S": 5, "P1": 3, "P2": 4},
+        "P1xP2": 12,
+        "P_combined": 3,
+        "RPN_initial": 15
+      },
+
+      "residual_risk": {
+        "S": 5,
+        "P1": 2,
+        "P2": 4,
+        "P1_calc": "Parameterized queries + escapeString (IF verified: 3 × 0.1 = 0.3 → 2)",
+        "P1xP2": 8,
+        "P_combined": 3,
+        "RPN": 15,
+        "acceptability": "conditional_alarp",
+        "condition": "CRITICAL: Requires security testing verification of escapeString"
+      }
+    },
+
+    {
+      "id": "SYS-HAZ-007",
+      "description": "Interview data lost or corrupted during transfer to rule engine",
+      "contributing_modules": ["triage-engine"],
+      "contributing_module_hazards": ["MOD-TE-HAZ-002", "MOD-TE-HAZ-003"],
+      "contributing_failure_modes": ["MOD-TE-FM-002", "MOD-TE-FM-003", "MOD-TE-FM-011"],
+      "related_safety_characteristics": ["SC-013", "SC-014"],
+      "related_intended_uses": ["IU-001"],
+      "risk_controls": ["SYS-RC-012", "SYS-RC-013"],
+
+      "sequences_of_events": [
+        {
+          "seq_id": "SEQ-SYS-007-A",
+          "name": "Data corruption during interview-to-rule-engine transfer",
+          "steps": [
+            "1. Patient completes interview",
+            "2. Interview data serialized for rule engine",
+            "3. Encoding error or partial transmission",
+            "4. Rule engine receives incomplete/corrupted data",
+            "5. Triage result based on corrupted input"
+          ],
+          "P1": 2,
+          "P1_rationale": "Remote: Database transactions + typed interfaces reduce risk",
+          "leads_to": "HS-SYS-007-1"
+        },
+        {
+          "seq_id": "SEQ-SYS-007-B",
+          "name": "Transaction rollback loses answers",
+          "steps": [
+            "1. Patient answers question",
+            "2. System starts transaction to save",
+            "3. Database timeout or error",
+            "4. Transaction rolls back",
+            "5. Patient unaware answers were lost"
+          ],
+          "P1": 2,
+          "P1_rationale": "Remote: @Transactional with retry, database monitoring",
+          "leads_to": "HS-SYS-007-2"
+        }
+      ],
+
+      "hazardous_situations": [
+        {
+          "hs_id": "HS-SYS-007-1",
+          "description": "Rule engine evaluates triage with corrupted patient data",
+          "from_sequences": ["SEQ-SYS-007-A"],
+          "leads_to_harms": ["HARM-SYS-007-1"]
+        },
+        {
+          "hs_id": "HS-SYS-007-2",
+          "description": "Patient answers not persisted but interview continues",
+          "from_sequences": ["SEQ-SYS-007-B"],
+          "leads_to_harms": ["HARM-SYS-007-2"]
+        }
+      ],
+
+      "harms": [
+        {
+          "harm_id": "HARM-SYS-007-1",
+          "description": "Wrong triage recommendation from corrupted symptom data",
+          "S": 3,
+          "S_rationale": "Serious: Wrong recommendation may delay needed care",
+          "P2": 3,
+          "P2_rationale": "Occasional: Corrupted data may or may not affect outcome",
+          "from_situation": "HS-SYS-007-1"
+        },
+        {
+          "harm_id": "HARM-SYS-007-2",
+          "description": "Incomplete triage record - important symptoms not captured",
+          "S": 3,
+          "S_rationale": "Serious: Missing data could affect practitioner decision",
+          "P2": 2,
+          "P2_rationale": "Remote: Missing answers usually caught by UI or patient",
+          "from_situation": "HS-SYS-007-2"
+        }
+      ],
+
+      "risk_estimation": {
+        "worst_case": {"harm": "HARM-SYS-007-1", "S": 3, "P1": 2, "P2": 3},
+        "P1xP2": 6,
+        "P_combined": 2,
+        "RPN_initial": 6
+      },
+
+      "residual_risk": {
+        "S": 3,
+        "P1": 1,
+        "P2": 3,
+        "P1_calc": "Database transactions + typed interfaces + monitoring",
+        "P1xP2": 3,
+        "P_combined": 2,
+        "RPN": 6,
+        "acceptability": "low"
+      }
+    },
+
+    {
+      "id": "SYS-HAZ-008",
+      "description": "Patient consent not properly recorded before treatment",
+      "contributing_modules": ["user-interfaces"],
+      "contributing_module_hazards": ["MOD-UI-HAZ-004"],
+      "contributing_failure_modes": ["MOD-UI-FM-006"],
+      "related_safety_characteristics": ["SC-013"],
+      "related_intended_uses": ["IU-001"],
+      "risk_controls": ["SYS-RC-014"],
+
+      "sequences_of_events": [
+        {
+          "seq_id": "SEQ-SYS-008-A",
+          "name": "Consent submission fails silently",
+          "steps": [
+            "1. Patient gives consent in UI",
+            "2. Network error during consent API call",
+            "3. UI does not clearly indicate failure",
+            "4. Patient proceeds thinking consent recorded",
+            "5. Treatment proceeds without valid consent"
+          ],
+          "P1": 2,
+          "P1_rationale": "Remote: Backend verification + retry mechanisms",
+          "leads_to": "HS-SYS-008-1"
+        },
+        {
+          "seq_id": "SEQ-SYS-008-B",
+          "name": "Consent timestamp mismatch",
+          "steps": [
+            "1. Patient gives consent",
+            "2. Clock synchronization issue",
+            "3. Consent recorded with wrong timestamp",
+            "4. Audit shows consent after treatment start"
+          ],
+          "P1": 2,
+          "P1_rationale": "Remote: Server-side timestamps, NTP synchronization",
+          "leads_to": "HS-SYS-008-2"
+        }
+      ],
+
+      "hazardous_situations": [
+        {
+          "hs_id": "HS-SYS-008-1",
+          "description": "Treatment proceeds without valid consent record",
+          "from_sequences": ["SEQ-SYS-008-A"],
+          "leads_to_harms": ["HARM-SYS-008-1", "HARM-SYS-008-2"]
+        },
+        {
+          "hs_id": "HS-SYS-008-2",
+          "description": "Consent audit trail shows regulatory non-compliance",
+          "from_sequences": ["SEQ-SYS-008-B"],
+          "leads_to_harms": ["HARM-SYS-008-3"]
+        }
+      ],
+
+      "harms": [
+        {
+          "harm_id": "HARM-SYS-008-1",
+          "description": "Treatment without valid consent - legal/ethical violation",
+          "S": 3,
+          "S_rationale": "Serious: Legal implications, patient autonomy violated",
+          "P2": 2,
+          "P2_rationale": "Remote: Most consent failures would be caught before treatment",
+          "from_situation": "HS-SYS-008-1"
+        },
+        {
+          "harm_id": "HARM-SYS-008-2",
+          "description": "Patient denied care due to consent recording failure",
+          "S": 3,
+          "S_rationale": "Serious: Delayed care while consent issue resolved",
+          "P2": 3,
+          "P2_rationale": "Occasional: Strict systems may block without consent record",
+          "from_situation": "HS-SYS-008-1"
+        },
+        {
+          "harm_id": "HARM-SYS-008-3",
+          "description": "Regulatory finding - inadequate consent audit trail",
+          "S": 2,
+          "S_rationale": "Minor: No direct patient harm, organizational impact",
+          "P2": 2,
+          "P2_rationale": "Remote: Timestamp issues detectable and correctable",
+          "from_situation": "HS-SYS-008-2"
+        }
+      ],
+
+      "risk_estimation": {
+        "worst_case": {"harm": "HARM-SYS-008-1", "S": 3, "P1": 2, "P2": 2},
+        "P1xP2": 4,
+        "P_combined": 2,
+        "RPN_initial": 6
+      },
+
+      "residual_risk": {
+        "S": 3,
+        "P1": 1,
+        "P2": 2,
+        "P1_calc": "Backend verification + retry + confirmation display",
+        "P1xP2": 2,
+        "P_combined": 1,
+        "RPN": 3,
+        "acceptability": "low"
+      }
+    }
+  ],
+
+  "system_risk_controls": [
+    {
+      "id": "SYS-RC-001",
+      "description": "Clinical validation of medical content and questionnaire logic",
+      "control_type": "inherent_safety",
+      "level": "system",
+      "mitigates": ["SYS-HAZ-001", "SYS-HAZ-004"],
+      "implementation": "Medical content review and approval process before production deployment (D361 training required)",
+      "verification_method": "Content review checklist, clinical sign-off",
+      "source_module_controls": ["MOD-TE-RC-UP-001"]
+    },
+    {
+      "id": "SYS-RC-002",
+      "description": "Mandatory attribute validation at rule engine input",
+      "control_type": "protective_measure",
+      "level": "module",
+      "mitigates": ["SYS-HAZ-001"],
+      "implementation": "RuleEngine.assertInput() validates all mandatory attributes before execution",
+      "verification_method": "Unit tests for validation logic",
+      "source_module_controls": ["MOD-TE-RC-005"]
+    },
+    {
+      "id": "SYS-RC-003",
+      "description": "Practitioner training on triage interpretation and limitations",
+      "control_type": "information_for_safety",
+      "level": "system",
+      "mitigates": ["SYS-HAZ-001"],
+      "implementation": "Practitioners trained that own clinical assessment must be used together with triage result",
+      "verification_method": "Training records, competency assessment",
+      "source_module_controls": ["MOD-TE-RC-UP-005", "MOD-UI-RC-UP-003"]
+    },
+    {
+      "id": "SYS-RC-004",
+      "description": "Patient identity verification at action execution",
+      "control_type": "protective_measure",
+      "level": "item",
+      "mitigates": ["SYS-HAZ-002", "SYS-HAZ-005"],
+      "implementation": "verifyPatient() validates patient ID matches action's patient before execution",
+      "verification_method": "Unit tests, integration tests",
+      "source_module_controls": ["MOD-ACT-RC-004"]
+    },
+    {
+      "id": "SYS-RC-005",
+      "description": "Independent patient identity verification procedure",
+      "control_type": "protective_measure",
+      "level": "system",
+      "mitigates": ["SYS-HAZ-002"],
+      "implementation": "Practitioner must verify patient identity through procedure independent of software",
+      "verification_method": "Clinical procedure documentation",
+      "source_module_controls": ["MOD-UI-RC-UP-004"]
+    },
+    {
+      "id": "SYS-RC-006",
+      "description": "Rule package validation at load time",
+      "control_type": "protective_measure",
+      "level": "module",
+      "mitigates": ["SYS-HAZ-003"],
+      "implementation": "RuleVerifier validates syntax, duplicate IDs, type compatibility before deployment",
+      "verification_method": "Unit tests for RuleVerifier",
+      "source_module_controls": ["MOD-TE-RC-007"]
+    },
+    {
+      "id": "SYS-RC-007",
+      "description": "Graceful degradation when rule engine unavailable",
+      "control_type": "protective_measure",
+      "level": "system",
+      "mitigates": ["SYS-HAZ-003"],
+      "implementation": "System implements fallback triage path when automated triage unavailable",
+      "verification_method": "Integration tests for failover scenario",
+      "source_module_controls": ["MOD-TE-RC-UP-004"]
+    },
+    {
+      "id": "SYS-RC-008",
+      "description": "Contraindications excluding life-threatening conditions",
+      "control_type": "inherent_safety",
+      "level": "system",
+      "mitigates": ["SYS-HAZ-004"],
+      "implementation": "Contraindications state that patients with life-threatening symptoms should not use automated triage. Warning: 'Vid livshotande eller akuta besvär - ring 112'",
+      "verification_method": "IFU review, usability testing",
+      "source_module_controls": []
+    },
+    {
+      "id": "SYS-RC-009",
+      "description": "Action state validation and idempotent execution",
+      "control_type": "protective_measure",
+      "level": "module",
+      "mitigates": ["SYS-HAZ-005"],
+      "implementation": "Action.assertActive() and idempotent execution check prevent duplicate/wrong patient actions",
+      "verification_method": "Unit tests",
+      "source_module_controls": ["MOD-ACT-RC-001", "MOD-ACT-RC-002"]
+    },
+    {
+      "id": "SYS-RC-010",
+      "description": "Parameterized SQL queries",
+      "control_type": "inherent_safety",
+      "level": "item",
+      "mitigates": ["SYS-HAZ-006"],
+      "implementation": "Direct queries use ? placeholders with args",
+      "verification_method": "Code review, security testing",
+      "source_module_controls": ["MOD-INF-RC-005"]
+    },
+    {
+      "id": "SYS-RC-011",
+      "description": "Label value escaping for LIKE clauses",
+      "control_type": "protective_measure",
+      "level": "item",
+      "mitigates": ["SYS-HAZ-006"],
+      "implementation": "escapeString replaces SQL metacharacters",
+      "verification_method": "Unit tests with malicious payloads (CRITICAL GAP: NOT VERIFIED)",
+      "source_module_controls": ["MOD-INF-RC-006"]
+    },
+    {
+      "id": "SYS-RC-012",
+      "description": "Database transaction management for answer persistence",
+      "control_type": "protective_measure",
+      "level": "module",
+      "mitigates": ["SYS-HAZ-007"],
+      "implementation": "Spring @Transactional ensures atomic saves with rollback",
+      "verification_method": "Transaction failure tests",
+      "source_module_controls": ["MOD-TE-RC-002"]
+    },
+    {
+      "id": "SYS-RC-013",
+      "description": "End-to-end data integrity validation",
+      "control_type": "protective_measure",
+      "level": "system",
+      "mitigates": ["SYS-HAZ-007"],
+      "implementation": "Validation of interview data integrity at module boundaries",
+      "verification_method": "Integration tests (GAP: NOT IMPLEMENTED)",
+      "source_module_controls": ["MOD-TE-RC-UP-003"]
+    },
+    {
+      "id": "SYS-RC-014",
+      "description": "Backend consent persistence verification",
+      "control_type": "protective_measure",
+      "level": "module",
+      "mitigates": ["SYS-HAZ-008"],
+      "implementation": "Backend verifies consent persistence and returns confirmation",
+      "verification_method": "Integration tests",
+      "source_module_controls": ["MOD-UI-RC-UP-006"]
+    }
+  ],
+
+  "verification_gaps": {
+    "critical": [
+      {
+        "id": "SYS-GAP-001",
+        "description": "SQL injection protection via escapeString not verified",
+        "affected_hazard": "SYS-HAZ-006",
+        "affected_control": "SYS-RC-011",
+        "recommendation": "Add unit tests with malicious SQL payloads in label values",
+        "source": "MOD-INF-GAP-001"
+      },
+      {
+        "id": "SYS-GAP-002",
+        "description": "Patient-ui has only 52 test files for 671+ TypeScript source files (7.7% coverage)",
+        "affected_hazard": "SYS-HAZ-001",
+        "affected_control": null,
+        "recommendation": "Establish systematic unit testing with 80%+ coverage for safety-critical modules",
+        "source": "MOD-UI-GAP-007"
+      }
+    ],
+    "high": [
+      {
+        "id": "SYS-GAP-003",
+        "description": "No integration test for interview-to-rule-engine data integrity",
+        "affected_hazard": "SYS-HAZ-007",
+        "affected_control": "SYS-RC-013",
+        "recommendation": "Add end-to-end test validating complete data flow",
+        "source": "MOD-TE-GAP-001"
+      },
+      {
+        "id": "SYS-GAP-004",
+        "description": "Urgency indicator visibility not tested with actual practitioners",
+        "affected_hazard": "SYS-HAZ-004",
+        "affected_control": null,
+        "recommendation": "Conduct usability testing for urgency indicator prominence",
+        "source": "MOD-UI-GAP-006"
+      },
+      {
+        "id": "SYS-GAP-005",
+        "description": "Rule package ordering and interaction testing incomplete",
+        "affected_hazard": "SYS-HAZ-001",
+        "affected_control": "SYS-RC-006",
+        "recommendation": "Add integration tests with clinical review of outcomes",
+        "source": "MOD-TE-GAP-002"
+      }
+    ],
+    "medium": [
+      {
+        "id": "SYS-GAP-006",
+        "description": "HealthData service failure handling not fully tested",
+        "affected_hazard": null,
+        "affected_control": null,
+        "recommendation": "Add integration tests with mock HealthData returning errors",
+        "source": "MOD-TE-GAP-004"
+      }
+    ]
+  },
+
+  "traceability": {
+    "intended_use_to_hazard": {
+      "IU-001": ["SYS-HAZ-001", "SYS-HAZ-003", "SYS-HAZ-004", "SYS-HAZ-005", "SYS-HAZ-006", "SYS-HAZ-007", "SYS-HAZ-008"],
+      "IU-002": ["SYS-HAZ-002", "SYS-HAZ-003", "SYS-HAZ-006"],
+      "IU-003": ["SYS-HAZ-006"]
+    },
+    "safety_characteristic_to_hazard": {
+      "SC-005": ["SYS-HAZ-001", "SYS-HAZ-003"],
+      "SC-010": ["SYS-HAZ-001", "SYS-HAZ-002"],
+      "SC-012": ["SYS-HAZ-005"],
+      "SC-013": ["SYS-HAZ-002", "SYS-HAZ-005", "SYS-HAZ-006", "SYS-HAZ-007", "SYS-HAZ-008"],
+      "SC-014": ["SYS-HAZ-001", "SYS-HAZ-003", "SYS-HAZ-004", "SYS-HAZ-007"]
+    },
+    "hazard_to_control": {
+      "SYS-HAZ-001": ["SYS-RC-001", "SYS-RC-002", "SYS-RC-003"],
+      "SYS-HAZ-002": ["SYS-RC-004", "SYS-RC-005"],
+      "SYS-HAZ-003": ["SYS-RC-006", "SYS-RC-007"],
+      "SYS-HAZ-004": ["SYS-RC-001", "SYS-RC-008"],
+      "SYS-HAZ-005": ["SYS-RC-004", "SYS-RC-009"],
+      "SYS-HAZ-006": ["SYS-RC-010", "SYS-RC-011"],
+      "SYS-HAZ-007": ["SYS-RC-012", "SYS-RC-013"],
+      "SYS-HAZ-008": ["SYS-RC-014"]
+    },
+    "core_functionality_to_item": {
+      "CF-01": ["ITEM-INTERVIEWER4", "ITEM-TRIAGE-UI"],
+      "CF-02": ["ITEM-REM"],
+      "CF-03": ["ITEM-INTERVIEWER4", "ITEM-REM"],
+      "CF-04": ["ITEM-INTERVIEWER4"],
+      "CF-05": ["ITEM-ACTIONS", "ITEM-PATIENT-UI", "ITEM-TCU"],
+      "CF-06": ["ITEM-INTERVIEWER4"],
+      "CF-FB01": ["ITEM-PATIENT-UI", "ITEM-TCU"],
+      "CF-FB02": ["ITEM-TRIAGE-UI"],
+      "CF-FB04": ["ITEM-TRIAGE-UI"]
+    }
+  },
+
+  "risk_summary": {
+    "total_system_hazards": 8,
+    "total_sequences": 13,
+    "total_hazardous_situations": 12,
+    "total_harms": 22,
+    "by_severity_S": {
+      "S5_catastrophic": 4,
+      "S4_critical": 10,
+      "S3_serious": 7,
+      "S2_minor": 1
+    },
+    "by_p2_distribution": {
+      "P2_4_probable": 3,
+      "P2_3_occasional": 13,
+      "P2_2_remote": 6
+    },
+    "residual_risk_distribution": {
+      "low": 2,
+      "alarp": 4,
+      "conditional_alarp": 2,
+      "unacceptable": 0
+    },
+    "residual_rpn_range": {
+      "min": 3,
+      "max": 15,
+      "mean": 8.5
+    },
+    "total_risk_controls": 14,
+    "by_control_type": {
+      "inherent_safety": 3,
+      "protective_measure": 9,
+      "information_for_safety": 2
+    },
+    "verification_gaps": {
+      "critical": 2,
+      "high": 3,
+      "medium": 1
+    },
+    "modules_contributing": 4,
+    "software_items": 7,
+    "overall_safety_class": "B"
+  },
+
+  "risk_acceptability": {
+    "status": "conditional_acceptance",
+    "assessment_date": "2026-03-06",
+    "assessment_summary": {
+      "hazards_assessed": 8,
+      "sequences_analyzed": 13,
+      "harms_identified": 22,
+      "residual_low": 2,
+      "residual_alarp": 4,
+      "residual_conditional": 2,
+      "residual_unacceptable": 0
+    },
+    "blocking_items": [
+      {
+        "id": "SYS-HAZ-006",
+        "description": "SQL injection - escapeString verification required",
+        "residual_rpn": 15,
+        "acceptability": "conditional_alarp",
+        "required_action": "Security testing with malicious SQL payloads"
+      },
+      {
+        "id": "SYS-HAZ-004",
+        "description": "Urgency indicator visibility not usability tested",
+        "residual_rpn": 10,
+        "acceptability": "conditional_alarp",
+        "required_action": "IEC 62366 usability testing"
+      },
+      {
+        "id": "SYS-GAP-002",
+        "description": "Low test coverage in patient-ui (7.7%)",
+        "affected_hazards": ["SYS-HAZ-001"],
+        "required_action": "Increase test coverage to 80%+ for safety-critical components"
+      }
+    ],
+    "required_actions_before_release": [
+      "Complete security testing for SQL injection (SYS-HAZ-006)",
+      "Conduct usability testing for urgency indicator visibility (SYS-HAZ-004)",
+      "Increase test coverage for safety-critical UI components",
+      "Clinical review and sign-off on hazard assessments"
+    ],
+    "overall_residual_risk_statement": "Overall residual risk is conditionally acceptable. 6 of 8 system hazards reduced to low/ALARP. 2 hazards require verification activities before final acceptance. Benefits of triage system (efficient care routing, 24/7 availability, consistent assessment) outweigh residual risks when blocking items resolved."
+  }
+}

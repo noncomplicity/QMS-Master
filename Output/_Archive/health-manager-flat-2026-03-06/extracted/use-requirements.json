@@ -1,0 +1,801 @@
+{
+  "extraction_metadata": {
+    "repository": "https://gitlab.com/doktor24/services/health-manager",
+    "commit": "16e0273739eda65f73af5410323e1caf53362f16",
+    "extracted_at": "2026-03-06T09:00:52Z",
+    "extractor_version": "1.0",
+    "standard": "IEC 82304-1:2016"
+  },
+
+  "product_identification": {
+    "name": "health-manager",
+    "version": "1.0.0-SNAPSHOT",
+    "manufacturer": "Platform24 / Alerisx",
+    "contact": "SE-116 23 Stockholm, Sweden",
+    "website": "https://platform24.se"
+  },
+
+  "intended_use": {
+    "purpose": "Healthcare encounter management system enabling practitioners to manage patient appointments, consultations, medical records, prescriptions, referrals, and handovers within a digital health platform",
+    "medical_indication": "General healthcare - supports primary care consultations, follow-up appointments, asynchronous consultations, and care coordination across practitioners and care units",
+    "health_function": "Manages the complete lifecycle of patient healthcare encounters including appointment scheduling, clinical documentation (notes, diagnoses, prescriptions, referrals), practitioner-patient communication, handover of care between practitioners, integration with external health systems, and billing coordination",
+    "clinical_workflow": "Digital healthcare delivery workflow: patient booking → triage/interview → practitioner assignment → consultation (video/async/scheduled) → clinical documentation → prescription/referral generation → follow-up scheduling → care handover (if needed) → billing/payment → episode closure",
+    "claims": [
+      "Manages patient appointments across multiple modalities (video consultation, asynchronous consultation, scheduled appointments)",
+      "Enables secure handover of patient encounters between healthcare practitioners",
+      "Supports clinical documentation including notes, diagnoses, prescriptions, and referrals",
+      "Integrates with external health systems (Alfa e-Recept for prescriptions, TakeCare for case notes, Efrikort for patient cards)",
+      "Provides practitioner notification and alert system for care coordination",
+      "Tracks patient medical history and medication records",
+      "Supports waiting room management and appointment queuing",
+      "Enables secure video meetings and messaging between practitioners and patients",
+      "Software Safety Classification: Class A (highest safety level per catalog-info.yaml)"
+    ],
+    "contraindications": [
+      "Not for emergency medical situations requiring immediate care",
+      "Not a standalone diagnostic system - clinical judgment required",
+      "Cross-care-provider handovers disabled by default (requires explicit feature flag)",
+      "Not for use without valid practitioner credentials and active shift"
+    ],
+    "source": {
+      "files": ["catalog-info.yaml", "docs/index.md", "software_requirements.md", "handover_architecture.md", "pom.xml"],
+      "evidence": "Software safety classification: A (highest level), Manages appointments, consultations, prescriptions, referrals, and handovers"
+    }
+  },
+
+  "user_profile": {
+    "intended_users": [
+      {
+        "user_type": "healthcare_professional",
+        "description": "Licensed healthcare practitioners (doctors, nurses, specialists) providing remote consultations and managing patient encounters",
+        "required_skills": [
+          "Clinical medical training",
+          "Digital consultation competency",
+          "Electronic health record management",
+          "Video consultation platform operation"
+        ],
+        "required_training": [
+          "Medical license and credentials verification",
+          "Platform-specific clinical workflow training",
+          "GDPR and patient data protection compliance",
+          "Handover procedures and care coordination protocols"
+        ],
+        "required_knowledge": [
+          "Clinical decision-making and diagnosis",
+          "Swedish healthcare regulations (Patientdatalagen)",
+          "Digital prescription practices",
+          "Care unit operational procedures"
+        ]
+      },
+      {
+        "user_type": "patient",
+        "description": "Patients seeking remote healthcare services and managing their own appointments",
+        "required_skills": [
+          "Basic digital literacy",
+          "Video call capability",
+          "Ability to describe symptoms and medical history"
+        ],
+        "required_training": [
+          "Platform onboarding (self-service)",
+          "Video consultation preparation guidance"
+        ],
+        "required_knowledge": [
+          "Own medical history awareness",
+          "Understanding of consultation process",
+          "Payment/billing procedures"
+        ]
+      },
+      {
+        "user_type": "administrator",
+        "description": "Care unit administrators, secretaries, and support staff managing schedules, billing, and operational tasks",
+        "required_skills": [
+          "Administrative healthcare operations",
+          "Schedule management",
+          "Billing and insurance processing",
+          "System configuration"
+        ],
+        "required_training": [
+          "Platform administrative functions training",
+          "Care unit configuration procedures",
+          "Data export and reporting procedures"
+        ],
+        "required_knowledge": [
+          "Healthcare billing practices",
+          "Care unit operational procedures",
+          "Patient data confidentiality requirements"
+        ]
+      },
+      {
+        "user_type": "technical_operator",
+        "description": "System administrators and DevOps engineers maintaining the service infrastructure",
+        "required_skills": [
+          "Java/Spring Boot application management",
+          "Kubernetes orchestration",
+          "Database administration (MySQL/MariaDB)",
+          "JMS messaging systems (Apache Artemis)",
+          "Monitoring and alerting (Prometheus)"
+        ],
+        "required_training": [
+          "Platform24 infrastructure training",
+          "Incident response procedures",
+          "Deployment and rollback procedures",
+          "Security update protocols"
+        ],
+        "required_knowledge": [
+          "Healthcare data security requirements",
+          "GDPR technical compliance",
+          "System architecture and dependencies",
+          "Backup and disaster recovery procedures"
+        ]
+      }
+    ],
+    "restrictions": [
+      "Practitioners must have valid medical credentials verified via Directory service",
+      "Practitioners must have active shift to accept appointments",
+      "Patients can only access their own appointments (or related minors)",
+      "Cross-care-provider operations require explicit feature flag authorization",
+      "Limited access roles (ROLE_PRACTITIONER_LIMITED_ACCESS) restricted to specific patient sets"
+    ],
+    "source": {
+      "files": ["AppointmentController.java", "security/AccessControlService.java", "handover_architecture.md"],
+      "evidence": "Role-based access control with ROLE_PRACTITIONER, ROLE_PATIENT, ROLE_ADMIN, ROLE_SYSTEM, ROLE_SECRETARY; @PreAuthorize annotations; shift validation requirements"
+    }
+  },
+
+  "operational_environment": {
+    "platforms": [
+      {
+        "type": "web",
+        "os": ["Platform-independent (containerized)"],
+        "browsers": ["Modern browsers supporting WebRTC for video consultations"],
+        "versions": "Java 21 runtime, Spring Boot 2.x framework",
+        "hardware_requirements": "Kubernetes cluster with sufficient resources for production workload (10-100 database connections per instance)"
+      }
+    ],
+    "network_requirements": {
+      "connectivity": "online",
+      "protocols": ["HTTPS/TLS", "WebSocket", "JMS (Apache Artemis)", "WebRTC"],
+      "bandwidth": "Sufficient for video consultation streaming",
+      "latency": "30 second database query timeout, 10 second remote service connect timeout, 5 minute read timeout"
+    },
+    "integration_dependencies": [
+      {
+        "system": "directory (Directory Service)",
+        "purpose": "Practitioner and patient identity verification, organizational structure",
+        "required": true
+      },
+      {
+        "system": "bookings (Booking Service)",
+        "purpose": "Appointment booking and scheduling integration",
+        "required": true
+      },
+      {
+        "system": "meetingplace (MeetingPlace Service)",
+        "purpose": "Video consultation rooms and patient-practitioner messaging",
+        "required": true
+      },
+      {
+        "system": "interviewer (Interviewer Service)",
+        "purpose": "Patient triage questionnaires and medical history collection",
+        "required": true
+      },
+      {
+        "system": "notifier (Notifier Service)",
+        "purpose": "Push notifications and SMS alerts to practitioners and patients",
+        "required": true
+      },
+      {
+        "system": "actions (Actions Service)",
+        "purpose": "Task management and action items for practitioners",
+        "required": true
+      },
+      {
+        "system": "alfa-erecept (Alfa E-Recept)",
+        "purpose": "Electronic prescription submission to Swedish national prescription system",
+        "required": false
+      },
+      {
+        "system": "takecare (TakeCare Xchange)",
+        "purpose": "Integration with Swedish regional health records (journalsystem)",
+        "required": false
+      },
+      {
+        "system": "medicationsearch (Medication Search Service)",
+        "purpose": "Medication database lookup",
+        "required": true
+      },
+      {
+        "system": "careplanner (Care Planner Service)",
+        "purpose": "Care planning and coordination",
+        "required": true
+      },
+      {
+        "system": "service-requests (Service Requests)",
+        "purpose": "Service request management",
+        "required": true
+      },
+      {
+        "system": "object-storage (Object Storage)",
+        "purpose": "File and document storage (via ZeroMQ)",
+        "required": true
+      },
+      {
+        "system": "MySQL/MariaDB Database",
+        "purpose": "Primary data persistence",
+        "required": true
+      },
+      {
+        "system": "Apache Artemis (JMS)",
+        "purpose": "Event-driven messaging and inter-service communication",
+        "required": true
+      },
+      {
+        "system": "Klarna Payment Service",
+        "purpose": "Payment processing for consultations",
+        "required": false
+      }
+    ],
+    "physical_environment": ["clinical", "home", "mobile"],
+    "source": {
+      "files": ["application.yml", "pom.xml", "catalog-info.yaml", "handover_architecture.md"]
+    }
+  },
+
+  "interface_requirements": [
+    {
+      "req_id": "USE-IF-001",
+      "description": "RESTful HTTP API providing CRUD operations for appointments, consultations, prescriptions, referrals, and clinical notes",
+      "ui_type": "api",
+      "interaction_pattern": "RESTful HTTP with JSON payloads, versioned endpoints (v1, v2, v3), role-based access control via JWT authentication",
+      "display_requirements": "N/A - backend service",
+      "input_methods": ["HTTP POST/PUT/PATCH", "JSON request bodies", "Query parameters", "Path parameters"],
+      "accessibility": ["API documentation via OpenAPI/Swagger", "Error messages with HTTP status codes", "Audit logging of all operations"],
+      "source": {
+        "files": ["AppointmentController.java", "OpenApiDefinition.java", "controller/v1/", "controller/v2/", "controller/v3/"]
+      }
+    },
+    {
+      "req_id": "USE-IF-002",
+      "description": "JMS messaging interface for event-driven communication with external systems",
+      "ui_type": "api",
+      "interaction_pattern": "Publish-subscribe messaging via JMS topics for appointment events, handover events, consultation events, payment events, referral events, and practitioner online status",
+      "display_requirements": "N/A - messaging interface",
+      "input_methods": ["JMS topic subscription", "Event payload deserialization"],
+      "accessibility": ["Event schema documentation", "Topic naming conventions", "Dead letter queue handling"],
+      "source": {
+        "files": ["application.yml", "AppointmentEventSender.java", "handover_architecture.md"]
+      }
+    },
+    {
+      "req_id": "USE-IF-003",
+      "description": "Security interface requiring JWT-based authentication with role-based authorization",
+      "ui_type": "api",
+      "interaction_pattern": "JWT bearer token authentication with claims for user identity, roles, patient relationships, and care unit associations",
+      "display_requirements": "N/A - security layer",
+      "input_methods": ["HTTP Authorization header with Bearer token"],
+      "accessibility": ["Token validation errors with clear messages", "Role-based access denial feedback"],
+      "source": {
+        "files": ["AppointmentController.java", "AccessControlService.java", "application.yml (jwt.secret)"]
+      }
+    },
+    {
+      "req_id": "USE-IF-004",
+      "description": "Database query interface with QueryDSL predicate-based filtering and pagination",
+      "ui_type": "api",
+      "interaction_pattern": "Dynamic query construction via QueryDSL predicates, pageable result sets, repository pattern with JPA",
+      "display_requirements": "N/A - data access layer",
+      "input_methods": ["QueryDSL predicates", "Pageable parameters", "JPA criteria"],
+      "accessibility": ["Query timeout protection (30s)", "Connection pooling (10-100 connections)", "Transaction isolation"],
+      "source": {
+        "files": ["AppointmentRepository.java", "QueryableAppointmentHandoverProcessRepository.java", "application.yml"]
+      }
+    },
+    {
+      "req_id": "USE-IF-005",
+      "description": "Internationalization (i18n) interface supporting multiple languages via translation keys",
+      "ui_type": "api",
+      "interaction_pattern": "Translation service resolving language-specific message keys for handover notifications, error messages, and clinical terms",
+      "display_requirements": "Localized messages based on practitioner/patient locale",
+      "input_methods": ["Locale parameter", "Translation key lookup"],
+      "accessibility": ["Default language fallback", "Missing translation handling"],
+      "source": {
+        "files": ["application.yml (alerisx.translations.enabled)", "TranslationService", "handover_architecture.md"]
+      }
+    },
+    {
+      "req_id": "USE-IF-006",
+      "description": "Monitoring and observability interface via Spring Boot Actuator and Prometheus metrics",
+      "ui_type": "api",
+      "interaction_pattern": "Health check endpoints, application metrics, heap dumps, thread dumps, Flyway migration status",
+      "display_requirements": "N/A - operational monitoring",
+      "input_methods": ["HTTP GET to actuator endpoints"],
+      "accessibility": ["Prometheus metric exposition", "Health check aggregation", "Logging levels dynamic adjustment"],
+      "source": {
+        "files": ["application.yml (management.endpoints)", "pom.xml (micrometer, actuator)"]
+      }
+    }
+  ],
+
+  "immunity_requirements": [
+    {
+      "req_id": "USE-IM-001",
+      "threat": "Resource exhaustion from database connection leaks",
+      "protection_mechanism": "Hikari connection pool with min 10, max 100 connections, 5-second connection timeout",
+      "implementation": "spring.datasource.hikari configuration in application.yml",
+      "source": {
+        "files": ["application.yml"]
+      }
+    },
+    {
+      "req_id": "USE-IM-002",
+      "threat": "Runaway database queries causing system slowdown",
+      "protection_mechanism": "Global query timeout of 30 seconds enforced at JPA level",
+      "implementation": "javax.persistence.query.timeout: 30000 in application.yml",
+      "source": {
+        "files": ["application.yml"]
+      }
+    },
+    {
+      "req_id": "USE-IM-003",
+      "threat": "External service unavailability causing cascading failures",
+      "protection_mechanism": "Remote client timeouts: 10 second connect timeout, 5 minute read timeout",
+      "implementation": "alerisx.remote-client configuration in application.yml",
+      "source": {
+        "files": ["application.yml"]
+      }
+    },
+    {
+      "req_id": "USE-IM-004",
+      "threat": "Memory exhaustion from unbounded cache growth",
+      "protection_mechanism": "Caffeine caches with explicit maxSize and expireAfterWrite TTL per cache",
+      "implementation": "alerisx.healthmanager.cache.cacheNames configuration",
+      "source": {
+        "files": ["application.yml"]
+      }
+    },
+    {
+      "req_id": "USE-IM-005",
+      "threat": "Concurrent modification race conditions",
+      "protection_mechanism": "JPA optimistic locking via @Version fields, database UNIQUE constraints",
+      "implementation": "version column in appointment_handover_process, UNIQUE constraint on appointment_id",
+      "source": {
+        "files": ["software_requirements.md", "handover_architecture.md"]
+      }
+    },
+    {
+      "req_id": "USE-IM-006",
+      "threat": "Malicious input causing SQL injection or XSS",
+      "protection_mechanism": "Parameterized queries via JPA/Hibernate, input validation via @Valid annotations, safe character filtering",
+      "implementation": "safeCharacters.alphanumeric and safeCharacters.special configuration, JPA prepared statements",
+      "source": {
+        "files": ["application.yml (safeCharacters)", "AppointmentController.java (@Valid)"]
+      }
+    },
+    {
+      "req_id": "USE-IM-007",
+      "threat": "Audit log manipulation",
+      "protection_mechanism": "Immutable audit events (AppointmentHandoverEvent), append-only event table with FK constraints",
+      "implementation": "appointment_handover_event table with FK to appointment, no update/delete operations",
+      "source": {
+        "files": ["software_requirements.md section 4.2", "handover_architecture.md"]
+      }
+    },
+    {
+      "req_id": "USE-IM-008",
+      "threat": "Dependency vulnerabilities",
+      "protection_mechanism": "OWASP Dependency Check Maven plugin scanning dependencies",
+      "implementation": "org.owasp:dependency-check-maven plugin in pom.xml build lifecycle",
+      "source": {
+        "files": ["pom.xml"]
+      }
+    }
+  ],
+
+  "security_requirements": {
+    "authorized_use": {
+      "access_control_type": "RBAC",
+      "roles": [
+        "ROLE_PRACTITIONER",
+        "ROLE_PRACTITIONER_LIMITED_ACCESS",
+        "ROLE_PATIENT",
+        "ROLE_ADMIN",
+        "ROLE_SECRETARY",
+        "ROLE_SYSTEM"
+      ],
+      "permissions": [
+        "Read appointment (requires ownership or patient relationship)",
+        "Update appointment (requires active shift and authorization)",
+        "Propose handover (requires practitioner role)",
+        "Accept handover (requires target practitioner authorization)",
+        "Deny handover (requires target practitioner authorization)",
+        "Cancel handover (requires handover owner authorization)",
+        "Create prescription (requires practitioner credentials)",
+        "Access patient health profile (requires authorization check)",
+        "View clinical notes (requires care unit authorization)"
+      ],
+      "source": {
+        "files": ["AppointmentController.java", "AccessControlService.java", "AppointmentAuthorizer.java", "security/"]
+      }
+    },
+    "authentication": {
+      "methods": ["JWT bearer token"],
+      "session_management": "Stateless JWT-based authentication with token validation on each request",
+      "password_policy": "Not managed by this service - delegated to identity provider",
+      "source": {
+        "files": ["application.yml (jwt.secret, jwt.issuer)", "AppointmentController.java (@AuthenticationPrincipal JwtUser)"]
+      }
+    },
+    "data_integrity": {
+      "validation_mechanisms": [
+        "Bean Validation (@Valid annotations)",
+        "Database constraints (NOT NULL, UNIQUE, FK)",
+        "Input length limits (varchar field sizes)",
+        "Safe character filtering",
+        "QueryDSL type-safe queries",
+        "JPA optimistic locking"
+      ],
+      "checksum_algorithms": ["Not explicitly implemented at data field level"],
+      "source": {
+        "files": ["AppointmentController.java (@Valid)", "software_requirements.md (field constraints)", "application.yml (safeCharacters)"]
+      }
+    },
+    "data_authenticity": {
+      "audit_trail": true,
+      "audit_events": [
+        "Appointment created",
+        "Appointment updated",
+        "Handover proposed",
+        "Handover accepted",
+        "Handover denied",
+        "Handover cancelled",
+        "Prescription created",
+        "Referral created",
+        "Clinical note created/updated",
+        "Patient data accessed"
+      ],
+      "digital_signatures": false,
+      "source": {
+        "files": ["AppointmentController.java (@Audit)", "appointment_handover_event table", "software_requirements.md section 4.2"]
+      }
+    },
+    "communication_protection": {
+      "encryption_in_transit": "TLS",
+      "tls_version": "Not explicitly configured - relies on platform/infrastructure",
+      "encryption_at_rest": "Not implemented at application level - delegated to database and infrastructure",
+      "source": {
+        "files": ["application.yml (external service URLs use https://)", "TakeCare x509 configuration for certificate-based communication"]
+      }
+    },
+    "malware_protection": {
+      "input_validation": [
+        "Bean Validation constraints",
+        "Safe character filtering",
+        "SQL injection protection via parameterized queries",
+        "Field length limits preventing buffer overflows"
+      ],
+      "dependency_scanning": true,
+      "source": {
+        "files": ["pom.xml (dependency-check-maven plugin)", "application.yml (safeCharacters)"]
+      }
+    }
+  },
+
+  "privacy_requirements": [
+    {
+      "req_id": "USE-PR-001",
+      "data_type": "Patient personal identifiers (personnummer, name, contact info)",
+      "protection_mechanism": "Role-based access control, patient relationship validation, audit logging",
+      "legal_basis": "Consent and legitimate interest (healthcare provision) under GDPR and Swedish Patientdatalagen",
+      "retention_period": "As per care unit policy and Swedish healthcare regulations",
+      "deletion_capability": true,
+      "source": {
+        "files": ["AccessControlService.java (canAccessPatient)", "SystemDataErasureController.java"]
+      }
+    },
+    {
+      "req_id": "USE-PR-002",
+      "data_type": "Clinical health data (diagnoses, prescriptions, notes, medical history)",
+      "protection_mechanism": "Database secrecy classification (C), sensitivity level 2, encryption in transit, access control",
+      "legal_basis": "Consent and legal obligation (healthcare provision) under GDPR Article 9 (special category data)",
+      "retention_period": "Swedish healthcare record retention requirements (typically 10 years after last contact)",
+      "deletion_capability": true,
+      "source": {
+        "files": ["software_requirements.md (table comments with secrecy/sensitivity)", "SystemDataErasureController.java"]
+      }
+    },
+    {
+      "req_id": "USE-PR-003",
+      "data_type": "Practitioner personal data and credentials",
+      "protection_mechanism": "JWT-based authentication, role verification, shift validation",
+      "legal_basis": "Legitimate interest and contract (employment relationship)",
+      "retention_period": "As per employment and regulatory requirements",
+      "deletion_capability": true,
+      "source": {
+        "files": ["DirectoryService integration", "ShiftService"]
+      }
+    },
+    {
+      "req_id": "USE-PR-004",
+      "data_type": "Appointment handover notes (free text)",
+      "protection_mechanism": "Database encryption, access control, audit logging, 1024 character limit",
+      "legal_basis": "Legitimate interest (care coordination)",
+      "retention_period": "Same as appointment record retention",
+      "deletion_capability": true,
+      "source": {
+        "files": ["software_requirements.md (handover_notes varchar(1024))", "appointment_handover_process table"]
+      }
+    },
+    {
+      "req_id": "USE-PR-005",
+      "data_type": "Payment information (Klarna integration)",
+      "protection_mechanism": "External payment service integration, no card details stored locally, PCI-DSS compliance via Klarna",
+      "legal_basis": "Contract (payment processing)",
+      "retention_period": "As per payment provider requirements",
+      "deletion_capability": false,
+      "source": {
+        "files": ["application.yml (klarna configuration)"]
+      }
+    },
+    {
+      "req_id": "USE-PR-006",
+      "data_type": "Cross-care-provider data sharing",
+      "protection_mechanism": "Feature flag ENABLE_HANDOVERS_ACROSS_CARE_PROVIDERS (disabled by default), care provider boundary validation",
+      "legal_basis": "Explicit consent required for cross-organizational sharing",
+      "retention_period": "N/A - feature disabled by default",
+      "deletion_capability": true,
+      "source": {
+        "files": ["handover_architecture.md", "risk_analysis_handover.md (R05)"]
+      }
+    }
+  ],
+
+  "lifecycle_requirements": {
+    "upgrade_support": {
+      "supported": true,
+      "data_migration": "Flyway database migrations with versioned schema changes, baseline-on-migrate enabled for legacy databases",
+      "backward_compatibility": "API versioning (v1, v2, v3) allows gradual migration, deprecated endpoints marked in OpenAPI docs",
+      "source": {
+        "files": ["application.yml (spring.flyway)", "pom.xml (flyway dependency)", "V10, V18, V21 migration files"]
+      }
+    },
+    "rollback_support": {
+      "supported": true,
+      "mechanism": "Kubernetes deployment rollback, database rollback via Flyway (manual process)",
+      "data_handling": "Database schema rollback requires manual intervention, data loss risk for non-reversible migrations",
+      "source": {
+        "files": ["Application containerization implies k8s rollback capability"]
+      }
+    },
+    "security_updates": {
+      "delivery_mechanism": "Maven dependency updates, container image rebuilds, Kubernetes rolling deployments",
+      "frequency": "Continuous monitoring via OWASP Dependency Check, updates as vulnerabilities discovered",
+      "notification": "GitLab CI/CD pipeline failures on dependency check issues",
+      "source": {
+        "files": ["pom.xml (dependency-check-maven)", ".gitlab-ci.yml"]
+      }
+    },
+    "distribution_integrity": {
+      "signing": false,
+      "checksum": false,
+      "secure_delivery": "GitLab CI/CD pipeline builds container images, pushes to registry, Helm deploys to Kubernetes",
+      "source": {
+        "files": [".gitlab-ci.yml", "charts/"]
+      }
+    },
+    "decommissioning": {
+      "data_export": {
+        "supported": true,
+        "formats": ["SQL dump", "REST API JSON responses"]
+      },
+      "data_deletion": {
+        "supported": true,
+        "method": "SystemDataErasureController provides partner data export/delete functionality",
+        "verification": "Audit logging of deletion operations"
+      },
+      "data_retention": {
+        "requirements": "Swedish healthcare record retention laws (Patientdatalagen)",
+        "duration": "Typically 10 years after last patient contact, varies by care unit policy"
+      },
+      "source": {
+        "files": ["SystemDataErasureController.java", "docs/export_and_delete_partner_data_prompt.md"]
+      }
+    }
+  },
+
+  "regulatory_requirements": [
+    {
+      "req_id": "USE-REG-001",
+      "jurisdiction": "European Union",
+      "regulation": "GDPR (General Data Protection Regulation)",
+      "requirement": "Protection of personal health data as special category data (Article 9)",
+      "implementation": "Role-based access control, audit logging, data export/deletion capabilities, consent management",
+      "evidence": "AccessControlService, @Audit annotations, SystemDataErasureController",
+      "source": {
+        "files": ["security/", "SystemDataErasureController.java"]
+      }
+    },
+    {
+      "req_id": "USE-REG-002",
+      "jurisdiction": "Sweden",
+      "regulation": "Patientdatalagen (Patient Data Act)",
+      "requirement": "Legal basis for processing patient health records, access control, audit trails",
+      "implementation": "Audit logging of all patient data access, practitioner credential verification, shift validation",
+      "evidence": "@Audit(throttle = Throttle.HOURLY) on sensitive endpoints, shift validation before access",
+      "source": {
+        "files": ["AppointmentController.java", "ShiftService"]
+      }
+    },
+    {
+      "req_id": "USE-REG-003",
+      "jurisdiction": "Sweden",
+      "regulation": "E-prescription regulations (Läkemedelsverket)",
+      "requirement": "Integration with national e-prescription system (Alfa e-Recept)",
+      "implementation": "Alfa E-Recept client integration for prescription submission",
+      "evidence": "Alfa E-Recept configuration in application.yml, alfa-erecept.client dependency",
+      "source": {
+        "files": ["application.yml (alerisx.alfa.erecept)", "pom.xml"]
+      }
+    },
+    {
+      "req_id": "USE-REG-004",
+      "jurisdiction": "European Union",
+      "regulation": "EU MDR 2017/745 (Medical Device Regulation)",
+      "requirement": "Software as a Medical Device classification and risk management",
+      "implementation": "Software Safety Classification: A (highest level), risk analysis documented, traceability to requirements",
+      "evidence": "catalog-info.yaml (software-safety-classification: A), risk_analysis_handover.md, software_requirements.md",
+      "source": {
+        "files": ["catalog-info.yaml", "risk_analysis_handover.md", "handover_architecture.md"]
+      }
+    },
+    {
+      "req_id": "USE-REG-005",
+      "jurisdiction": "International",
+      "regulation": "ISO 13485 / ISO 14971 / IEC 62304",
+      "requirement": "Quality management system, risk management, software lifecycle processes",
+      "implementation": "Documented software requirements, architecture, risk analysis, and verification per IEC 62304 structure",
+      "evidence": "software_requirements.md, handover_architecture.md, risk_analysis_handover.md, handover_verification.md",
+      "source": {
+        "files": ["software_requirements.md", "handover_architecture.md", "risk_analysis_handover.md", "handover_verification.md"]
+      }
+    },
+    {
+      "req_id": "USE-REG-006",
+      "jurisdiction": "Sweden",
+      "regulation": "County Council regulations (Landsting/Region)",
+      "requirement": "Integration with regional health information exchanges (TakeCare)",
+      "implementation": "TakeCare Xchange integration with x509 certificate-based authentication for case note export",
+      "evidence": "takecare.xchange configuration in application.yml with x509 keystore/truststore",
+      "source": {
+        "files": ["application.yml (alerisx.takecare.xchange)"]
+      }
+    }
+  ],
+
+  "verification_status": {
+    "requirements_defined": true,
+    "requirements_achievable": true,
+    "verification_method": "inspection, analysis, testing",
+    "gaps": [
+      {
+        "requirement_id": "USE-IF-001",
+        "gap_type": "undefined",
+        "description": "OpenAPI documentation exists but complete API specification document not found in repository",
+        "recommendation": "Generate and review complete OpenAPI specification from code annotations"
+      },
+      {
+        "requirement_id": "USE-IM-001 to USE-IM-008",
+        "gap_type": "unverifiable",
+        "description": "Immunity requirements are implemented but formal verification test evidence not located",
+        "recommendation": "Create integration tests demonstrating resource exhaustion protection, timeout enforcement, and resilience patterns"
+      },
+      {
+        "requirement_id": "SECURITY",
+        "gap_type": "undefined",
+        "description": "TLS version requirements not explicitly configured in application",
+        "recommendation": "Document minimum TLS version requirement in deployment configuration and verify infrastructure enforcement"
+      },
+      {
+        "requirement_id": "PRIVACY",
+        "gap_type": "undefined",
+        "description": "Data retention policy not explicitly defined in application code",
+        "recommendation": "Document retention policy per data type and implement automated retention enforcement or manual review procedures"
+      },
+      {
+        "requirement_id": "LIFECYCLE",
+        "gap_type": "undefined",
+        "description": "Container image signing and checksum verification not evident in CI/CD pipeline",
+        "recommendation": "Implement container image signing in GitLab CI and verify signatures during deployment"
+      },
+      {
+        "requirement_id": "INTENDED_USE",
+        "gap_type": "undefined",
+        "description": "No dedicated README or product documentation describing intended use in user-facing language",
+        "recommendation": "Create user-facing documentation clearly stating intended use, contraindications, and user instructions per IEC 82304-1 clause 8 (accompanying documents)"
+      }
+    ]
+  },
+
+  "traceability": {
+    "to_system_requirements": [
+      {
+        "use_requirement": "Intended use: Healthcare encounter management",
+        "system_requirements": [
+          "SWR-1.1: Appointment input/output data structures",
+          "SWR-1.3: Handover state machine",
+          "SWR-2.*: External system interfaces",
+          "SWR-3.*: User notifications and messages",
+          "SWR-4.*: Data persistence and configuration"
+        ]
+      },
+      {
+        "use_requirement": "User profile: Healthcare practitioners with credentials",
+        "system_requirements": [
+          "SWR-2.4: Directory Service practitioner validation",
+          "Shift validation before appointment access",
+          "Role-based authorization (@PreAuthorize, @Secured)"
+        ]
+      },
+      {
+        "use_requirement": "Operational environment: Cloud-based Kubernetes deployment",
+        "system_requirements": [
+          "Spring Boot application configuration",
+          "Database connection pooling",
+          "External service integration patterns",
+          "JMS messaging infrastructure"
+        ]
+      },
+      {
+        "use_requirement": "Security: JWT authentication and RBAC",
+        "system_requirements": [
+          "JWT token validation",
+          "Role-based method security",
+          "Patient relationship validation",
+          "Audit logging"
+        ]
+      },
+      {
+        "use_requirement": "Privacy: GDPR and patient data protection",
+        "system_requirements": [
+          "Data classification (secrecy C, sensitivity 2)",
+          "Access control service",
+          "Data erasure controller",
+          "Audit trail"
+        ]
+      }
+    ],
+    "to_software_requirements": [
+      {
+        "use_requirement": "Handover functionality",
+        "software_requirements": [
+          "SWR-1.1: UpdateAppointmentDTO handover fields",
+          "SWR-1.3: HandoverEventStatus state machine",
+          "SWR-2.1: AppointmentHandoverStatusEvent JMS publishing",
+          "SWR-2.2: ClinicNotificationDTO handover notifications",
+          "SWR-2.3: HandoverMessage to MeetingPlace",
+          "SWR-4.1: appointment_handover_process table",
+          "SWR-4.2: appointment_handover_event audit table"
+        ]
+      },
+      {
+        "use_requirement": "Clinical documentation",
+        "software_requirements": [
+          "Appointment notes storage",
+          "Prescription creation and Alfa e-Recept integration",
+          "Referral management",
+          "Diagnosis recording",
+          "TakeCare case note export"
+        ]
+      },
+      {
+        "use_requirement": "Security and audit",
+        "software_requirements": [
+          "@Audit annotations with throttle settings",
+          "JWT authentication via @AuthenticationPrincipal",
+          "@PreAuthorize method security",
+          "AppointmentAuthorizer custom authorization logic",
+          "Audit event persistence"
+        ]
+      }
+    ]
+  }
+}

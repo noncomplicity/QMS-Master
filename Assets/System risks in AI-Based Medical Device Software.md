@@ -13,7 +13,7 @@ owner: "Head of Risk Management"
 
 Determine medical device AI risk by classifying the device and defining the required level of clinical evidence. The classification depends on intended purpose, impact on healthcare decisions, and the health condition addressed. The outcome of the determination of the Medical Device AI Risk is a documented determination of the AI system’s inherent clinical risk level, its alignment with regulatory classification, and the corresponding clinical evaluation plan.
 
-This determination provides the foundation for the assessment of [[Pre-Market Clinical Data for AI-Based Medical Device Software]].
+This determination provides the foundation for the assessment of [Pre-Market Clinical Data for AI-Based Medical Device Software](Pre-Market%20Clinical%20Data%20for%20AI-Based%20Medical%20Device%20Software.md).
 
 ---
 
@@ -44,13 +44,13 @@ Each identified hazard should be linked to a **hazardous situation** in the clin
 
 Use the identified hazards and their potential clinical consequences to determine the **overall risk level** of the AI system in its intended use. The objective is to assess the **clinical relevance** of possible errors or misuse and determine whether the clinical performance must be supported by **prospective** or **retrospective** data.
 
-The output of this process provides the basis for **IMDRF SaMD risk categorization** and subsequent **EU MDR class alignment**. The results shall be documented in the [[System Risk Analyses]], ensuring that the identified AI-related clinical risks are integrated into the overall [[Risk Management Framework for Medical Device Software]].
+The output of this process provides the basis for **IMDRF SaMD risk categorization** and subsequent **EU MDR class alignment**. The results shall be documented in the [System Risk Analyses](System%20Risk%20Analyses.md), ensuring that the identified AI-related clinical risks are integrated into the overall [Risk Management Framework for Medical Device Software](Risk%20Management%20Framework%20for%20Medical%20Device%20Software.md).
 
 ---
 
 ## 3. Align with Regulatory Classification
 
-Following risk identification and IMDRF categorization, align the results with **EU MDR Annex VIII** classification rules, particularly **Rule 11** for software. This ensures regulatory consistency between internal risk determination and external classification. The determined risk category should be mapped to the MDR class based on the clinical impact and condition severity. The resulting classification and justification shall be documented in the [[Regulatory Conformity Plans]] as stipulated by the [[Regulatory Strategy]], ensuring traceability between risk determination, regulatory classification, and conformity assessment planning.
+Following risk identification and IMDRF categorization, align the results with **EU MDR Annex VIII** classification rules, particularly **Rule 11** for software. This ensures regulatory consistency between internal risk determination and external classification. The determined risk category should be mapped to the MDR class based on the clinical impact and condition severity. The resulting classification and justification shall be documented in the [Regulatory Conformity Plans](Regulatory%20Conformity%20Plans.md) as stipulated by the [Regulatory strategy](Regulatory%20strategy.md), ensuring traceability between risk determination, regulatory classification, and conformity assessment planning.
 
 ---
 
@@ -66,4 +66,4 @@ The determination of the required level of clinical evidence shall be based on t
 4. **Prospective validation need:** Apply prospective clinical investigations when the clinical workflow, user interaction, or environmental factors cannot be reliably replicated through retrospective or simulated data.
 5. **Lifecycle and adaptability:** For adaptive or continuously learning AI systems, combine pre-market validation with a structured post-market performance monitoring plan to ensure sustained safety and effectiveness.
 
-The determination integrates these elements into a documented rationale, recorded in the [[Clinical Evaluation Plans]] and reflected in the [[Clinical Evaluation Reports]], showing that the selected validation strategy—prospective, retrospective, analytical, or hybrid—is proportionate to the AI system’s risk level and sufficient to demonstrate its clinical safety, performance, and usability.
+The determination integrates these elements into a documented rationale, recorded in the [Clinical Evaluation Plans](Clinical%20Evaluation%20Plans.md) and reflected in the [Clinical Evaluation Reports](Clinical%20Evaluation%20Reports.md), showing that the selected validation strategy—prospective, retrospective, analytical, or hybrid—is proportionate to the AI system's risk level and sufficient to demonstrate its clinical safety, performance, and usability.

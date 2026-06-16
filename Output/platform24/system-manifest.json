@@ -1,0 +1,34 @@
+{
+  "system": {
+    "id": "platform24",
+    "name": "Platform24 Health Software",
+    "version": "1.0.0",
+    "safety_class": "B",
+    "description": "Digital healthcare platform for patient-practitioner encounters"
+  },
+  "modules": [
+    {
+      "id": "smart-care-plans",
+      "name": "Smart Care Plans",
+      "description": "Appointment management, handovers, follow-ups, clinical workflows",
+      "items": ["health-manager", "appointment-api", "notification-service"],
+      "safety_class": "B"
+    }
+  ],
+  "items": [
+    {
+      "id": "health-manager",
+      "name": "Health Manager Service",
+      "repository": "https://gitlab.com/doktor24/services/health-manager.git",
+      "module": "smart-care-plans",
+      "safety_class": "B",
+      "description": "Core appointment and clinical workflow management"
+    }
+  ],
+  "extraction_config": {
+    "output_base": "Output/platform24",
+    "items_path": "items/{item_id}/extracted",
+    "modules_path": "modules/{module_id}/aggregated",
+    "system_path": "system/aggregated"
+  }
+}

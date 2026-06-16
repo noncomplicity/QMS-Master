@@ -13,7 +13,7 @@ owner: "Head of Clinical Management"
 
 The purpose of this procedure is to define a structured approach for determining the **intended purpose** and **context of use** of an AI-based medical device. This determination establishes the foundation for subsequent risk assessment and for defining the level and type of clinical evidence required to demonstrate safety, performance, and clinical validity.
 
-This determination provides the foundation for the assessment of [[Pre-Market Clinical Data for AI-Based Medical Device Software]].
+This determination provides the foundation for the assessment of [Pre-Market Clinical Data for AI-Based Medical Device Software](Pre-Market%20Clinical%20Data%20for%20AI-Based%20Medical%20Device%20Software.md).
 
 ---
 
@@ -30,7 +30,7 @@ The definition of intended purpose shall include:
 - **Type of AI Output**: Specify the form of the output (e.g., classification, prediction, recommendation, alert, visualization).
 - **Role of Human Oversight**: Describe whether the AI acts autonomously or under direct clinician supervision.
 
-The output of this step is a **formal [[Intended Purpose Statements]]** that serves as the baseline for regulatory classification and risk analysis.
+The output of this step is a **formal Intended Purpose Statement** that serves as the baseline for regulatory classification and risk analysis.
 
 ---
 
@@ -47,7 +47,7 @@ The significance of information describes the **impact of the AI output on clini
 
 The higher the influence on clinical decision-making, the greater the expected level of risk and evidence required.
 
-The selected level of significance shall be reflected directly in the **[[Intended Purpose Statements]]**, clarifying the AI system’s role in clinical decision-making and establishing a consistent foundation for regulatory and clinical evaluation.
+The selected level of significance shall be reflected directly in the **Intended Purpose Statement**, clarifying the AI system's role in clinical decision-making and establishing a consistent foundation for regulatory and clinical evaluation.
 
 ---
 
@@ -70,4 +70,4 @@ The combination of the **significance of information** and the **healthcare situ
 | **Serious**                                        | II        | III     | III                 |
 | **Critical**                                       | III       | III     | IV                  |
 
-The assigned **SaMD risk category** shall be documented in the **[[Intended Purpose Statements]]** or its annex, ensuring that the classification rationale is traceable to the described clinical context.
+The assigned **SaMD risk category** shall be documented in the **Intended Purpose Statement** or its annex, ensuring that the classification rationale is traceable to the described clinical context.

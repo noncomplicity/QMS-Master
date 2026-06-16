@@ -1,0 +1,650 @@
+{
+  "extraction_metadata": {
+    "repository": "https://gitlab.com/doktor24/services/health-manager.git",
+    "commit": "16e0273739eda65f73af5410323e1caf53362f16",
+    "extracted_at": "2026-03-06T15:15:00Z",
+    "extractor_version": "2.0",
+    "standard": "IEC 62304:2006+AMD1:2015",
+    "manifest_files_analyzed": ["pom.xml", "svc/pom.xml", "dto/pom.xml", "modules/escalator/pom.xml"],
+    "hierarchy": {
+      "level": "item",
+      "item_id": "health-manager",
+      "item_name": "Health Manager Service",
+      "parent_module": "smart-care-plans",
+      "parent_system": "platform24"
+    }
+  },
+
+  "summary": {
+    "total_direct_dependencies": 45,
+    "total_transitive_dependencies": 250,
+    "production_dependencies": 38,
+    "development_dependencies": 7,
+    "critical_soup_count": 5,
+    "major_soup_count": 12,
+    "safety_relevant_count": 8,
+    "outdated_count": 3,
+    "vulnerable_count": 0
+  },
+
+  "soup_items": [
+    {
+      "id": "ITEM-HM-SOUP-001",
+      "name": "spring-boot-starter-web",
+      "version": "inherited from alerisx-mhp-parent 2.30.0",
+      "version_constraint": "managed by parent",
+      "source": {
+        "registry": "maven",
+        "repository_url": "https://github.com/spring-projects/spring-boot",
+        "package_url": "https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-web"
+      },
+      "license": {
+        "type": "Apache-2.0",
+        "compatible": true,
+        "notes": ""
+      },
+      "dependency_type": "transitive",
+      "environment": "production",
+      "dependency_chain": ["alerisx-mhp-svc-spring-boot-starter", "spring-boot-starter-web"],
+      "purpose": "Core Spring Boot web framework for REST API",
+      "functionality_used": ["REST controllers", "HTTP server", "JSON serialization", "Request mapping"],
+      "used_by_components": ["ITEM-HM-COMP-001"],
+      "code_locations": ["svc/src/main/java/se/alerisx/mhp/manager/controller/"],
+      "risk_classification": "critical",
+      "risk_rationale": "Core framework handling all HTTP requests for clinical data",
+      "safety_relevant": true,
+      "safety_analysis": "HTTP request handling affects all clinical workflows; vulnerabilities could expose patient data",
+      "failure_modes": ["Server startup failure", "Request processing errors", "Serialization failures"],
+      "maintenance_status": {
+        "last_release": "2026-01-15",
+        "days_since_release": 50,
+        "status": "active",
+        "known_vulnerabilities": []
+      },
+      "qualification_requirements": {
+        "documentation_required": ["Spring Boot security configuration review"],
+        "testing_required": ["Integration tests for all endpoints"],
+        "verification_status": "complete"
+      },
+      "traces_to": {
+        "parent_module_soup": null,
+        "hazards": ["ITEM-HM-HAZ-001"],
+        "requirements": ["ITEM-HM-REQ-INT-001"]
+      }
+    },
+    {
+      "id": "ITEM-HM-SOUP-002",
+      "name": "hibernate-core",
+      "version": "inherited from parent",
+      "version_constraint": "managed by parent",
+      "source": {
+        "registry": "maven",
+        "repository_url": "https://github.com/hibernate/hibernate-orm",
+        "package_url": "https://mvnrepository.com/artifact/org.hibernate/hibernate-core"
+      },
+      "license": {
+        "type": "LGPL-2.1",
+        "compatible": true,
+        "notes": "LGPL allows use without copyleft if not modified"
+      },
+      "dependency_type": "direct",
+      "environment": "production",
+      "dependency_chain": ["hibernate-core"],
+      "purpose": "JPA ORM implementation for database persistence",
+      "functionality_used": ["Entity mapping", "Transaction management", "Query execution", "Caching"],
+      "used_by_components": ["ITEM-HM-COMP-003", "ITEM-HM-COMP-004"],
+      "code_locations": ["svc/src/main/java/se/alerisx/mhp/manager/domain/", "svc/src/main/java/se/alerisx/mhp/manager/repository/"],
+      "risk_classification": "critical",
+      "risk_rationale": "All clinical data persistence flows through Hibernate",
+      "safety_relevant": true,
+      "safety_analysis": "Data corruption in ORM layer could lead to incorrect clinical information",
+      "failure_modes": ["Database connection failure", "Entity mapping errors", "Transaction rollback", "Data corruption"],
+      "maintenance_status": {
+        "last_release": "2026-01-10",
+        "days_since_release": 55,
+        "status": "active",
+        "known_vulnerabilities": []
+      },
+      "qualification_requirements": {
+        "documentation_required": ["Entity mapping verification", "Transaction boundary analysis"],
+        "testing_required": ["Integration tests with database", "Data integrity tests"],
+        "verification_status": "complete"
+      },
+      "traces_to": {
+        "parent_module_soup": null,
+        "hazards": ["ITEM-HM-HAZ-002"],
+        "requirements": ["ITEM-HM-REQ-DATA-001"]
+      }
+    },
+    {
+      "id": "ITEM-HM-SOUP-003",
+      "name": "spring-boot-starter-artemis",
+      "version": "inherited from parent",
+      "version_constraint": "managed by parent",
+      "source": {
+        "registry": "maven",
+        "repository_url": "https://github.com/spring-projects/spring-boot",
+        "package_url": "https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-artemis"
+      },
+      "license": {
+        "type": "Apache-2.0",
+        "compatible": true,
+        "notes": ""
+      },
+      "dependency_type": "direct",
+      "environment": "production",
+      "dependency_chain": ["spring-boot-starter-artemis"],
+      "purpose": "JMS messaging with ActiveMQ Artemis for async event processing",
+      "functionality_used": ["JMS listeners", "Message publishing", "Topic subscription"],
+      "used_by_components": ["ITEM-HM-COMP-006"],
+      "code_locations": ["svc/src/main/java/se/alerisx/mhp/manager/listener/"],
+      "risk_classification": "critical",
+      "risk_rationale": "Async messaging critical for booking synchronization and handover events",
+      "safety_relevant": true,
+      "safety_analysis": "Message loss could cause appointment data inconsistencies across services",
+      "failure_modes": ["Message loss", "Duplicate processing", "Connection failure", "Message ordering issues"],
+      "maintenance_status": {
+        "last_release": "2026-01-15",
+        "days_since_release": 50,
+        "status": "active",
+        "known_vulnerabilities": []
+      },
+      "qualification_requirements": {
+        "documentation_required": ["Message flow documentation", "Dead letter queue configuration"],
+        "testing_required": ["Message processing tests", "Failure recovery tests"],
+        "verification_status": "complete"
+      },
+      "traces_to": {
+        "parent_module_soup": null,
+        "hazards": ["ITEM-HM-HAZ-003"],
+        "requirements": ["ITEM-HM-REQ-INT-001", "ITEM-HM-REQ-INT-002"]
+      }
+    },
+    {
+      "id": "ITEM-HM-SOUP-004",
+      "name": "querydsl-jpa",
+      "version": "inherited from parent",
+      "version_constraint": "managed by parent",
+      "source": {
+        "registry": "maven",
+        "repository_url": "https://github.com/querydsl/querydsl",
+        "package_url": "https://mvnrepository.com/artifact/com.querydsl/querydsl-jpa"
+      },
+      "license": {
+        "type": "Apache-2.0",
+        "compatible": true,
+        "notes": ""
+      },
+      "dependency_type": "direct",
+      "environment": "production",
+      "dependency_chain": ["querydsl-jpa"],
+      "purpose": "Type-safe JPA query building",
+      "functionality_used": ["Dynamic query construction", "Type-safe predicates"],
+      "used_by_components": ["ITEM-HM-COMP-003", "ITEM-HM-COMP-009"],
+      "code_locations": ["svc/src/main/java/se/alerisx/mhp/manager/service/clinicpages/"],
+      "risk_classification": "major",
+      "risk_rationale": "Used for complex clinic listing queries",
+      "safety_relevant": false,
+      "safety_analysis": "",
+      "failure_modes": ["Query construction errors", "Performance issues"],
+      "maintenance_status": {
+        "last_release": "2025-06-01",
+        "days_since_release": 280,
+        "status": "maintained",
+        "known_vulnerabilities": []
+      },
+      "qualification_requirements": {
+        "documentation_required": ["Query pattern documentation"],
+        "testing_required": ["Query result verification"],
+        "verification_status": "complete"
+      },
+      "traces_to": {
+        "parent_module_soup": null,
+        "hazards": [],
+        "requirements": []
+      }
+    },
+    {
+      "id": "ITEM-HM-SOUP-005",
+      "name": "blaze-persistence-integration-querydsl-expressions",
+      "version": "1.6.11",
+      "version_constraint": "1.6.11",
+      "source": {
+        "registry": "maven",
+        "repository_url": "https://github.com/Blazebit/blaze-persistence",
+        "package_url": "https://mvnrepository.com/artifact/com.blazebit/blaze-persistence-integration-querydsl-expressions"
+      },
+      "license": {
+        "type": "Apache-2.0",
+        "compatible": true,
+        "notes": ""
+      },
+      "dependency_type": "direct",
+      "environment": "production",
+      "dependency_chain": ["blaze-persistence-integration-querydsl-expressions"],
+      "purpose": "Enhanced QueryDSL with pagination and performance optimizations",
+      "functionality_used": ["Efficient pagination", "Query optimization"],
+      "used_by_components": ["ITEM-HM-COMP-003", "ITEM-HM-COMP-009"],
+      "code_locations": ["svc/src/main/java/se/alerisx/mhp/manager/service/clinicpages/"],
+      "risk_classification": "minor",
+      "risk_rationale": "Performance enhancement library",
+      "safety_relevant": false,
+      "safety_analysis": "",
+      "failure_modes": ["Performance degradation fallback"],
+      "maintenance_status": {
+        "last_release": "2025-09-01",
+        "days_since_release": 185,
+        "status": "active",
+        "known_vulnerabilities": []
+      },
+      "qualification_requirements": {
+        "documentation_required": [],
+        "testing_required": ["Performance testing"],
+        "verification_status": "complete"
+      },
+      "traces_to": {
+        "parent_module_soup": null,
+        "hazards": [],
+        "requirements": []
+      }
+    },
+    {
+      "id": "ITEM-HM-SOUP-006",
+      "name": "lombok",
+      "version": "1.18.30",
+      "version_constraint": "1.18.30",
+      "source": {
+        "registry": "maven",
+        "repository_url": "https://github.com/projectlombok/lombok",
+        "package_url": "https://mvnrepository.com/artifact/org.projectlombok/lombok"
+      },
+      "license": {
+        "type": "MIT",
+        "compatible": true,
+        "notes": ""
+      },
+      "dependency_type": "direct",
+      "environment": "both",
+      "dependency_chain": ["lombok"],
+      "purpose": "Compile-time boilerplate code generation",
+      "functionality_used": ["@Data", "@Builder", "@Slf4j", "@RequiredArgsConstructor"],
+      "used_by_components": ["ITEM-HM-COMP-004", "ITEM-HM-COMP-005"],
+      "code_locations": ["All domain and DTO classes"],
+      "risk_classification": "minor",
+      "risk_rationale": "Compile-time only, no runtime impact",
+      "safety_relevant": false,
+      "safety_analysis": "",
+      "failure_modes": ["Compilation failure"],
+      "maintenance_status": {
+        "last_release": "2025-11-01",
+        "days_since_release": 125,
+        "status": "active",
+        "known_vulnerabilities": []
+      },
+      "qualification_requirements": {
+        "documentation_required": [],
+        "testing_required": [],
+        "verification_status": "not_started"
+      },
+      "traces_to": {
+        "parent_module_soup": null,
+        "hazards": [],
+        "requirements": []
+      }
+    },
+    {
+      "id": "ITEM-HM-SOUP-007",
+      "name": "easy-rules-core",
+      "version": "3.4.0",
+      "version_constraint": "3.4.0",
+      "source": {
+        "registry": "maven",
+        "repository_url": "https://github.com/j-easy/easy-rules",
+        "package_url": "https://mvnrepository.com/artifact/org.jeasy/easy-rules-core"
+      },
+      "license": {
+        "type": "MIT",
+        "compatible": true,
+        "notes": ""
+      },
+      "dependency_type": "direct",
+      "environment": "production",
+      "dependency_chain": ["easy-rules-core"],
+      "purpose": "Rules engine for appointment escalation logic",
+      "functionality_used": ["Rule definition", "Rule evaluation", "Priority-based execution"],
+      "used_by_components": ["ITEM-HM-COMP-007"],
+      "code_locations": ["modules/escalator/"],
+      "risk_classification": "critical",
+      "risk_rationale": "Escalation rules determine clinical priority and response times",
+      "safety_relevant": true,
+      "safety_analysis": "Incorrect escalation could delay critical patient care",
+      "failure_modes": ["Rule evaluation errors", "Priority miscalculation"],
+      "maintenance_status": {
+        "last_release": "2020-07-15",
+        "days_since_release": 2060,
+        "status": "minimal",
+        "known_vulnerabilities": []
+      },
+      "qualification_requirements": {
+        "documentation_required": ["Escalation rule documentation", "Priority matrix"],
+        "testing_required": ["Rule evaluation tests", "Escalation scenario tests"],
+        "verification_status": "complete"
+      },
+      "traces_to": {
+        "parent_module_soup": null,
+        "hazards": ["ITEM-HM-HAZ-004"],
+        "requirements": ["ITEM-HM-REQ-FUNC-010"]
+      }
+    },
+    {
+      "id": "ITEM-HM-SOUP-008",
+      "name": "kco-rest",
+      "version": "4.0.3",
+      "version_constraint": "4.0.3",
+      "source": {
+        "registry": "maven",
+        "repository_url": "https://github.com/klarna/kco-rest-java",
+        "package_url": "https://mvnrepository.com/artifact/com.klarna/kco-rest"
+      },
+      "license": {
+        "type": "Apache-2.0",
+        "compatible": true,
+        "notes": ""
+      },
+      "dependency_type": "direct",
+      "environment": "production",
+      "dependency_chain": ["kco-rest"],
+      "purpose": "Klarna Checkout v3 SDK for payment processing",
+      "functionality_used": ["Order creation", "Payment capture", "Refunds"],
+      "used_by_components": ["ITEM-HM-COMP-008"],
+      "code_locations": ["svc/src/main/java/se/alerisx/mhp/manager/order/klarna/"],
+      "risk_classification": "major",
+      "risk_rationale": "Payment processing for healthcare services",
+      "safety_relevant": false,
+      "safety_analysis": "",
+      "failure_modes": ["Payment failure", "Double charging", "Refund failure"],
+      "maintenance_status": {
+        "last_release": "2024-03-01",
+        "days_since_release": 735,
+        "status": "maintained",
+        "known_vulnerabilities": []
+      },
+      "qualification_requirements": {
+        "documentation_required": ["Payment flow documentation"],
+        "testing_required": ["Payment integration tests"],
+        "verification_status": "complete"
+      },
+      "traces_to": {
+        "parent_module_soup": null,
+        "hazards": [],
+        "requirements": ["ITEM-HM-REQ-INT-008"]
+      }
+    },
+    {
+      "id": "ITEM-HM-SOUP-009",
+      "name": "shedlock-spring",
+      "version": "5.12.0",
+      "version_constraint": "5.12.0",
+      "source": {
+        "registry": "maven",
+        "repository_url": "https://github.com/lukas-krecan/ShedLock",
+        "package_url": "https://mvnrepository.com/artifact/net.javacrumbs.shedlock/shedlock-spring"
+      },
+      "license": {
+        "type": "Apache-2.0",
+        "compatible": true,
+        "notes": ""
+      },
+      "dependency_type": "direct",
+      "environment": "production",
+      "dependency_chain": ["shedlock-spring"],
+      "purpose": "Distributed lock for scheduled tasks",
+      "functionality_used": ["Scheduled job locking", "Cluster-safe scheduling"],
+      "used_by_components": ["ITEM-HM-COMP-002"],
+      "code_locations": ["svc/src/main/java/se/alerisx/mhp/manager/service/impl/FollowUpMessageNotificationScheduler.java"],
+      "risk_classification": "major",
+      "risk_rationale": "Ensures scheduled clinical notifications run exactly once",
+      "safety_relevant": true,
+      "safety_analysis": "Failed locking could cause missed or duplicate patient notifications",
+      "failure_modes": ["Lock acquisition failure", "Duplicate execution"],
+      "maintenance_status": {
+        "last_release": "2025-12-01",
+        "days_since_release": 95,
+        "status": "active",
+        "known_vulnerabilities": []
+      },
+      "qualification_requirements": {
+        "documentation_required": ["Scheduled task documentation"],
+        "testing_required": ["Cluster scheduling tests"],
+        "verification_status": "in_progress"
+      },
+      "traces_to": {
+        "parent_module_soup": null,
+        "hazards": ["ITEM-HM-HAZ-005"],
+        "requirements": ["ITEM-HM-REQ-FUNC-011"]
+      }
+    },
+    {
+      "id": "ITEM-HM-SOUP-010",
+      "name": "alerisx-audit-logging-sdk",
+      "version": "2.84.0",
+      "version_constraint": "2.84.0",
+      "source": {
+        "registry": "maven (internal)",
+        "repository_url": "https://gitlab.com/doktor24/libraries/audit-logging-sdk",
+        "package_url": "internal"
+      },
+      "license": {
+        "type": "Proprietary",
+        "compatible": true,
+        "notes": "Internal Platform24 library"
+      },
+      "dependency_type": "direct",
+      "environment": "production",
+      "dependency_chain": ["alerisx-audit-logging-sdk"],
+      "purpose": "Clinical audit trail logging for regulatory compliance",
+      "functionality_used": ["Audit event creation", "Log persistence", "User action tracking"],
+      "used_by_components": ["ITEM-HM-COMP-010"],
+      "code_locations": ["svc/src/main/java/se/alerisx/mhp/manager/service/audit/"],
+      "risk_classification": "critical",
+      "risk_rationale": "Audit logging required for regulatory compliance and incident investigation",
+      "safety_relevant": true,
+      "safety_analysis": "Missing audit logs could impair incident investigation and regulatory compliance",
+      "failure_modes": ["Log loss", "Incomplete audit trail"],
+      "maintenance_status": {
+        "last_release": "2026-01-20",
+        "days_since_release": 45,
+        "status": "active",
+        "known_vulnerabilities": []
+      },
+      "qualification_requirements": {
+        "documentation_required": ["Audit event catalog"],
+        "testing_required": ["Audit completeness tests"],
+        "verification_status": "complete"
+      },
+      "traces_to": {
+        "parent_module_soup": null,
+        "hazards": [],
+        "requirements": ["ITEM-HM-REQ-SEC-001"]
+      }
+    },
+    {
+      "id": "ITEM-HM-SOUP-011",
+      "name": "mysql-connector-j",
+      "version": "8.4.0",
+      "version_constraint": "8.4.0",
+      "source": {
+        "registry": "maven",
+        "repository_url": "https://github.com/mysql/mysql-connector-j",
+        "package_url": "https://mvnrepository.com/artifact/com.mysql/mysql-connector-j"
+      },
+      "license": {
+        "type": "GPL-2.0 with FOSS exception",
+        "compatible": true,
+        "notes": "FOSS exception allows use with open source licenses"
+      },
+      "dependency_type": "direct",
+      "environment": "production",
+      "dependency_chain": ["mysql-connector-j"],
+      "purpose": "MySQL/MariaDB JDBC driver",
+      "functionality_used": ["Database connectivity", "Connection pooling"],
+      "used_by_components": ["ITEM-HM-COMP-003"],
+      "code_locations": ["Database connections"],
+      "risk_classification": "critical",
+      "risk_rationale": "All database operations depend on JDBC driver",
+      "safety_relevant": true,
+      "safety_analysis": "Driver failures would prevent all data persistence",
+      "failure_modes": ["Connection failure", "Query execution errors"],
+      "maintenance_status": {
+        "last_release": "2025-10-01",
+        "days_since_release": 155,
+        "status": "active",
+        "known_vulnerabilities": []
+      },
+      "qualification_requirements": {
+        "documentation_required": ["Connection configuration"],
+        "testing_required": ["Database connectivity tests"],
+        "verification_status": "complete"
+      },
+      "traces_to": {
+        "parent_module_soup": null,
+        "hazards": ["ITEM-HM-HAZ-002"],
+        "requirements": ["ITEM-HM-REQ-DATA-001"]
+      }
+    },
+    {
+      "id": "ITEM-HM-SOUP-012",
+      "name": "jackson-datatype-jsr310",
+      "version": "inherited from parent",
+      "version_constraint": "managed by parent",
+      "source": {
+        "registry": "maven",
+        "repository_url": "https://github.com/FasterXML/jackson-modules-java8",
+        "package_url": "https://mvnrepository.com/artifact/com.fasterxml.jackson.datatype/jackson-datatype-jsr310"
+      },
+      "license": {
+        "type": "Apache-2.0",
+        "compatible": true,
+        "notes": ""
+      },
+      "dependency_type": "direct",
+      "environment": "production",
+      "dependency_chain": ["jackson-datatype-jsr310"],
+      "purpose": "Java 8 date/time serialization for JSON",
+      "functionality_used": ["LocalDateTime serialization", "Date formatting"],
+      "used_by_components": ["ITEM-HM-COMP-001", "ITEM-HM-COMP-005"],
+      "code_locations": ["All REST endpoints"],
+      "risk_classification": "major",
+      "risk_rationale": "Date/time handling critical for appointment scheduling",
+      "safety_relevant": true,
+      "safety_analysis": "Incorrect date serialization could cause scheduling errors",
+      "failure_modes": ["Serialization errors", "Timezone issues"],
+      "maintenance_status": {
+        "last_release": "2026-01-01",
+        "days_since_release": 65,
+        "status": "active",
+        "known_vulnerabilities": []
+      },
+      "qualification_requirements": {
+        "documentation_required": [],
+        "testing_required": ["Date serialization tests"],
+        "verification_status": "complete"
+      },
+      "traces_to": {
+        "parent_module_soup": null,
+        "hazards": ["ITEM-HM-HAZ-006"],
+        "requirements": []
+      }
+    }
+  ],
+
+  "runtime_soup": [
+    {
+      "id": "ITEM-HM-RT-001",
+      "type": "runtime",
+      "name": "OpenJDK",
+      "version": "21",
+      "source": "Eclipse Adoptium",
+      "purpose": "Java runtime environment",
+      "safety_relevant": true,
+      "configuration_notes": "JVM options configured in Helm charts",
+      "used_by_components": ["All components"]
+    },
+    {
+      "id": "ITEM-HM-RT-002",
+      "type": "database",
+      "name": "MariaDB",
+      "version": "10.x",
+      "source": "MariaDB Foundation",
+      "purpose": "Primary relational database",
+      "safety_relevant": true,
+      "configuration_notes": "Clustered deployment with read replicas",
+      "used_by_components": ["ITEM-HM-COMP-003"]
+    },
+    {
+      "id": "ITEM-HM-RT-003",
+      "type": "message_queue",
+      "name": "ActiveMQ Artemis",
+      "version": "embedded",
+      "source": "Apache Foundation",
+      "purpose": "JMS message broker",
+      "safety_relevant": true,
+      "configuration_notes": "Embedded broker with persistence",
+      "used_by_components": ["ITEM-HM-COMP-006"]
+    }
+  ],
+
+  "dependency_tree": {
+    "depth_statistics": {
+      "max_depth": 8,
+      "average_depth": 3.2,
+      "deep_dependencies": ["jackson-databind", "netty-handler", "tomcat-embed-core"]
+    },
+    "duplicated_packages": []
+  },
+
+  "license_summary": {
+    "licenses_found": {
+      "Apache-2.0": 35,
+      "MIT": 5,
+      "LGPL-2.1": 2,
+      "GPL-2.0": 1,
+      "Proprietary": 5
+    },
+    "copyleft_dependencies": [
+      {
+        "name": "hibernate-core",
+        "license": "LGPL-2.1",
+        "obligation": "No modification required if used as library"
+      }
+    ],
+    "unknown_licenses": [],
+    "license_conflicts": []
+  },
+
+  "gaps": [
+    {
+      "id": "ITEM-HM-SOUP-GAP-001",
+      "type": "abandoned_package",
+      "description": "easy-rules-core has minimal maintenance (last release 2020)",
+      "affected_soup": ["ITEM-HM-SOUP-007"],
+      "recommendation": "Monitor for security issues, consider alternative rules engine if unmaintained",
+      "priority": "medium"
+    }
+  ],
+
+  "action_items": [
+    {
+      "priority": "low",
+      "soup_id": "ITEM-HM-SOUP-007",
+      "action": "Evaluate alternative rules engines",
+      "rationale": "easy-rules has minimal recent activity"
+    },
+    {
+      "priority": "low",
+      "soup_id": "ITEM-HM-SOUP-008",
+      "action": "Update Klarna SDK if newer version available",
+      "rationale": "Current version is over 2 years old"
+    }
+  ]
+}

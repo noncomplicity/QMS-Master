@@ -1,0 +1,608 @@
+{
+  "aggregation_metadata": {
+    "module_id": "user-interfaces",
+    "module_name": "User Interfaces",
+    "aggregated_at": "2026-03-06T21:00:00Z",
+    "aggregator_version": "3.0",
+    "standard": "IEC 62304:2006+AMD1:2015 / ISO 14971:2019",
+    "hierarchy": {
+      "level": "module",
+      "parent_system": "triage-system"
+    },
+    "source_items": [
+      {
+        "item_id": "patient-ui",
+        "item_name": "Patient Application",
+        "extraction_file": "items/patient-ui/extracted/item-risk-contribution.json"
+      },
+      {
+        "item_id": "triage-ui",
+        "item_name": "Triage Interview UI",
+        "extraction_file": "items/triage-ui/extracted/item-risk-contribution.json"
+      },
+      {
+        "item_id": "triage-clinic-ui",
+        "item_name": "Clinic Practitioner UI",
+        "extraction_file": "items/triage-clinic-ui/extracted/item-risk-contribution.json"
+      }
+    ]
+  },
+
+  "module_context": {
+    "id": "MOD-USER-INTERFACES",
+    "name": "User Interfaces",
+    "description": "Patient and practitioner facing applications including patient-facing web app, triage interview interface, and clinic practitioner review interface",
+    "safety_class": "B",
+    "safety_class_rationale": "User interfaces for clinical data collection and display. Human factors failures could contribute to patient harm through incorrect data entry, misinterpretation of clinical information, or failure to display critical urgency indicators."
+  },
+
+  "software_items": [
+    {
+      "id": "ITEM-PATIENT-UI",
+      "name": "patient-ui",
+      "description": "React/TypeScript micro-frontend monorepo providing patient-facing web application for triage interviews, appointments, chat, video consultations, and consent management",
+      "safety_class": "B",
+      "version": "1.0.0",
+      "repository_url": "git@gitlab-p24:doktor24/frontends/patient-ui.git",
+      "technology_stack": ["TypeScript 5.9.2", "React 17.0.2", "Redux", "Axios", "React Query"],
+      "deployment_type": "monorepo"
+    },
+    {
+      "id": "ITEM-TRIAGE-UI",
+      "name": "triage-ui",
+      "description": "React/TypeScript frontend microfrontend providing the patient-facing interview UI for symptom triage",
+      "safety_class": "B",
+      "version": "1.0.0",
+      "repository_url": "git@gitlab-p24:doktor24/frontends/triage-ui.git",
+      "technology_stack": ["TypeScript", "React 17", "styled-components", "axios"],
+      "deployment_type": "microfrontend"
+    },
+    {
+      "id": "ITEM-TCU",
+      "name": "triage-clinic-ui",
+      "description": "React-based microfrontend for practitioners to review triage results, view clinical flags, search conditions, and access patient data",
+      "safety_class": "B",
+      "version": "1.0.0",
+      "repository_url": "git@gitlab-p24:doktor24/frontends/triage-clinic-ui.git",
+      "technology_stack": ["TypeScript", "React 17", "Ant Design 5", "React Query"],
+      "deployment_type": "microfrontend"
+    }
+  ],
+
+  "core_functionalities": [
+    {
+      "id": "CF-UI-001",
+      "name": "Patient Authentication and Session Management",
+      "description": "Manages patient authentication, session tokens, and authorization",
+      "software_items": ["ITEM-PATIENT-UI"],
+      "failure_modes": ["MOD-UI-FM-001", "MOD-UI-FM-002"]
+    },
+    {
+      "id": "CF-UI-002",
+      "name": "Symptom Interview Conduct",
+      "description": "Presents questions to patients and collects symptom data through various input types",
+      "software_items": ["ITEM-TRIAGE-UI"],
+      "failure_modes": ["MOD-UI-FM-003", "MOD-UI-FM-004", "MOD-UI-FM-005"]
+    },
+    {
+      "id": "CF-UI-003",
+      "name": "Patient Consent Management",
+      "description": "Manages patient consent for treatment and data processing",
+      "software_items": ["ITEM-PATIENT-UI"],
+      "failure_modes": ["MOD-UI-FM-006"]
+    },
+    {
+      "id": "CF-UI-004",
+      "name": "Appointment and Booking Management",
+      "description": "Enables patients to book, view, and cancel appointments",
+      "software_items": ["ITEM-PATIENT-UI"],
+      "failure_modes": ["MOD-UI-FM-007"]
+    },
+    {
+      "id": "CF-UI-005",
+      "name": "Practitioner Triage Review",
+      "description": "Displays triage results and clinical flags to practitioners",
+      "software_items": ["ITEM-TCU"],
+      "failure_modes": ["MOD-UI-FM-008", "MOD-UI-FM-009", "MOD-UI-FM-010"]
+    },
+    {
+      "id": "CF-UI-006",
+      "name": "Patient Search and Identification",
+      "description": "Enables practitioners to search and select patients",
+      "software_items": ["ITEM-TCU"],
+      "failure_modes": ["MOD-UI-FM-011"]
+    },
+    {
+      "id": "CF-UI-007",
+      "name": "Real-time Communication",
+      "description": "WebSocket-based real-time updates for chat and status",
+      "software_items": ["ITEM-PATIENT-UI"],
+      "failure_modes": ["MOD-UI-FM-012"]
+    }
+  ],
+
+  "module_hazards": [
+    {
+      "id": "MOD-UI-HAZ-001",
+      "description": "Patient enters incorrect symptom data due to confusing UI",
+      "contributing_items": ["ITEM-TRIAGE-UI"],
+      "contributing_hazards": ["ITEM-TRIAGE-UI-HAZ-001"],
+      "potential_harm": "Incorrect triage recommendation based on wrong symptom data, delaying appropriate care",
+      "severity_contribution": "serious",
+      "cross_item_impact": "Incorrect data propagates to triage engine"
+    },
+    {
+      "id": "MOD-UI-HAZ-002",
+      "description": "Patient skips critical question without realizing importance",
+      "contributing_items": ["ITEM-TRIAGE-UI"],
+      "contributing_hazards": ["ITEM-TRIAGE-UI-HAZ-002"],
+      "potential_harm": "Incomplete symptom data leading to inadequate triage assessment",
+      "severity_contribution": "serious",
+      "cross_item_impact": "Incomplete data affects rule engine evaluation"
+    },
+    {
+      "id": "MOD-UI-HAZ-003",
+      "description": "Network error during interview causes data loss",
+      "contributing_items": ["ITEM-TRIAGE-UI", "ITEM-PATIENT-UI"],
+      "contributing_hazards": ["ITEM-TRIAGE-UI-HAZ-007", "ITEM-PATIENT-UI-HAZ-002"],
+      "potential_harm": "Patient must re-enter data, potential for inconsistent answers or abandonment",
+      "severity_contribution": "minor",
+      "cross_item_impact": "Affects both interview UI and host application"
+    },
+    {
+      "id": "MOD-UI-HAZ-004",
+      "description": "Patient consent not properly recorded",
+      "contributing_items": ["ITEM-PATIENT-UI"],
+      "contributing_hazards": ["ITEM-PATIENT-UI-HAZ-004"],
+      "potential_harm": "Treatment without valid consent or denial of needed care",
+      "severity_contribution": "serious",
+      "cross_item_impact": "Affects downstream consent verification"
+    },
+    {
+      "id": "MOD-UI-HAZ-005",
+      "description": "Authentication token expiry causes session loss during critical operation",
+      "contributing_items": ["ITEM-PATIENT-UI"],
+      "contributing_hazards": ["ITEM-PATIENT-UI-HAZ-001", "ITEM-PATIENT-UI-HAZ-010"],
+      "potential_harm": "Patient loses interview progress, data submitted without proper authentication",
+      "severity_contribution": "serious",
+      "cross_item_impact": "Affects all patient interactions"
+    },
+    {
+      "id": "MOD-UI-HAZ-006",
+      "description": "Triage result or clinical flag not displayed to practitioner",
+      "contributing_items": ["ITEM-TCU"],
+      "contributing_hazards": ["ITEM-TCU-HAZ-001"],
+      "potential_harm": "Practitioner unaware of critical flags, inappropriate care decisions",
+      "severity_contribution": "serious",
+      "cross_item_impact": "Affects clinical decision making"
+    },
+    {
+      "id": "MOD-UI-HAZ-007",
+      "description": "Clinical flag displayed with incorrect content",
+      "contributing_items": ["ITEM-TCU"],
+      "contributing_hazards": ["ITEM-TCU-HAZ-002"],
+      "potential_harm": "Practitioner receives incorrect clinical information",
+      "severity_contribution": "critical",
+      "cross_item_impact": "Directly affects treatment decisions"
+    },
+    {
+      "id": "MOD-UI-HAZ-008",
+      "description": "Wrong patient data displayed to practitioner",
+      "contributing_items": ["ITEM-TCU"],
+      "contributing_hazards": ["ITEM-TCU-HAZ-003"],
+      "potential_harm": "Treatment decisions based on wrong patient information",
+      "severity_contribution": "catastrophic",
+      "cross_item_impact": "Cross-patient safety issue"
+    },
+    {
+      "id": "MOD-UI-HAZ-009",
+      "description": "Triage urgency not prominently displayed",
+      "contributing_items": ["ITEM-TCU"],
+      "contributing_hazards": ["ITEM-TCU-HAZ-006"],
+      "potential_harm": "Practitioner overlooks urgent recommendation, delayed treatment",
+      "severity_contribution": "critical",
+      "cross_item_impact": "Human factors issue affecting time-sensitive care"
+    },
+    {
+      "id": "MOD-UI-HAZ-010",
+      "description": "UI crash leaves user unable to complete workflow",
+      "contributing_items": ["ITEM-TRIAGE-UI", "ITEM-PATIENT-UI", "ITEM-TCU"],
+      "contributing_hazards": ["ITEM-TRIAGE-UI-HAZ-008", "ITEM-PATIENT-UI-HAZ-003", "ITEM-TCU-HAZ-007"],
+      "potential_harm": "Patient cannot complete triage, practitioner cannot access results",
+      "severity_contribution": "serious",
+      "cross_item_impact": "Affects entire user workflow"
+    },
+    {
+      "id": "MOD-UI-HAZ-011",
+      "description": "Redux state persistence failure causes session data loss",
+      "contributing_items": ["ITEM-PATIENT-UI"],
+      "contributing_hazards": ["ITEM-PATIENT-UI-HAZ-011"],
+      "potential_harm": "Patient session exposed to XSS or session data lost on browser refresh",
+      "severity_contribution": "serious",
+      "cross_item_impact": "Affects patient session continuity"
+    }
+  ],
+
+  "failure_modes": [
+    {
+      "id": "MOD-UI-FM-001",
+      "name": "JWT token expiry during active session",
+      "category": "authentication_failure",
+      "software_item_id": "ITEM-PATIENT-UI",
+      "core_functionality_id": "CF-UI-001",
+      "contributes_to_hazards": ["MOD-UI-HAZ-005"],
+      "effect_on_module": "API requests fail, logout triggered",
+      "effect_on_system": "Patient session terminated, in-progress operations lost",
+      "source_failure_modes": ["ITEM-PATIENT-UI-FM-004"]
+    },
+    {
+      "id": "MOD-UI-FM-002",
+      "name": "Authorization redirect loop",
+      "category": "software_defect",
+      "software_item_id": "ITEM-PATIENT-UI",
+      "core_functionality_id": "CF-UI-001",
+      "contributes_to_hazards": ["MOD-UI-HAZ-010"],
+      "effect_on_module": "Browser shows too many redirects error",
+      "effect_on_system": "Patient cannot access application",
+      "source_failure_modes": ["ITEM-PATIENT-UI-FM-010"]
+    },
+    {
+      "id": "MOD-UI-FM-003",
+      "name": "Patient selects wrong answer option",
+      "category": "user_error",
+      "software_item_id": "ITEM-TRIAGE-UI",
+      "core_functionality_id": "CF-UI-002",
+      "contributes_to_hazards": ["MOD-UI-HAZ-001"],
+      "effect_on_module": "Wrong answer submitted to backend",
+      "effect_on_system": "Triage engine receives incorrect data",
+      "source_failure_modes": ["ITEM-TRIAGE-UI-FM-001"]
+    },
+    {
+      "id": "MOD-UI-FM-004",
+      "name": "Network request timeout during answer submission",
+      "category": "communication_failure",
+      "software_item_id": "ITEM-TRIAGE-UI",
+      "core_functionality_id": "CF-UI-002",
+      "contributes_to_hazards": ["MOD-UI-HAZ-003"],
+      "effect_on_module": "Answer not saved, error reported to host",
+      "effect_on_system": "Interview state inconsistent",
+      "source_failure_modes": ["ITEM-TRIAGE-UI-FM-004"]
+    },
+    {
+      "id": "MOD-UI-FM-005",
+      "name": "Patient accidentally navigates away",
+      "category": "user_error",
+      "software_item_id": "ITEM-TRIAGE-UI",
+      "core_functionality_id": "CF-UI-002",
+      "contributes_to_hazards": ["MOD-UI-HAZ-003"],
+      "effect_on_module": "CancellationModal displayed, data loss if confirmed",
+      "effect_on_system": "Interview abandoned, patient must restart",
+      "source_failure_modes": ["ITEM-TRIAGE-UI-FM-008"]
+    },
+    {
+      "id": "MOD-UI-FM-006",
+      "name": "Consent API returns success but data not persisted",
+      "category": "data_integrity",
+      "software_item_id": "ITEM-PATIENT-UI",
+      "core_functionality_id": "CF-UI-003",
+      "contributes_to_hazards": ["MOD-UI-HAZ-004"],
+      "effect_on_module": "UI indicates success but consent not recorded",
+      "effect_on_system": "Potential consent violation",
+      "source_failure_modes": ["ITEM-PATIENT-UI-FM-008"]
+    },
+    {
+      "id": "MOD-UI-FM-007",
+      "name": "Appointment cancellation notification fails",
+      "category": "communication_failure",
+      "software_item_id": "ITEM-PATIENT-UI",
+      "core_functionality_id": "CF-UI-004",
+      "contributes_to_hazards": [],
+      "effect_on_module": "API call succeeds but practitioner not notified",
+      "effect_on_system": "Practitioner unaware of cancellation",
+      "source_failure_modes": []
+    },
+    {
+      "id": "MOD-UI-FM-008",
+      "name": "API timeout on triage result fetch",
+      "category": "communication_failure",
+      "software_item_id": "ITEM-TCU",
+      "core_functionality_id": "CF-UI-005",
+      "contributes_to_hazards": ["MOD-UI-HAZ-006"],
+      "effect_on_module": "Triage panel shows no data or partial data",
+      "effect_on_system": "Practitioner may not realize data is incomplete",
+      "source_failure_modes": ["ITEM-TCU-FM-002"]
+    },
+    {
+      "id": "MOD-UI-FM-009",
+      "name": "Backend returns malformed triage result JSON",
+      "category": "data_integrity",
+      "software_item_id": "ITEM-TCU",
+      "core_functionality_id": "CF-UI-005",
+      "contributes_to_hazards": ["MOD-UI-HAZ-006", "MOD-UI-HAZ-007"],
+      "effect_on_module": "Component may fail to render or display incorrect data",
+      "effect_on_system": "Practitioner sees incomplete/incorrect data",
+      "source_failure_modes": ["ITEM-TCU-FM-006"]
+    },
+    {
+      "id": "MOD-UI-FM-010",
+      "name": "Critical urgency flag not visually prominent",
+      "category": "usability_issue",
+      "software_item_id": "ITEM-TCU",
+      "core_functionality_id": "CF-UI-005",
+      "contributes_to_hazards": ["MOD-UI-HAZ-009"],
+      "effect_on_module": "Flags rendered with equal visual weight",
+      "effect_on_system": "Practitioner may overlook critical urgency",
+      "source_failure_modes": ["ITEM-TCU-FM-008"]
+    },
+    {
+      "id": "MOD-UI-FM-011",
+      "name": "Incorrect patient selected from search results",
+      "category": "user_error",
+      "software_item_id": "ITEM-TCU",
+      "core_functionality_id": "CF-UI-006",
+      "contributes_to_hazards": ["MOD-UI-HAZ-008"],
+      "effect_on_module": "Triage results for wrong patient displayed",
+      "effect_on_system": "Clinical decisions for wrong patient",
+      "source_failure_modes": ["ITEM-TCU-FM-004"]
+    },
+    {
+      "id": "MOD-UI-FM-012",
+      "name": "WebSocket connection timeout",
+      "category": "communication_failure",
+      "software_item_id": "ITEM-PATIENT-UI",
+      "core_functionality_id": "CF-UI-007",
+      "contributes_to_hazards": ["MOD-UI-HAZ-003"],
+      "effect_on_module": "Real-time updates cease, fallback to polling",
+      "effect_on_system": "Delayed updates on appointment status",
+      "source_failure_modes": ["ITEM-PATIENT-UI-FM-002"]
+    }
+  ],
+
+  "module_risk_controls": [
+    {
+      "id": "MOD-UI-RC-001",
+      "description": "JWT token validation on application initialization",
+      "control_type": "protective_measure",
+      "mitigates": ["MOD-UI-HAZ-005"],
+      "implementation": "initAuth checks token expiry and triggers logout if expired",
+      "verification_status": "verified",
+      "source_controls": ["ITEM-PATIENT-UI-RC-001"]
+    },
+    {
+      "id": "MOD-UI-RC-002",
+      "description": "WebSocket fallback to polling",
+      "control_type": "protective_measure",
+      "mitigates": ["MOD-UI-HAZ-003"],
+      "implementation": "useWebsockets implements fallback intervals on connection loss",
+      "verification_status": "unverified",
+      "source_controls": ["ITEM-PATIENT-UI-RC-002"]
+    },
+    {
+      "id": "MOD-UI-RC-003",
+      "description": "Global error boundary with analytics reporting",
+      "control_type": "information_for_safety",
+      "mitigates": ["MOD-UI-HAZ-010"],
+      "implementation": "ReactErrorBoundary catches errors, logs to analytics",
+      "verification_status": "partial",
+      "source_controls": ["ITEM-PATIENT-UI-RC-003", "ITEM-TRIAGE-UI-RC-005", "ITEM-TCU-RC-003"]
+    },
+    {
+      "id": "MOD-UI-RC-004",
+      "description": "Numeric input validation with min/max constraints",
+      "control_type": "protective_measure",
+      "mitigates": ["MOD-UI-HAZ-001"],
+      "implementation": "InputNumber enforces min/max and displays error messages",
+      "verification_status": "partial",
+      "source_controls": ["ITEM-TRIAGE-UI-RC-001"]
+    },
+    {
+      "id": "MOD-UI-RC-005",
+      "description": "Exit warning modal to prevent accidental data loss",
+      "control_type": "information_for_safety",
+      "mitigates": ["MOD-UI-HAZ-003"],
+      "implementation": "Browser history blocker triggers CancellationModal",
+      "verification_status": "verified",
+      "source_controls": ["ITEM-TRIAGE-UI-RC-004"]
+    },
+    {
+      "id": "MOD-UI-RC-006",
+      "description": "Answer status tracking prevents premature progression",
+      "control_type": "protective_measure",
+      "mitigates": ["MOD-UI-HAZ-002"],
+      "implementation": "isReadyToProceed checks if question answered before allowing Next",
+      "verification_status": "verified",
+      "source_controls": ["ITEM-TRIAGE-UI-RC-007"]
+    },
+    {
+      "id": "MOD-UI-RC-007",
+      "description": "Null/empty data checks before rendering triage results",
+      "control_type": "protective_measure",
+      "mitigates": ["MOD-UI-HAZ-006"],
+      "implementation": "Components check for empty data before rendering",
+      "verification_status": "unverified",
+      "source_controls": ["ITEM-TCU-RC-002"]
+    },
+    {
+      "id": "MOD-UI-RC-008",
+      "description": "Axios interceptor for network error detection and logging",
+      "control_type": "information_for_safety",
+      "mitigates": ["MOD-UI-HAZ-003", "MOD-UI-HAZ-006"],
+      "implementation": "Interceptor detects timeout and network errors, logs to analytics",
+      "verification_status": "verified",
+      "source_controls": ["ITEM-TCU-RC-004"]
+    },
+    {
+      "id": "MOD-UI-RC-009",
+      "description": "Minimum query length validation for patient search",
+      "control_type": "protective_measure",
+      "mitigates": ["MOD-UI-HAZ-008"],
+      "implementation": "Patient search requires minimum 3 characters",
+      "verification_status": "unverified",
+      "source_controls": ["ITEM-TCU-RC-008"]
+    },
+    {
+      "id": "MOD-UI-RC-010",
+      "description": "ARIA attributes for accessibility and error indication",
+      "control_type": "information_for_safety",
+      "mitigates": ["MOD-UI-HAZ-001"],
+      "implementation": "aria-invalid, aria-describedby on inputs for screen reader feedback",
+      "verification_status": "partial",
+      "source_controls": ["ITEM-TRIAGE-UI-RC-010"]
+    }
+  ],
+
+  "module_risk_controls_required_upstream": [
+    {
+      "id": "MOD-UI-RC-UP-001",
+      "description": "Patient training on interview process and symptom reporting",
+      "rationale": "UI cannot force patient to understand medical terminology",
+      "recommended_level": "system",
+      "control_type": "information_for_safety",
+      "mitigates": ["MOD-UI-HAZ-001", "MOD-UI-HAZ-002"]
+    },
+    {
+      "id": "MOD-UI-RC-UP-002",
+      "description": "Clinician review process to catch incomplete symptom data",
+      "rationale": "UI cannot validate truthfulness of patient-entered data",
+      "recommended_level": "system",
+      "control_type": "protective_measure",
+      "mitigates": ["MOD-UI-HAZ-001", "MOD-UI-HAZ-002"]
+    },
+    {
+      "id": "MOD-UI-RC-UP-003",
+      "description": "Practitioner training on triage UI interpretation",
+      "rationale": "Software displays information but cannot ensure correct interpretation",
+      "recommended_level": "system",
+      "control_type": "information_for_safety",
+      "mitigates": ["MOD-UI-HAZ-006", "MOD-UI-HAZ-009"]
+    },
+    {
+      "id": "MOD-UI-RC-UP-004",
+      "description": "Patient identity verification procedure independent of software",
+      "rationale": "Software cannot verify physical patient matches selected record",
+      "recommended_level": "system",
+      "control_type": "protective_measure",
+      "mitigates": ["MOD-UI-HAZ-008"]
+    },
+    {
+      "id": "MOD-UI-RC-UP-005",
+      "description": "Network infrastructure monitoring and redundancy",
+      "rationale": "UI cannot control network availability",
+      "recommended_level": "system",
+      "control_type": "protective_measure",
+      "mitigates": ["MOD-UI-HAZ-003"]
+    },
+    {
+      "id": "MOD-UI-RC-UP-006",
+      "description": "Backend must verify consent persistence and return confirmation",
+      "rationale": "Frontend cannot directly access consent database",
+      "recommended_level": "module",
+      "control_type": "protective_measure",
+      "mitigates": ["MOD-UI-HAZ-004"]
+    }
+  ],
+
+  "cross_item_interfaces": [
+    {
+      "id": "MOD-UI-IF-001",
+      "name": "Triage-UI embedded in Patient-UI",
+      "from_item": "ITEM-PATIENT-UI",
+      "to_item": "ITEM-TRIAGE-UI",
+      "interface_type": "microfrontend",
+      "safety_impact": "Triage-UI errors propagate to Patient-UI error boundary. State must be coordinated between host and microfrontend.",
+      "data_exchanged": "Interview state, error callbacks, origin configuration",
+      "failure_handling": "Error boundary catches triage-ui errors, reports to host"
+    },
+    {
+      "id": "MOD-UI-IF-002",
+      "name": "Backend API Integration",
+      "from_item": "all",
+      "to_item": "external",
+      "interface_type": "REST",
+      "safety_impact": "All UIs depend on backend APIs. Failures affect patient workflow and practitioner access.",
+      "data_exchanged": "Interview data, triage results, appointments, consents",
+      "failure_handling": "React Query error handling, toast notifications"
+    },
+    {
+      "id": "MOD-UI-IF-003",
+      "name": "WebSocket Real-time Updates",
+      "from_item": "ITEM-PATIENT-UI",
+      "to_item": "external",
+      "interface_type": "WebSocket",
+      "safety_impact": "Real-time updates for chat and status. Failure delays information delivery.",
+      "data_exchanged": "Status changes, chat messages, appointment updates",
+      "failure_handling": "Automatic fallback to HTTP polling"
+    }
+  ],
+
+  "module_verification_gaps": [
+    {
+      "id": "MOD-UI-GAP-001",
+      "type": "cross_item_integration",
+      "description": "Error propagation between triage-ui and patient-ui not tested",
+      "affected_hazards": ["MOD-UI-HAZ-010"],
+      "priority": "high",
+      "recommendation": "Add integration tests for error boundary behavior across microfrontend boundary"
+    },
+    {
+      "id": "MOD-UI-GAP-002",
+      "type": "untested_control",
+      "description": "WebSocket fallback mechanism not covered by unit tests",
+      "affected_hazards": ["MOD-UI-HAZ-003"],
+      "priority": "high",
+      "recommendation": "Add tests for connection loss scenarios and fallback behavior"
+    },
+    {
+      "id": "MOD-UI-GAP-003",
+      "type": "untested_control",
+      "description": "Null/empty data checks in triage clinic UI lack unit tests",
+      "affected_hazards": ["MOD-UI-HAZ-006"],
+      "priority": "high",
+      "recommendation": "Add tests verifying components return null when data empty"
+    },
+    {
+      "id": "MOD-UI-GAP-004",
+      "type": "missing_failure_test",
+      "description": "Interview ID correlation logic in clinic UI not verified",
+      "affected_hazards": ["MOD-UI-HAZ-007"],
+      "priority": "high",
+      "recommendation": "Add tests verifying flags match interview IDs"
+    },
+    {
+      "id": "MOD-UI-GAP-005",
+      "type": "missing_failure_test",
+      "description": "No test for partial API failure in triage result fetch",
+      "affected_hazards": ["MOD-UI-HAZ-006"],
+      "priority": "high",
+      "recommendation": "Add test where some interviews succeed and others fail"
+    },
+    {
+      "id": "MOD-UI-GAP-006",
+      "type": "usability_test",
+      "description": "Urgency indicator visibility not tested with actual practitioners",
+      "affected_hazards": ["MOD-UI-HAZ-009"],
+      "priority": "high",
+      "recommendation": "Conduct usability testing for urgency indicator prominence"
+    },
+    {
+      "id": "MOD-UI-GAP-007",
+      "type": "untested_control",
+      "description": "Only 52 test files for 671+ TypeScript source files in patient-ui",
+      "affected_hazards": ["MOD-UI-HAZ-010"],
+      "priority": "critical",
+      "recommendation": "Establish systematic unit testing with 80%+ coverage for safety-critical modules"
+    }
+  ],
+
+  "aggregation_summary": {
+    "total_item_hazards": 34,
+    "module_hazards": 11,
+    "total_item_failure_modes": 36,
+    "module_failure_modes": 12,
+    "total_item_controls": 32,
+    "module_controls": 10,
+    "total_verification_gaps": 31,
+    "critical_cross_item_interfaces": 1,
+    "notes": "Multi-item module with critical human factors concerns. Wrong patient data display (catastrophic) and urgency indicator visibility are primary safety concerns. Low test coverage in patient-ui is a significant gap."
+  }
+}

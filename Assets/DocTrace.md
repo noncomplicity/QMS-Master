@@ -10,6 +10,6 @@ requirements:
 owner:
 ---
 ## Web applications
-[[Doctrace Rdr]]
+[Doctrace Rdr](Doctrace%20Rdr.md)
 
 ## Metadata

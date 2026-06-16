@@ -1,0 +1,195 @@
+{
+  "_template_instructions": {
+    "purpose": "Assess ISO 14971 Annex C safety characteristics to systematically identify hazards",
+    "when_to_fill": "After reviewing the system's intended use and clinical context",
+    "how_to_use": "1. Copy to Output/<system>/system/defined/safety-characteristics.json, 2. Assess each characteristic, 3. Remove _template_instructions",
+    "references": [
+      "ISO 14971:2019 Annex C - Questions that can be used to identify medical device characteristics",
+      "IEC 62304:2006+AMD1:2015 clause 4.3 - Software safety classification"
+    ]
+  },
+
+  "system_id": "<FILL: system identifier>",
+  "assessed_by": "<FILL: name and role>",
+  "assessed_date": "<FILL: ISO-8601 date>",
+
+  "safety_characteristics": [
+    {
+      "id": "SC-001",
+      "category": "intended_use",
+      "annex_c_reference": "C.2.1",
+      "guidance_question": "What is the intended use and how is the medical device to be used?",
+      "applicable": true,
+      "applicability_rationale": "<FILL: Always applicable - describe intended use>",
+      "identified_hazards": ["<FILL: hazard IDs identified through this characteristic>"],
+      "_notes": "This is foundational - must be completed first"
+    },
+    {
+      "id": "SC-002",
+      "category": "measurements",
+      "annex_c_reference": "C.2.11",
+      "guidance_question": "Are measurements taken?",
+      "applicable": "<FILL: true/false>",
+      "applicability_rationale": "<FILL: What measurements, if any? e.g., Timing calculations, scheduling>",
+      "identified_hazards": [],
+      "_examples": "Timing calculations, dose calculations, vital sign measurements"
+    },
+    {
+      "id": "SC-003",
+      "category": "interpretive",
+      "annex_c_reference": "C.2.12",
+      "guidance_question": "Is the medical device interpretive?",
+      "applicable": "<FILL: true/false>",
+      "applicability_rationale": "<FILL: Does the system interpret data and provide conclusions? e.g., Escalation rules interpret clinical urgency>",
+      "identified_hazards": [],
+      "_examples": "Clinical decision support, triage algorithms, escalation rules"
+    },
+    {
+      "id": "SC-004",
+      "category": "device_interaction",
+      "annex_c_reference": "C.2.13",
+      "guidance_question": "Is the medical device intended for use in conjunction with other medical devices, medicines or other medical technologies?",
+      "applicable": "<FILL: true/false>",
+      "applicability_rationale": "<FILL: What integrations? e.g., EHR integration, booking systems>",
+      "identified_hazards": [],
+      "_examples": "EHR integration, lab systems, pharmacy systems, other medical devices"
+    },
+    {
+      "id": "SC-005",
+      "category": "unwanted_output",
+      "annex_c_reference": "C.2.14",
+      "guidance_question": "Are there unwanted outputs of energy or substances?",
+      "applicable": false,
+      "applicability_rationale": "Software-only system - no physical outputs",
+      "identified_hazards": [],
+      "_notes": "Usually N/A for software-only devices"
+    },
+    {
+      "id": "SC-006",
+      "category": "environment_susceptibility",
+      "annex_c_reference": "C.2.15",
+      "guidance_question": "Is the medical device susceptible to environmental influences?",
+      "applicable": "<FILL: true/false>",
+      "applicability_rationale": "<FILL: Network availability, infrastructure dependencies>",
+      "identified_hazards": [],
+      "_examples": "Network outages, cloud service availability, database failures"
+    },
+    {
+      "id": "SC-007",
+      "category": "software",
+      "annex_c_reference": "C.2.19",
+      "guidance_question": "Does the medical device contain software?",
+      "applicable": true,
+      "applicability_rationale": "System is software-as-a-medical-device (SaMD)",
+      "identified_hazards": ["<FILL: Software-related hazards>"],
+      "_notes": "Always applicable for software systems. Link to all software failure modes."
+    },
+    {
+      "id": "SC-008",
+      "category": "data_entry",
+      "annex_c_reference": "C.2.20",
+      "guidance_question": "Does the medical device have a data entry function?",
+      "applicable": "<FILL: true/false>",
+      "applicability_rationale": "<FILL: What data is entered? e.g., Appointment details, clinical notes>",
+      "identified_hazards": [],
+      "_examples": "Appointment scheduling, clinical notes, patient information entry"
+    },
+    {
+      "id": "SC-009",
+      "category": "user_interface",
+      "annex_c_reference": "C.2.21",
+      "guidance_question": "Is there a user interface?",
+      "applicable": "<FILL: true/false>",
+      "applicability_rationale": "<FILL: Describe UI used by practitioners/patients>",
+      "identified_hazards": [],
+      "_examples": "Web UI, mobile app, practitioner portal"
+    },
+    {
+      "id": "SC-010",
+      "category": "training_required",
+      "annex_c_reference": "C.2.26",
+      "guidance_question": "Does safe use of the medical device depend on training?",
+      "applicable": "<FILL: true/false>",
+      "applicability_rationale": "<FILL: What training is needed for safe use?>",
+      "identified_hazards": [],
+      "_examples": "Workflow training, system operation training, clinical interpretation training"
+    },
+    {
+      "id": "SC-011",
+      "category": "new_technology",
+      "annex_c_reference": "C.2.27",
+      "guidance_question": "Does the medical device introduce new technologies or application methods?",
+      "applicable": "<FILL: true/false>",
+      "applicability_rationale": "<FILL: Any novel approaches? AI/ML? New workflows?>",
+      "identified_hazards": [],
+      "_examples": "AI-based triage, novel algorithms, unfamiliar workflows"
+    },
+    {
+      "id": "SC-012",
+      "category": "human_factors",
+      "annex_c_reference": "C.2.28",
+      "guidance_question": "Is successful application of the medical device critically dependent on human factors such as the user interface?",
+      "applicable": "<FILL: true/false>",
+      "applicability_rationale": "<FILL: Critical UI interactions? e.g., Handover confirmation, escalation acknowledgment>",
+      "identified_hazards": [],
+      "_examples": "Confirmation dialogs, critical data display, workflow steps requiring user action"
+    },
+    {
+      "id": "SC-013",
+      "category": "alarm_system",
+      "annex_c_reference": "C.2.29",
+      "guidance_question": "Does the medical device use an alarm system?",
+      "applicable": "<FILL: true/false>",
+      "applicability_rationale": "<FILL: Notifications, alerts, escalations?>",
+      "identified_hazards": [],
+      "_examples": "Escalation notifications, appointment reminders, critical alerts"
+    },
+    {
+      "id": "SC-014",
+      "category": "deliberate_misuse",
+      "annex_c_reference": "C.2.30",
+      "guidance_question": "In what ways might the medical device be deliberately misused?",
+      "applicable": "<FILL: true/false>",
+      "applicability_rationale": "<FILL: Security concerns, unauthorized access scenarios>",
+      "identified_hazards": [],
+      "_examples": "Unauthorized access, data manipulation, identity spoofing"
+    },
+    {
+      "id": "SC-015",
+      "category": "critical_data",
+      "annex_c_reference": "C.2.31",
+      "guidance_question": "Does the medical device hold data critical to patient care?",
+      "applicable": "<FILL: true/false>",
+      "applicability_rationale": "<FILL: What critical data? e.g., Appointment data, clinical notes, care coordination>",
+      "identified_hazards": [],
+      "_examples": "Appointment schedules, clinical notes, referral information, escalation status"
+    },
+    {
+      "id": "SC-016",
+      "category": "single_fault_condition",
+      "annex_c_reference": "C.2.32",
+      "guidance_question": "Is the medical device intended to be a single fault condition or a component in a single fault condition?",
+      "applicable": "<FILL: true/false>",
+      "applicability_rationale": "<FILL: Is this the only barrier? Redundancy?>",
+      "identified_hazards": [],
+      "_examples": "System is sole source of truth for appointments, no paper backup"
+    },
+    {
+      "id": "SC-017",
+      "category": "essential_performance",
+      "annex_c_reference": "C.2.33",
+      "guidance_question": "Does the use of the medical device depend on essential performance?",
+      "applicable": "<FILL: true/false>",
+      "applicability_rationale": "<FILL: What functions must work reliably for patient safety? e.g., Escalation must trigger>",
+      "identified_hazards": [],
+      "_examples": "Escalation rules must evaluate correctly, notifications must be delivered"
+    }
+  ],
+
+  "summary": {
+    "total_characteristics": 17,
+    "applicable": "<FILL: count>",
+    "not_applicable": "<FILL: count>",
+    "hazards_identified": "<FILL: total unique hazards>"
+  }
+}

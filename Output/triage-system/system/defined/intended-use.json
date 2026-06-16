@@ -1,0 +1,406 @@
+{
+  "metadata": {
+    "system_id": "Triage24",
+    "system_name": "Digital Triage System",
+    "created_by": "Jakob Dumky",
+    "created_at": "2026-03-06",
+    "version": "1.0",
+    "status": "draft",
+    "source_documents": [
+      "D490 - Triage24 - Definitions of intended use, user profiles and use environments",
+      "D095 - Triage24 - Product Description",
+      "Triage24 - User Intents and Core Functionality"
+    ]
+  },
+
+  "product_classification": {
+    "mdr_class": "IIa",
+    "mdr_rule": "Rule 11",
+    "classification_rationale": "Although Triage24 does not in itself set a diagnosis, it does provide information used for decisions with diagnostic or therapeutic purposes (such as the self-care performed by the patient). The Rule 11a threshold thereby stipulates a minimum of Class IIa. The intended use and contraindications do not encompass patient cases where failure might lead to death or irreversible deterioration.",
+    "basic_udi_di": "735012722P24001LR",
+    "udi_di_gtin": "7350127221004",
+    "emdn_code": "V92 - MEDICAL DEVICE SOFTWARE - NOT INCLUDED IN OTHER CLASSES"
+  },
+
+  "intended_uses": [
+    {
+      "id": "IU-001",
+      "name": "Patient triage to appropriate level of care",
+      "description": "Triage24 is intended to provide patients with a recommendation of an appropriate level of care, based on urgency of the symptoms reported by the user. By doing so, the product aids with the investigation of a patient's pathological state, and supports efficient triage and effective management of healthcare resources.",
+      "medical_purpose": "Investigation of a patient's pathological state through patient-reported symptoms to determine appropriate level of care based on configured medical content and business rules. Not intended for diagnosis, but to investigate the medical state of the patient to the extent necessary to provide guidance to a suitable level of care.",
+      "clinical_context": {
+        "care_setting": "Primary care, telemedicine, outpatient care",
+        "clinical_workflow": "Patient enters the patient application to seek care. System collects symptoms through interview (form-based or conversational), evaluates against medical content and business rules, generates triage recommendation with care routing options (self-care, digital drop-in, book appointment, emergency care).",
+        "clinical_conditions": ["Recent-onset conditions typically handled in primary care", "Recurring symptoms", "Chronic conditions"]
+      },
+      "target_population": {
+        "description": "Outpatient care patients seeking care for, or presenting with, common conditions",
+        "age_range": "0-120 years (system default). Patients can seek care for themselves from the age they can digitally identify themselves. Users can seek care for their child up to 18 years old.",
+        "exclusions": ["Patients with life-threatening symptoms, serious conditions or trauma", "Patients physically or cognitively unable to use digital technology", "Patients with cognitive issues unable to use technology correctly (dementia, severe mental retardation)", "For conversational triage: Patients lacking sufficient language proficiency to describe symptoms in free text"],
+        "special_populations": ["Pediatric patients with guardian seeking on their behalf"]
+      },
+      "contraindications": [
+        "Patients with life-threatening symptoms, serious conditions or trauma",
+        "Patients physically or cognitively unable to use digital technology such as smartphones or computers",
+        "Patients with cognitive issues that are able to use technology, but unable to use it correctly",
+        "For conversational triage: Patients who lack sufficient language proficiency to describe symptoms in free text"
+      ],
+      "limitations": [
+        "Does not by itself offer medical advice, possible diagnosis, or treatment recommendations",
+        "If populated with medical content containing medical advice or recommendations, the device can present such content to patients",
+        "Not intended for monitoring physiological parameters"
+      ],
+      "user_intents": ["UI-P01", "UI-P02", "UI-P03", "UI-P04", "UI-P05", "UI-P06"]
+    },
+    {
+      "id": "IU-002",
+      "name": "Assisted triage by healthcare practitioners",
+      "description": "Healthcare practitioners perform automated triage on behalf of the patient and guide patients to a suitable level of care based on their symptoms and the medical content result.",
+      "medical_purpose": "Enable practitioners to conduct standardized triage on behalf of patients who cannot use the digital interface, using the same medical content and business rules as patient self-triage.",
+      "clinical_context": {
+        "care_setting": "Clinic application, telephone triage",
+        "clinical_workflow": "Practitioner searches for patient's primary condition, answers triage questions based on patient's verbal responses, receives triage result with exit attributes and recommendation, guides patient to appropriate level of care.",
+        "clinical_conditions": ["All conditions covered by configured medical content"]
+      },
+      "target_population": {
+        "description": "Patients who cannot use the digital patient interface",
+        "age_range": "All ages",
+        "exclusions": [],
+        "special_populations": []
+      },
+      "contraindications": [],
+      "limitations": [
+        "Practitioner's own assessment must be used together with the result page to give patient recommendation"
+      ],
+      "user_intents": ["UI-H01", "UI-H02"]
+    },
+    {
+      "id": "IU-003",
+      "name": "Medical content and business rules configuration",
+      "description": "Configure and adopt to the conditions and needs of a specific healthcare provider through population with medical content and business rules.",
+      "medical_purpose": "Enable healthcare providers to configure triage logic to fit their specific clinical workflows and operational needs.",
+      "clinical_context": {
+        "care_setting": "Manage application, Content Studio",
+        "clinical_workflow": "Medical content developers configure questionnaires, exits, business rules. Changes validated, tested in demo environment, reviewed by Platform24, then deployed to production.",
+        "clinical_conditions": []
+      },
+      "target_population": {
+        "description": "Healthcare providers who wish to automatically triage patients to the right level of care",
+        "age_range": "N/A",
+        "exclusions": [],
+        "special_populations": []
+      },
+      "contraindications": [],
+      "limitations": [
+        "Medical responsibility for content changes lies with the partner carrying out the changes",
+        "All changes must be reviewed before releasing to production"
+      ],
+      "user_intents": ["UI-M01", "UI-M02", "UI-M03"]
+    }
+  ],
+
+  "user_intents": [
+    {
+      "id": "UI-P01",
+      "name": "Seek appropriate level of care",
+      "description": "As a patient, I want to receive guidance to an appropriate level of care based on the urgency of my symptoms, so that I can access healthcare services suited to my medical needs.",
+      "user_type": "patient",
+      "intended_use_id": "IU-001",
+      "preconditions": ["Patient identified by system", "Patient language proficiency B1-B2 in supported language"],
+      "expected_outcome": "Patient receives recommendation indicating urgency level with care routing options appropriate to their triage result",
+      "core_functionalities": ["CF-01", "CF-02", "CF-04", "CF-05"]
+    },
+    {
+      "id": "UI-P02",
+      "name": "Describe symptoms for triage",
+      "description": "As a patient, I want to describe my symptoms to the system, so that my health concerns can be evaluated for triage.",
+      "user_type": "patient",
+      "intended_use_id": "IU-001",
+      "preconditions": ["Patient has entered triage flow"],
+      "expected_outcome": "Patient symptoms collected and evaluated. Form-based: structured questions answered. Conversational: free text symptoms interpreted by AI.",
+      "core_functionalities": ["CF-01", "CF-03", "CF-FB01", "CF-FB02", "CF-CV01", "CF-CV02"]
+    },
+    {
+      "id": "UI-P03",
+      "name": "Review and modify responses",
+      "description": "As a patient, I want to review my responses before finalizing, and modify them if needed, so that my triage is based on accurate information.",
+      "user_type": "patient",
+      "intended_use_id": "IU-001",
+      "preconditions": ["Patient has provided answers to interview questions"],
+      "expected_outcome": "Patient can view summary, modify responses (triggering re-evaluation), interview locks after finalization",
+      "core_functionalities": ["CF-06", "CF-FB04", "CF-CV03"]
+    },
+    {
+      "id": "UI-P04",
+      "name": "Receive self-care advice",
+      "description": "As a patient with low-urgency symptoms, I want to receive self-care advice, so that I can manage my condition without requiring clinical consultation.",
+      "user_type": "patient",
+      "intended_use_id": "IU-001",
+      "preconditions": ["Triage result indicates lowest urgency"],
+      "expected_outcome": "Self-care articles presented related to patient's symptoms, containing text, images, and links",
+      "core_functionalities": ["CF-05"]
+    },
+    {
+      "id": "UI-P05",
+      "name": "Provide feedback on triage experience",
+      "description": "As a patient who exits the triage before completion, I want to provide feedback on why I am leaving, so that the system can be improved.",
+      "user_type": "patient",
+      "intended_use_id": "IU-001",
+      "preconditions": ["Patient cancels interview before completion"],
+      "expected_outcome": "Feedback options presented, patient can select from preconfigured options and provide optional freetext comment",
+      "core_functionalities": []
+    },
+    {
+      "id": "UI-P06",
+      "name": "Receive urgent care warnings",
+      "description": "As a patient with symptoms indicating a serious or life-threatening condition, I want to receive immediate guidance to seek emergency care, so that I do not delay critical treatment.",
+      "user_type": "patient",
+      "intended_use_id": "IU-001",
+      "preconditions": ["System identifies alarming conditions based on responses"],
+      "expected_outcome": "Interview stops and locks, patient receives clear instruction to seek emergency care (e.g., call 112)",
+      "core_functionalities": ["CF-03", "CF-06"]
+    },
+    {
+      "id": "UI-H01",
+      "name": "Perform assisted triage",
+      "description": "As a healthcare practitioner, I want to perform triage on behalf of a patient, so that patients who cannot use the digital interface can still receive standardized triage.",
+      "user_type": "practitioner",
+      "intended_use_id": "IU-002",
+      "preconditions": ["Practitioner licensed and trained", "Patient identified"],
+      "expected_outcome": "Practitioner can search/select patient's condition, answer questions based on patient's verbal responses, receive results including exit attributes and recommendation",
+      "core_functionalities": ["CF-01", "CF-02", "CF-03", "CF-04", "CF-FB01", "CF-FB02"]
+    },
+    {
+      "id": "UI-H02",
+      "name": "View triage results and exit attributes",
+      "description": "As a healthcare practitioner, I want to view the detailed triage results including exit attributes, so that I can guide the patient to the appropriate level of care.",
+      "user_type": "practitioner",
+      "intended_use_id": "IU-002",
+      "preconditions": ["Assisted triage interview completed"],
+      "expected_outcome": "Result page displays recommendation title/text, urgency indicator (color-coded), exit attributes (urgency, capability, level of care, resource type), anamnesis, flags, self-care advice, exit care advice",
+      "core_functionalities": ["CF-05"]
+    },
+    {
+      "id": "UI-M01",
+      "name": "Configure medical content",
+      "description": "As a medical content developer, I want to configure and adapt the medical content, so that the triage logic fits the needs of my healthcare provider.",
+      "user_type": "medical_content_developer",
+      "intended_use_id": "IU-003",
+      "preconditions": ["Developer has undergone training (D361)", "Developer has medical developer role and access"],
+      "expected_outcome": "Developer can create/modify/remove questionnaire components, changes validated for syntax and dependencies, changes require review before production deployment, unit tests can verify patient flows",
+      "core_functionalities": []
+    },
+    {
+      "id": "UI-M02",
+      "name": "Configure business rules",
+      "description": "As a medical content developer, I want to configure business rules, so that patients are routed to appropriate care options based on our operational setup.",
+      "user_type": "medical_content_developer",
+      "intended_use_id": "IU-003",
+      "preconditions": ["Developer has undergone training (D1458)", "Developer has business rule editor role"],
+      "expected_outcome": "Developer can create/edit rules determining care routing options, rules execute based on triage exit attributes, changes require review before production deployment",
+      "core_functionalities": ["CF-02"]
+    },
+    {
+      "id": "UI-M03",
+      "name": "Test changes before production deployment",
+      "description": "As a medical content developer, I want to test my changes in a demo environment before releasing to production, so that I can verify the changes work as intended.",
+      "user_type": "medical_content_developer",
+      "intended_use_id": "IU-003",
+      "preconditions": ["Changes made in Content Studio or Business Rules interface"],
+      "expected_outcome": "Changes deployed to demo environment, manual testing possible in patient/practitioner applications, technical review by Platform24 required before production release",
+      "core_functionalities": []
+    }
+  ],
+
+  "core_functionalities": [
+    {
+      "id": "CF-01",
+      "name": "Triage interview execution",
+      "description": "The Interviewer Service executes triage interviews by processing patient information, evaluating responses against configured medical content rules, determining next questions based on answers and patient characteristics, generating exit with appropriate triage result and exit attributes.",
+      "user_intent_ids": ["UI-P01", "UI-P02", "UI-H01"],
+      "implementing_modules": ["triage-engine"],
+      "implementing_items": ["interviewer4"],
+      "safety_relevance": "Core safety function - incorrect interview execution can lead to wrong triage recommendation and inappropriate care routing",
+      "failure_modes": ["ITEM-INTERVIEWER4-FM-001", "ITEM-INTERVIEWER4-FM-002", "ITEM-INTERVIEWER4-FM-003"]
+    },
+    {
+      "id": "CF-02",
+      "name": "Business rules evaluation",
+      "description": "The Business Rules Engine generates recommendations by taking exit attributes from Interviewer Service, applying configured business rules, generating recommendation with care routing options.",
+      "user_intent_ids": ["UI-P01", "UI-M02"],
+      "implementing_modules": ["triage-engine"],
+      "implementing_items": ["rule-engine-module"],
+      "safety_relevance": "Critical - incorrect rule evaluation can route patients to wrong level of care",
+      "failure_modes": ["ITEM-REM-FM-001", "ITEM-REM-FM-002", "ITEM-REM-FM-003"]
+    },
+    {
+      "id": "CF-03",
+      "name": "Medical content interpretation",
+      "description": "The system interprets configured medical content to present appropriate questions based on patient context, evaluate conditions and expressions, determine exit conditions (normal, alarming, breaking).",
+      "user_intent_ids": ["UI-P02", "UI-P06", "UI-H01"],
+      "implementing_modules": ["triage-engine"],
+      "implementing_items": ["interviewer4", "rule-engine-module"],
+      "safety_relevance": "Critical - incorrect interpretation can miss urgent conditions or generate wrong exits",
+      "failure_modes": []
+    },
+    {
+      "id": "CF-04",
+      "name": "Exit attribute generation",
+      "description": "Upon interview completion, the system generates standardized exit attributes: urgency level, capability recommendation, level of care, resource type, visit form.",
+      "user_intent_ids": ["UI-P01", "UI-H01"],
+      "implementing_modules": ["triage-engine"],
+      "implementing_items": ["interviewer4"],
+      "safety_relevance": "Critical - exit attributes determine care routing; incorrect values lead to inappropriate care",
+      "failure_modes": []
+    },
+    {
+      "id": "CF-05",
+      "name": "Recommendation page generation",
+      "description": "Based on exit attributes and business rules: generate recommendation title and summary text, present appropriate care routing options, display self-care content when applicable.",
+      "user_intent_ids": ["UI-P01", "UI-P04", "UI-H02"],
+      "implementing_modules": ["actions-module", "user-interfaces"],
+      "implementing_items": ["actions", "patient-ui", "triage-clinic-ui"],
+      "safety_relevance": "Important - incorrect display can mislead patient/practitioner about urgency or options",
+      "failure_modes": ["ITEM-TCU-FM-001", "ITEM-TCU-FM-002"]
+    },
+    {
+      "id": "CF-06",
+      "name": "Interview locking",
+      "description": "The interview locks when patient has answered all required questions, patient fulfills conditions for alarming or breaking exit, or interview is finalized by user action. After locking, no further modifications permitted.",
+      "user_intent_ids": ["UI-P03", "UI-P06"],
+      "implementing_modules": ["triage-engine"],
+      "implementing_items": ["interviewer4"],
+      "safety_relevance": "Important - prevents modification of finalized clinical data",
+      "failure_modes": []
+    },
+    {
+      "id": "CF-FB01",
+      "name": "Find condition module (form-based)",
+      "description": "Entry point for form-based triage: search functionality for symptom/condition selection, triggers appropriate questionnaire based on selection.",
+      "user_intent_ids": ["UI-P02", "UI-H01"],
+      "implementing_modules": ["user-interfaces"],
+      "implementing_items": ["patient-ui", "triage-clinic-ui"],
+      "safety_relevance": "Important - wrong condition selection leads to wrong questionnaire",
+      "failure_modes": ["ITEM-TCU-FM-007"]
+    },
+    {
+      "id": "CF-FB02",
+      "name": "Structured questionnaire presentation (form-based)",
+      "description": "Questions presented one at a time with predefined answer options: Yes/No, Single choice, Multiple choice, Number, Date, Range, Medication search, File upload, Freetext.",
+      "user_intent_ids": ["UI-P02", "UI-H01"],
+      "implementing_modules": ["user-interfaces"],
+      "implementing_items": ["triage-ui"],
+      "safety_relevance": "Critical - incorrect data collection leads to wrong triage",
+      "failure_modes": ["ITEM-TRIAGE-UI-FM-001", "ITEM-TRIAGE-UI-FM-002", "ITEM-TRIAGE-UI-FM-003"]
+    },
+    {
+      "id": "CF-FB04",
+      "name": "Question navigation (form-based)",
+      "description": "User can navigate within the interview: edit previously answered questions (interview restarts from edited point), review all answers before finalization.",
+      "user_intent_ids": ["UI-P03"],
+      "implementing_modules": ["user-interfaces"],
+      "implementing_items": ["triage-ui"],
+      "safety_relevance": "Important - allows correction of errors before finalization",
+      "failure_modes": ["ITEM-TRIAGE-UI-FM-008"]
+    },
+    {
+      "id": "CF-CV01",
+      "name": "Natural language symptom description (conversational)",
+      "description": "Entry point for conversational triage: free-text input via chat interface, AI interpretation of symptom description, mapping to appropriate medical content path.",
+      "user_intent_ids": ["UI-P02"],
+      "implementing_modules": ["user-interfaces", "triage-engine"],
+      "implementing_items": ["patient-ui"],
+      "safety_relevance": "Critical - AI misinterpretation can lead to wrong triage path",
+      "failure_modes": []
+    },
+    {
+      "id": "CF-CV02",
+      "name": "AI-driven dynamic questioning (conversational)",
+      "description": "Conversation flow managed by AI: context-aware follow-up questions, dynamic question generation based on conversation state, clarification requests when input is ambiguous.",
+      "user_intent_ids": ["UI-P02"],
+      "implementing_modules": ["triage-engine"],
+      "implementing_items": ["interviewer4"],
+      "safety_relevance": "Critical - AI must collect equivalent information to form-based variant",
+      "failure_modes": []
+    },
+    {
+      "id": "CF-CV03",
+      "name": "Conversation summary and review (conversational)",
+      "description": "Throughout conversation: summaries provided to confirm understanding, patient can request changes to collected information, final review before interview completion.",
+      "user_intent_ids": ["UI-P03"],
+      "implementing_modules": ["user-interfaces"],
+      "implementing_items": ["patient-ui"],
+      "safety_relevance": "Important - allows patient to verify AI interpretation",
+      "failure_modes": []
+    }
+  ],
+
+  "users": {
+    "intended_users": [
+      {
+        "user_type": "patient",
+        "description": "Outpatient care patients seeking care for common conditions. Patients need to be identified by the system.",
+        "type_classification": "Layman",
+        "age_range": "0-120 years (system default)",
+        "required_training": "None - instructions for use provided in interface",
+        "language_requirements": "Level B1-B2 (CEFR) in the language supported by the care provider",
+        "accessibility_requirements": "Access to internet through smartphones and/or computers",
+        "frequency_of_use": "From once a day to one time per year",
+        "devices": ["Standard PC", "Handheld tablet", "Smartphone"]
+      },
+      {
+        "user_type": "practitioner",
+        "description": "Healthcare professionals performing assisted triage on behalf of patients",
+        "type_classification": "Professional",
+        "age_range": ">20 years old",
+        "required_training": "Licensed practitioner (medical doctor, nurse, psychologist)",
+        "language_requirements": "Level C1-C3 (CEFR) in the language supported for the relevant market",
+        "qualifications": "Licensed practitioner",
+        "frequency_of_use": "Several times a day",
+        "devices": ["Standard PC"]
+      },
+      {
+        "user_type": "medical_content_developer",
+        "description": "Trained personnel who configure medical content and business rules for a specific healthcare provider",
+        "type_classification": "Professional",
+        "age_range": ">20 years",
+        "required_training": "Education and training for medical content and business rules (D361, D1458)",
+        "language_requirements": "Level B1-B2 (CEFR) in the language supported by the care provider",
+        "qualifications": "Medical content developer training completed",
+        "frequency_of_use": "From several times a day to one time a week",
+        "devices": ["Standard PC"]
+      }
+    ],
+    "unintended_users": [
+      {
+        "user_type": "Children unable to digitally identify themselves",
+        "mitigation": "System requires digital identification. Users can seek care for their child up to 18 years old."
+      },
+      {
+        "user_type": "Patients with life-threatening symptoms",
+        "mitigation": "Contraindication stated. Warnings displayed: 'Vid livshotande eller akuta besvär - ring 112'"
+      }
+    ]
+  },
+
+  "warnings": {
+    "patient_warnings": [
+      "Vid livshotande eller akuta besvär - ring 112",
+      "Du uppger symptom som kan tala för ett mycket allvarligt eller till och med livshotande tillstånd. Du bör omedelbart ringa 112."
+    ],
+    "practitioner_warnings": [
+      "The practitioner's own assessment must be used together with the result page from the triage to give the patient a recommendation for continued treatment options."
+    ],
+    "content_studio_warnings": [
+      "Any changes regarding configuration are carried out in Manage in production but should be put through a review process before they are activated in production.",
+      "With the product in active mode, Manage administers Clinic, where healthcare practitioners receive real patients. All changes must be reviewed before releasing them into production.",
+      "Any changes to the medical content via Content Studio+ have essentially an impact on patient journeys and triage.",
+      "The medical responsibility for content changes lies with the partner carrying out the changes.",
+      "Make sure to test all changes made and identify any ensuing changes required to ensure patient-safe flows.",
+      "Removing a component can pose a patient-safety risk unless a careful analysis of the effects is performed.",
+      "If a change is made in a Library, the change will affect all questionnaires where the Library is used.",
+      "Editing and adding assessments can pose a patient safety risk unless a careful analysis of the effects is conducted.",
+      "Editing and adding to questionnaires in the Triage sub-menu can pose a patient safety risk if a careful analysis of the effects is not performed."
+    ]
+  }
+}

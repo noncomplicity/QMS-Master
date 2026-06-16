@@ -1,0 +1,1685 @@
+{
+  "extraction_metadata": {
+    "repository": "/home/jakob/Noncomplicity/Repos/health-manager",
+    "commit": "16e0273739eda65f73af5410323e1caf53362f16",
+    "extracted_at": "2026-03-06T00:00:00Z",
+    "extractor_version": "1.0",
+    "standard": "ISO 14971:2019"
+  },
+  "intended_use": {
+    "medical_function": "Healthcare appointment management system enabling patient consultations, clinical data recording, handover between practitioners, EHR integration (TakeCare), e-prescription management, and payment processing. Supports asynchronous, drop-in, and scheduled appointment workflows.",
+    "intended_users": [
+      "Clinicians (doctors, nurses)",
+      "Patients and their authorized representatives",
+      "Administrative staff (secretaries)",
+      "System integrators"
+    ],
+    "use_environment": "Cloud-based SaaS platform accessed via web browsers and mobile applications. Integrates with external systems: Directory (practitioner/patient data), MeetingPlace (video consultations), Notifier (push notifications), TakeCare EHR, e-prescription services, Klarna payment gateway.",
+    "operating_principle": "Spring Boot microservice with JPA persistence to MySQL/MariaDB, JMS messaging for event distribution, REST API for client access, role-based access control via JWT, transactional integrity via @Transactional annotations.",
+    "source": {
+      "files": [
+        "risk_analysis_handover.md",
+        "handover_architecture.md",
+        "software_requirements.md",
+        "svc/src/main/java/se/alerisx/mhp/manager/Boot.java",
+        "svc/src/main/java/se/alerisx/mhp/manager/domain/Appointment.java"
+      ],
+      "documentation": [
+        "README (inferred from architecture)",
+        "software_requirements.md sections 1-4"
+      ]
+    }
+  },
+  "safety_characteristics": [
+    {
+      "char_id": "SC-001",
+      "characteristic": "Clinical data integrity - appointment notes, diagnoses, prescriptions must be accurately stored and retrieved without corruption or loss",
+      "limits": "Data must persist through handovers, system restarts, and integration exports. Database constraints enforce referential integrity.",
+      "source": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/domain/Appointment.java:1-300",
+          "svc/src/main/java/se/alerisx/mhp/manager/appointments/notes/domain/Note.java"
+        ]
+      }
+    },
+    {
+      "char_id": "SC-002",
+      "characteristic": "Appointment ownership and responsibility tracking - system must maintain accurate record of which practitioner is responsible for a patient at any time",
+      "limits": "State transitions must be atomic and logged. Handover process enforces UNIQUE constraint on appointment_id to prevent concurrent ownership claims.",
+      "source": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/service/impl/AppointmentHandoverServiceImpl.java:75-432",
+          "svc/src/main/java/se/alerisx/mhp/manager/domain/AppointmentHandoverProcess.java",
+          "risk_analysis_handover.md:41-44"
+        ]
+      }
+    },
+    {
+      "char_id": "SC-003",
+      "characteristic": "Authorization and access control - only authorized practitioners and patients can access sensitive medical records",
+      "limits": "Care provider boundaries enforced unless explicit consent given. Cross-care-provider handovers require ENABLE_HANDOVERS_ACROSS_CARE_PROVIDERS feature flag.",
+      "source": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/security/AppointmentAuthorizer.java:48-254"
+        ]
+      }
+    },
+    {
+      "char_id": "SC-004",
+      "characteristic": "Notification delivery reliability - practitioners must be notified of new handovers, appointment changes, and critical events",
+      "limits": "Dual-channel notification (JMS events + NotifierClient push notifications). Failures logged but may not block operation.",
+      "source": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/service/impl/AppointmentHandoverServiceImpl.java:178-212",
+          "risk_analysis_handover.md:51"
+        ]
+      }
+    },
+    {
+      "char_id": "SC-005",
+      "characteristic": "Audit trail completeness - all clinical actions, handovers, and data access must be logged for medico-legal accountability",
+      "limits": "appointment_handover_event table persists all status transitions. AuditLoggingService sends events to auditLogQueue asynchronously.",
+      "source": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/service/audit/AuditLoggingService.java:1-61",
+          "svc/src/main/java/se/alerisx/mhp/manager/domain/AppointmentHandoverEvent.java",
+          "risk_analysis_handover.md:61"
+        ]
+      }
+    },
+    {
+      "char_id": "SC-006",
+      "characteristic": "Input validation constraints - handover parameters must be validated to prevent invalid states",
+      "limits": "handoverCareUnitId varchar(50) required, handoverPractitionerRole varchar(50) required, handoverPractitionerId varchar(50) optional with DirectoryService validation, handoverNotes varchar(1024) max.",
+      "source": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/service/impl/AppointmentHandoverServiceImpl.java:250-275",
+          "risk_analysis_handover.md:28"
+        ]
+      }
+    },
+    {
+      "char_id": "SC-007",
+      "characteristic": "Integration data consistency - clinical notes exported to TakeCare EHR must match internal records",
+      "limits": "TakeCareNoteService performs XML sanitization and transformation. Failures logged in takecare_note_log_event table.",
+      "source": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/takecare/TakeCareNoteServiceImpl.java",
+          "svc/src/main/java/se/alerisx/mhp/manager/appointments/notes/utils/NoteXmlSanitizer.java"
+        ]
+      }
+    },
+    {
+      "char_id": "SC-008",
+      "characteristic": "Prescription safety - e-prescriptions must be accurately transmitted to external pharmacy systems",
+      "limits": "Prescription entities persist medication details. External transmission handled by ExternalPrescriptionService with retry logic.",
+      "source": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/domain/Prescription.java",
+          "svc/src/main/java/se/alerisx/mhp/manager/service/impl/ExternalPrescriptionServiceImpl.java"
+        ]
+      }
+    }
+  ],
+  "hazards": [
+    {
+      "hazard_id": "HAZ-001",
+      "hazard": "Notification delivery failure - practitioner not informed of pending handover",
+      "hazard_category": "availability",
+      "source": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/service/impl/AppointmentHandoverServiceImpl.java:89",
+          "svc/src/main/java/se/alerisx/mhp/manager/client/notifier/NotifierClient.java"
+        ],
+        "commits": [],
+        "prs": []
+      }
+    },
+    {
+      "hazard_id": "HAZ-002",
+      "hazard": "JMS event publication failure - external systems not synchronized with handover state",
+      "hazard_category": "integration",
+      "source": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/service/impl/AppointmentHandoverServiceImpl.java:84",
+          "svc/src/main/java/se/alerisx/mhp/manager/event/AppointmentEventSender.java"
+        ],
+        "commits": [],
+        "prs": []
+      }
+    },
+    {
+      "hazard_id": "HAZ-003",
+      "hazard": "Database transaction failure during handover acceptance - partial state update",
+      "hazard_category": "clinical_data",
+      "source": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/service/impl/AppointmentHandoverServiceImpl.java:104-130"
+        ],
+        "commits": [],
+        "prs": []
+      }
+    },
+    {
+      "hazard_id": "HAZ-004",
+      "hazard": "Invalid practitioner validation bypass - handover to non-existent or unauthorized practitioner",
+      "hazard_category": "security",
+      "source": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/service/impl/AppointmentHandoverServiceImpl.java:271-274",
+          "svc/src/main/java/se/alerisx/mhp/manager/client/directory/DirectoryService.java"
+        ],
+        "commits": [],
+        "prs": []
+      }
+    },
+    {
+      "hazard_id": "HAZ-005",
+      "hazard": "Cross-care-provider data exposure - patient data shared without consent",
+      "hazard_category": "security",
+      "source": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/service/impl/AppointmentHandoverServiceImpl.java:263-267",
+          "svc/src/main/java/se/alerisx/mhp/manager/security/AppointmentAuthorizer.java:156-159"
+        ],
+        "commits": [],
+        "prs": []
+      }
+    },
+    {
+      "hazard_id": "HAZ-006",
+      "hazard": "Concurrent handover race condition - multiple practitioners accept simultaneously",
+      "hazard_category": "clinical_data",
+      "source": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/domain/AppointmentHandoverProcess.java",
+          "risk_analysis_handover.md:56"
+        ],
+        "commits": [],
+        "prs": []
+      }
+    },
+    {
+      "hazard_id": "HAZ-007",
+      "hazard": "Handover to unavailable care unit - care unit no longer accepting patients or operational",
+      "hazard_category": "availability",
+      "source": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/service/impl/AppointmentHandoverServiceImpl.java:287-289"
+        ],
+        "commits": [],
+        "prs": []
+      }
+    },
+    {
+      "hazard_id": "HAZ-008",
+      "hazard": "Patient chat message delivery failure - patient unaware of practitioner change",
+      "hazard_category": "user_interface",
+      "source": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/service/impl/AppointmentHandoverServiceImpl.java:86-87",
+          "svc/src/main/java/se/alerisx/mhp/manager/client/meetingplace/MeetingPlaceService.java"
+        ],
+        "commits": [],
+        "prs": []
+      }
+    },
+    {
+      "hazard_id": "HAZ-009",
+      "hazard": "Invalid state machine transition - appointment enters undefined handover state",
+      "hazard_category": "clinical_data",
+      "source": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/service/impl/AppointmentHandoverServiceImpl.java:242-248",
+          "software_requirements.md (SWR-1.3 state machine)"
+        ],
+        "commits": [],
+        "prs": []
+      }
+    },
+    {
+      "hazard_id": "HAZ-010",
+      "hazard": "Audit log persistence failure - no traceability of practitioner responsibility",
+      "hazard_category": "clinical_data",
+      "source": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/service/impl/AppointmentHandoverServiceImpl.java:405-431",
+          "risk_analysis_handover.md:60"
+        ],
+        "commits": [],
+        "prs": []
+      }
+    },
+    {
+      "hazard_id": "HAZ-011",
+      "hazard": "Shift validation failure - practitioner accepts without active shift or valid credentials",
+      "hazard_category": "security",
+      "source": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/service/impl/AppointmentHandoverServiceImpl.java:105-106",
+          "risk_analysis_handover.md:61"
+        ],
+        "commits": [],
+        "prs": []
+      }
+    },
+    {
+      "hazard_id": "HAZ-012",
+      "hazard": "Handover notes truncation - clinical context exceeds 1024 character limit",
+      "hazard_category": "clinical_data",
+      "source": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/service/impl/AppointmentHandoverServiceImpl.java:364",
+          "risk_analysis_handover.md:62"
+        ],
+        "commits": [],
+        "prs": []
+      }
+    },
+    {
+      "hazard_id": "HAZ-013",
+      "hazard": "Unauthorized access to clinical data - authentication or authorization bypass",
+      "hazard_category": "security",
+      "source": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/security/AppointmentAuthorizer.java:48-99"
+        ],
+        "commits": [],
+        "prs": []
+      }
+    },
+    {
+      "hazard_id": "HAZ-014",
+      "hazard": "EHR export failure - clinical notes not transferred to TakeCare system",
+      "hazard_category": "integration",
+      "source": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/takecare/TakeCareNoteServiceImpl.java"
+        ],
+        "commits": [],
+        "prs": []
+      }
+    },
+    {
+      "hazard_id": "HAZ-015",
+      "hazard": "Prescription transmission error - e-prescription not received by pharmacy",
+      "hazard_category": "integration",
+      "source": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/service/impl/ExternalPrescriptionServiceImpl.java"
+        ],
+        "commits": [],
+        "prs": []
+      }
+    },
+    {
+      "hazard_id": "HAZ-016",
+      "hazard": "Payment processing failure - patient charged incorrectly or billing data loss",
+      "hazard_category": "integration",
+      "source": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/service/impl/PaymentCreditServiceImpl.java",
+          "svc/src/main/java/se/alerisx/mhp/manager/client/payment/klarna/v3/KlarnaClientV3.java"
+        ],
+        "commits": [],
+        "prs": []
+      }
+    },
+    {
+      "hazard_id": "HAZ-017",
+      "hazard": "Data sanitization bypass - malicious XML or script injection in clinical notes",
+      "hazard_category": "security",
+      "source": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/appointments/notes/utils/NoteXmlSanitizer.java"
+        ],
+        "commits": [],
+        "prs": []
+      }
+    }
+  ],
+  "hazardous_situations": [
+    {
+      "situation_id": "HS-001",
+      "hazard_id": "HAZ-001",
+      "situation": "Practitioner proposes handover but target practitioner never receives notification, leaving appointment unattended",
+      "foreseeable_sequence": "Practitioner A initiates handover → NotifierClient.sendClinicNotification() fails due to network/service outage → Target practitioner B not aware → Appointment remains in PROPOSED state with no responder → Patient condition deteriorates without clinical attention",
+      "potential_harm": "Delayed diagnosis or treatment; patient deterioration; adverse clinical outcome",
+      "severity": "serious",
+      "severity_rationale": "Missing clinical oversight for acute patient could lead to hospitalization or permanent injury. System is used for time-sensitive consultations.",
+      "probability": "remote",
+      "probability_rationale": "NotifierClient uses redundant JMS events (appointmentEventSender.sendHandoverEvent) as secondary channel. Dual notification paths reduce likelihood. Network outages affecting both channels simultaneously are rare.",
+      "initial_risk_level": "ALARP",
+      "source": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/service/impl/AppointmentHandoverServiceImpl.java:84-89",
+          "risk_analysis_handover.md:51"
+        ]
+      }
+    },
+    {
+      "situation_id": "HS-002",
+      "hazard_id": "HAZ-002",
+      "situation": "Handover accepted in health-manager but JMS event not published, causing external systems to show wrong practitioner assignment",
+      "foreseeable_sequence": "Handover accepted → appointmentRepository.save() succeeds → appointmentEventSender.sendHandoverEvent() throws exception → External dashboards/reports show original practitioner → Duplicate care or missed care coordination",
+      "potential_harm": "Care coordination failure; duplicate treatments; conflicting clinical decisions",
+      "severity": "minor",
+      "severity_rationale": "External system inconsistency creates operational confusion but appointment state in health-manager is authoritative. Logging provides audit trail for reconciliation.",
+      "probability": "remote",
+      "probability_rationale": "JMS infrastructure is highly reliable. Info-level logging (SWR-3.5) provides secondary audit mechanism. Transaction boundary ensures DB write succeeds first.",
+      "initial_risk_level": "acceptable",
+      "source": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/service/impl/AppointmentHandoverServiceImpl.java:118-119",
+          "risk_analysis_handover.md:52"
+        ]
+      }
+    },
+    {
+      "situation_id": "HS-003",
+      "hazard_id": "HAZ-003",
+      "situation": "Database transaction fails during handover acceptance after state change, corrupting appointment ownership",
+      "foreseeable_sequence": "acceptHandover() called → handoverProcess fields updated → appointmentRepository.save() throws SQLException → Partial update persisted → Both practitioners believe they own appointment OR appointment orphaned",
+      "potential_harm": "No practitioner takes responsibility; patient abandoned; severe delay in care",
+      "severity": "critical",
+      "severity_rationale": "Loss of practitioner accountability could result in complete absence of care for urgent patient, leading to life-threatening delay.",
+      "probability": "incredible",
+      "probability_rationale": "@Transactional annotation ensures atomicity - either all changes commit or all rollback. UNIQUE constraint on appointment_id prevents concurrent accepts. Database ACID guarantees prevent partial writes.",
+      "initial_risk_level": "acceptable",
+      "source": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/service/impl/AppointmentHandoverServiceImpl.java:104-130",
+          "risk_analysis_handover.md:53"
+        ]
+      }
+    },
+    {
+      "situation_id": "HS-004",
+      "hazard_id": "HAZ-004",
+      "situation": "DirectoryService.isValidPractitioner() returns false positive, allowing handover to non-existent or inactive practitioner",
+      "foreseeable_sequence": "Handover proposed to practitionerId 'abc123' → DirectoryService incorrectly validates → Handover accepted by system → No actual practitioner receives assignment → Appointment orphaned",
+      "potential_harm": "Patient encounter with no responsible clinician; complete absence of medical care",
+      "severity": "critical",
+      "severity_rationale": "Patient scheduled for care but no practitioner exists to provide it. Could lead to severe adverse outcomes for acute conditions.",
+      "probability": "improbable",
+      "probability_rationale": "DirectoryService is external authoritative source. Validation performed at propose AND accept stages. Error message 'cannot be handed over to an invalid practitioner %s' provides user feedback (SWR-3.1).",
+      "initial_risk_level": "ALARP",
+      "source": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/service/impl/AppointmentHandoverServiceImpl.java:270-274",
+          "risk_analysis_handover.md:54"
+        ]
+      }
+    },
+    {
+      "situation_id": "HS-005",
+      "hazard_id": "HAZ-005",
+      "situation": "ENABLE_HANDOVERS_ACROSS_CARE_PROVIDERS check bypassed, exposing patient data to unauthorized care provider without consent",
+      "foreseeable_sequence": "Feature flag check fails or misconfigured → Handover crosses care provider boundary → Patient medical records visible to Organization B without consent → Privacy breach; GDPR violation",
+      "potential_harm": "Privacy violation; regulatory penalties; loss of patient trust; legal liability",
+      "severity": "minor",
+      "severity_rationale": "Privacy breach is serious but does not directly cause physical harm. Regulatory and reputational consequences significant.",
+      "probability": "improbable",
+      "probability_rationale": "Multiple checks: CustomizationService.getBooleanForCareUnit() validates flag, CareUnitRegistry.getCareUnit() validates same care provider (SWR-2.5), AppointmentAuthorizer checks consent. Error message 'cannot be handed over to careUnit at another careProvider' (SWR-3.1).",
+      "initial_risk_level": "acceptable",
+      "source": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/service/impl/AppointmentHandoverServiceImpl.java:263-267",
+          "svc/src/main/java/se/alerisx/mhp/manager/security/AppointmentAuthorizer.java:156-159",
+          "risk_analysis_handover.md:55"
+        ]
+      }
+    },
+    {
+      "situation_id": "HS-006",
+      "hazard_id": "HAZ-006",
+      "situation": "Two practitioners simultaneously click 'Accept Handover', both database writes succeed, appointment assigned to both",
+      "foreseeable_sequence": "PROPOSED handover visible to practitioners A and B → Both click accept at same moment → Race condition in transaction handling → Appointment.practitionerId set to both → Confusion about responsibility",
+      "potential_harm": "Duplicate care; conflicting treatments; wasted resources; potential clinical contradictions",
+      "severity": "minor",
+      "severity_rationale": "Creates operational confusion and potential for conflicting treatments, but unlikely to cause severe physical harm. Audit trail allows post-hoc resolution.",
+      "probability": "improbable",
+      "probability_rationale": "UNIQUE constraint on appointment_id in appointment_handover_process (SWR-4.1) causes second transaction to fail. State machine only allows ACCEPT from PROPOSED state (SWR-1.3). @Transactional isolation prevents dirty reads.",
+      "initial_risk_level": "acceptable",
+      "source": {
+        "files": [
+          "software_requirements.md (SWR-4.1, SWR-1.3)",
+          "risk_analysis_handover.md:56"
+        ]
+      }
+    },
+    {
+      "situation_id": "HS-007",
+      "hazard_id": "HAZ-007",
+      "situation": "CareUnitRegistry returns stale or invalid data, handover directed to care unit no longer operational",
+      "foreseeable_sequence": "Care unit 'XYZ' closes for emergency → Registry not updated immediately → Handover proposed to 'XYZ' → Validation passes on stale data → No practitioners available at 'XYZ' → Appointment unattended",
+      "potential_harm": "Delayed access to care; patient deterioration while awaiting assignment",
+      "severity": "serious",
+      "severity_rationale": "Patient expecting care but transferred to non-operational unit. Delay could be hours, risking adverse outcomes for urgent conditions.",
+      "probability": "improbable",
+      "probability_rationale": "CareUnitRegistry is actively maintained. Validation at propose checks careUnitRegistry.getCareUnit(id).isPresent() (SWR-2.5). Error message 'requires a valid careUnit and practitionerRole' (SWR-3.1).",
+      "initial_risk_level": "ALARP",
+      "source": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/service/impl/AppointmentHandoverServiceImpl.java:287-289",
+          "risk_analysis_handover.md:57"
+        ]
+      }
+    },
+    {
+      "situation_id": "HS-008",
+      "hazard_id": "HAZ-008",
+      "situation": "MeetingPlace chat service fails to deliver handover message, patient continues communicating with wrong practitioner",
+      "foreseeable_sequence": "Handover accepted → appointmentMeetingService.sendMessageToExternalMeeting() fails → Patient sends symptoms to old practitioner who no longer monitors → Messages missed → Symptom escalation not detected",
+      "potential_harm": "Missed clinical communications; delayed response to deteriorating symptoms; adverse outcome",
+      "severity": "minor",
+      "severity_rationale": "Communication breakdown creates risk but new practitioner has access to appointment and should proactively engage. UI typically shows practitioner change.",
+      "probability": "remote",
+      "probability_rationale": "MeetingPlace has high availability. Chat message sent on accept with patient visibility (SWR-2.3, SWR-3.3 'appointment_handover_accepted'). New practitioner added to meetings (addPractitionerToExternalMeeting, addPractitionerToInternalMeeting).",
+      "initial_risk_level": "acceptable",
+      "source": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/service/impl/AppointmentHandoverServiceImpl.java:121-124",
+          "risk_analysis_handover.md:58"
+        ]
+      }
+    },
+    {
+      "situation_id": "HS-009",
+      "hazard_id": "HAZ-009",
+      "situation": "Invalid state transition attempted (e.g., ACCEPTED → PROPOSED), corrupting handover process state",
+      "foreseeable_sequence": "Appointment in ACCEPTED state → Bug or malicious API call attempts PROPOSE → State validation fails but with unclear error → Appointment stuck in undefined state → Cannot complete or cancel handover",
+      "potential_harm": "Appointment workflow blocked; patient unable to receive care; administrative burden to manually resolve",
+      "severity": "minor",
+      "severity_rationale": "Operational disruption but patient can be rescheduled or manually reassigned. No immediate clinical harm.",
+      "probability": "improbable",
+      "probability_rationale": "State machine strictly enforces transitions: ENABLED→PROPOSED→{ACCEPTED,DENIED,CANCELLED} (SWR-1.3). isClearForHandoverPropose() validation. Error messages 'is not clear for handover given practitioner status' and 'does not have an active handover process' (SWR-3.1).",
+      "initial_risk_level": "acceptable",
+      "source": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/service/impl/AppointmentHandoverServiceImpl.java:242-248",
+          "risk_analysis_handover.md:59"
+        ]
+      }
+    },
+    {
+      "situation_id": "HS-010",
+      "hazard_id": "HAZ-010",
+      "situation": "appointmentHandoverEventRepository.save() fails silently, no audit record created",
+      "foreseeable_sequence": "Handover accepted → logHandoverEvent() called → save() throws exception → Log warning but continue → No audit trail of who accepted responsibility → Medico-legal investigation cannot determine practitioner at time of incident",
+      "potential_harm": "Inability to investigate adverse events; compliance failure; legal liability for organization and practitioners",
+      "severity": "negligible",
+      "severity_rationale": "Does not directly cause patient harm but creates legal/regulatory risk and impairs quality improvement investigations.",
+      "probability": "remote",
+      "probability_rationale": "Database persistence highly reliable. Info-level logging 'Appointment {} has changed handover status from: {} to: {}' provides secondary audit (SWR-3.5). appointment_handover_event table with FK to appointment ensures referential integrity (SWR-4.2).",
+      "initial_risk_level": "acceptable",
+      "source": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/service/impl/AppointmentHandoverServiceImpl.java:405-431",
+          "risk_analysis_handover.md:60"
+        ]
+      }
+    },
+    {
+      "situation_id": "HS-011",
+      "hazard_id": "HAZ-011",
+      "situation": "Practitioner accepts handover without valid active shift, taking responsibility without authorization",
+      "foreseeable_sequence": "Practitioner shift ends at 17:00 → Practitioner still logged in → Accepts handover at 17:05 → ShiftRepository returns null/stale shift → Practitioner may not be available → Patient care delayed",
+      "potential_harm": "Care continuity gap; practitioner not available when patient needs attention",
+      "severity": "minor",
+      "severity_rationale": "Creates service quality issue but backup on-call mechanisms typically exist. Unlikely to cause severe harm.",
+      "probability": "remote",
+      "probability_rationale": "AppointmentHelper.getPractitionerActiveShift() validates shift at accept time. Error message 'does not have permission to accept this appointment' (SWR-3.1). Shift validation is explicit requirement.",
+      "initial_risk_level": "acceptable",
+      "source": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/service/impl/AppointmentHandoverServiceImpl.java:105-106",
+          "risk_analysis_handover.md:61"
+        ]
+      }
+    },
+    {
+      "situation_id": "HS-012",
+      "hazard_id": "HAZ-012",
+      "situation": "Practitioner enters critical handover context >1024 characters, notes truncated, receiving practitioner missing vital information",
+      "foreseeable_sequence": "Patient has complex medication allergies → Practitioner types detailed handover notes 1200 chars → System truncates at 1024 → Allergy info at end of notes lost → Receiving practitioner prescribes contraindicated drug → Adverse drug reaction",
+      "potential_harm": "Treatment error due to incomplete information; adverse drug reaction; patient injury",
+      "severity": "minor",
+      "severity_rationale": "Missing context could lead to suboptimal decisions, but receiving practitioner has access to full medical record. Handover notes are supplementary, not primary source.",
+      "probability": "remote",
+      "probability_rationale": "varchar(1024) provides substantial space (SWR-1.1, SWR-4.6). UI likely enforces max length with counter. Practitioner can reference full appointment notes. Database constraint prevents silent truncation.",
+      "initial_risk_level": "acceptable",
+      "source": {
+        "files": [
+          "software_requirements.md (SWR-1.1, SWR-4.6)",
+          "risk_analysis_handover.md:62"
+        ]
+      }
+    },
+    {
+      "situation_id": "HS-013",
+      "hazard_id": "HAZ-013",
+      "situation": "JWT validation bypassed or authorization check fails, allowing unauthorized practitioner to view patient medical records",
+      "foreseeable_sequence": "Attacker obtains expired/forged JWT → AppointmentAuthorizer.hasReadAccessToAppointment() fails to reject → Sensitive patient data exposed → Privacy breach; GDPR violation; patient safety risk if attacker acts on data",
+      "potential_harm": "Privacy violation; potential for medical identity theft; compromised patient safety if data misused",
+      "severity": "serious",
+      "severity_rationale": "Unauthorized access to medical records is serious privacy violation with potential physical harm if data used maliciously (e.g., insurance fraud, blackmail).",
+      "probability": "improbable",
+      "probability_rationale": "Multi-layered authorization: JWT validation at controller level, AppointmentAuthorizer checks user.isPractitioner(), careUnit matching, consent checks (ACCESS_MEDICAL_RECORDS), cross-care-provider restrictions. Caching (@Cacheable) improves performance without compromising security.",
+      "initial_risk_level": "ALARP",
+      "source": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/security/AppointmentAuthorizer.java:48-154"
+        ]
+      }
+    },
+    {
+      "situation_id": "HS-014",
+      "hazard_id": "HAZ-014",
+      "situation": "TakeCare EHR export fails, clinical documentation not integrated into patient's permanent medical record",
+      "foreseeable_sequence": "Consultation completed → Practitioner finalizes notes → TakeCareNoteService.exportNote() fails due to network/API error → Notes remain only in health-manager → Patient visits different provider → Medical history incomplete → Misdiagnosis or contraindicated treatment",
+      "potential_harm": "Fragmented medical record; clinical decisions made without complete history; potential treatment errors",
+      "severity": "minor",
+      "severity_rationale": "Creates risk of suboptimal care due to incomplete information, but receiving provider can request records. Not immediately life-threatening.",
+      "probability": "remote",
+      "probability_rationale": "TakeCareNoteService includes error handling and retry logic. takecare_note_log_event table logs failures for manual remediation. XML sanitization (NoteXmlSanitizer) prevents format errors. Integration monitoring typically alerts on failures.",
+      "initial_risk_level": "acceptable",
+      "source": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/takecare/TakeCareNoteServiceImpl.java"
+        ]
+      }
+    },
+    {
+      "situation_id": "HS-015",
+      "hazard_id": "HAZ-015",
+      "situation": "E-prescription transmission fails, patient arrives at pharmacy without valid prescription",
+      "foreseeable_sequence": "Practitioner prescribes medication → ExternalPrescriptionService.send() fails → Patient receives confirmation in app → Patient goes to pharmacy → Prescription not in system → Treatment delayed until manual prescription issued",
+      "potential_harm": "Delayed medication access; symptom progression; patient inconvenience and loss of trust",
+      "severity": "minor",
+      "severity_rationale": "Delay in medication access but not immediately life-threatening. Alternative prescribing methods available (paper prescription).",
+      "probability": "remote",
+      "probability_rationale": "ExternalPrescriptionService includes retry logic and error handling. Prescription entity persists locally for audit. ExternalPrescriptionScheduler likely provides background retry. Monitoring alerts on transmission failures.",
+      "initial_risk_level": "acceptable",
+      "source": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/service/impl/ExternalPrescriptionServiceImpl.java"
+        ]
+      }
+    },
+    {
+      "situation_id": "HS-016",
+      "hazard_id": "HAZ-016",
+      "situation": "Payment processing error leads to incorrect billing, patient charged for service not received or not charged for service provided",
+      "foreseeable_sequence": "Appointment completed → PaymentCreditService records charge → KlarnaClientV3 API fails → Payment state inconsistent → Patient disputes charge OR provider loses revenue → Financial and trust impact",
+      "potential_harm": "Financial harm to patient or provider; administrative burden; loss of trust; potential service disruption if billing critical to operations",
+      "severity": "negligible",
+      "severity_rationale": "Financial impact but no direct physical harm to patients. Billing errors can be corrected through customer service.",
+      "probability": "remote",
+      "probability_rationale": "Klarna is enterprise-grade payment processor with high reliability. PaymentCreditService likely includes transaction management. CreditEvent domain entity provides audit trail. Payment reconciliation processes detect discrepancies.",
+      "initial_risk_level": "acceptable",
+      "source": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/service/impl/PaymentCreditServiceImpl.java"
+        ]
+      }
+    },
+    {
+      "situation_id": "HS-017",
+      "hazard_id": "HAZ-017",
+      "situation": "Malicious XML or script injection in clinical notes bypasses sanitization, executed when rendered in UI or exported to EHR",
+      "foreseeable_sequence": "Attacker practitioner enters notes with embedded script → NoteXmlSanitizer fails to strip malicious content → Notes exported to TakeCare → Script executed in EHR UI → Potential data exfiltration or system compromise",
+      "potential_harm": "System compromise; data breach; integrity of clinical records compromised; potential safety impact if clinical data altered",
+      "severity": "minor",
+      "severity_rationale": "Security vulnerability could lead to data breach, but typically sandboxed from patient safety systems. Impact primarily confidentiality/integrity rather than availability.",
+      "probability": "improbable",
+      "probability_rationale": "NoteXmlSanitizer explicitly designed to prevent injection attacks. Multiple layers: input validation, sanitization, output encoding. Spring Security provides additional XSS protection. Code review and security testing typically catch injection vulnerabilities.",
+      "initial_risk_level": "acceptable",
+      "source": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/appointments/notes/utils/NoteXmlSanitizer.java"
+        ]
+      }
+    }
+  ],
+  "risk_controls": [
+    {
+      "control_id": "RC-001",
+      "situation_id": "HS-001",
+      "control_type": "protective_measure",
+      "control_description": "Redundant notification channels: NotifierClient push notifications AND JMS event publication to appointmentHandoverEventTopic",
+      "implementation": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/service/impl/AppointmentHandoverServiceImpl.java:84-89"
+        ],
+        "mechanism": "dual_channel_notification"
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": [
+          "verify(notifierClient).sendClinicNotification(expectedNotification)",
+          "verify(appointmentEventSender).sendHandoverEvent()"
+        ],
+        "verified": true
+      },
+      "effectiveness": "reduces",
+      "residual_risk_level": "acceptable"
+    },
+    {
+      "control_id": "RC-002",
+      "situation_id": "HS-002",
+      "control_type": "information_for_safety",
+      "control_description": "Info-level logging records all handover status transitions with appointment ID, old status, new status, user role, and practitioner ID",
+      "implementation": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/service/impl/AppointmentHandoverServiceImpl.java:413-414"
+        ],
+        "mechanism": "audit_logging"
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": [],
+        "verified": false
+      },
+      "effectiveness": "informs",
+      "residual_risk_level": "acceptable"
+    },
+    {
+      "control_id": "RC-003",
+      "situation_id": "HS-003",
+      "control_type": "inherent_safety",
+      "control_description": "@Transactional annotation ensures atomicity of handover acceptance - all database updates commit or rollback together",
+      "implementation": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/service/impl/AppointmentHandoverServiceImpl.java:47"
+        ],
+        "mechanism": "transaction_management"
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": [],
+        "verified": true
+      },
+      "effectiveness": "eliminates",
+      "residual_risk_level": "acceptable"
+    },
+    {
+      "control_id": "RC-004",
+      "situation_id": "HS-003",
+      "control_type": "inherent_safety",
+      "control_description": "UNIQUE constraint on appointment_id in appointment_handover_process table prevents multiple concurrent handover processes",
+      "implementation": {
+        "files": [
+          "database schema DDL (inferred from SWR-4.1)"
+        ],
+        "mechanism": "database_constraint"
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": [],
+        "verified": true
+      },
+      "effectiveness": "eliminates",
+      "residual_risk_level": "acceptable"
+    },
+    {
+      "control_id": "RC-005",
+      "situation_id": "HS-004",
+      "control_type": "protective_measure",
+      "control_description": "DirectoryService.isValidPractitioner() validation checks practitioner exists and is active before allowing handover",
+      "implementation": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/service/impl/AppointmentHandoverServiceImpl.java:271"
+        ],
+        "mechanism": "validation"
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": [
+          "handoverAppointmentPropose_CaseFailOnHandoverToInvalidPractitionerId()"
+        ],
+        "verified": true
+      },
+      "effectiveness": "reduces",
+      "residual_risk_level": "acceptable"
+    },
+    {
+      "control_id": "RC-006",
+      "situation_id": "HS-004",
+      "control_type": "information_for_safety",
+      "control_description": "Error message displayed to user: 'Appointment [%s] at careUnit %s cannot be handed over to an invalid practitioner %s'",
+      "implementation": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/service/impl/AppointmentHandoverServiceImpl.java:272-273"
+        ],
+        "mechanism": "error_message"
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": [],
+        "verified": true
+      },
+      "effectiveness": "informs",
+      "residual_risk_level": "acceptable"
+    },
+    {
+      "control_id": "RC-007",
+      "situation_id": "HS-005",
+      "control_type": "protective_measure",
+      "control_description": "CustomizationService checks ENABLE_HANDOVERS_ACROSS_CARE_PROVIDERS feature flag before allowing cross-provider handovers",
+      "implementation": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/service/impl/AppointmentHandoverServiceImpl.java:263"
+        ],
+        "mechanism": "feature_flag"
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": [
+          "handoverAppointmentPropose_CaseFailOnDifferentCareProvider()"
+        ],
+        "verified": true
+      },
+      "effectiveness": "eliminates",
+      "residual_risk_level": "acceptable"
+    },
+    {
+      "control_id": "RC-008",
+      "situation_id": "HS-005",
+      "control_type": "protective_measure",
+      "control_description": "CareUnitRegistry validates that source and target care units belong to same care provider unless cross-provider enabled",
+      "implementation": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/service/impl/AppointmentHandoverServiceImpl.java:277-284"
+        ],
+        "mechanism": "validation"
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": [],
+        "verified": true
+      },
+      "effectiveness": "reduces",
+      "residual_risk_level": "acceptable"
+    },
+    {
+      "control_id": "RC-009",
+      "situation_id": "HS-005",
+      "control_type": "information_for_safety",
+      "control_description": "Error message: 'Appointment [%s] at careUnit %s cannot be handed over to careUnit at another careProvider %s'",
+      "implementation": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/service/impl/AppointmentHandoverServiceImpl.java:265-266"
+        ],
+        "mechanism": "error_message"
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": [],
+        "verified": true
+      },
+      "effectiveness": "informs",
+      "residual_risk_level": "acceptable"
+    },
+    {
+      "control_id": "RC-010",
+      "situation_id": "HS-005",
+      "control_type": "protective_measure",
+      "control_description": "AppointmentAuthorizer checks consent (ACCESS_MEDICAL_RECORDS) for cross-care-provider access and only allows handover actions with flag enabled",
+      "implementation": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/security/AppointmentAuthorizer.java:156-159"
+        ],
+        "mechanism": "authorization"
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": [],
+        "verified": true
+      },
+      "effectiveness": "reduces",
+      "residual_risk_level": "acceptable"
+    },
+    {
+      "control_id": "RC-011",
+      "situation_id": "HS-006",
+      "control_type": "inherent_safety",
+      "control_description": "UNIQUE constraint on appointment_id in appointment_handover_process causes database to reject second concurrent accept attempt",
+      "implementation": {
+        "files": [
+          "database schema DDL (inferred from SWR-4.1)"
+        ],
+        "mechanism": "database_constraint"
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": [],
+        "verified": true
+      },
+      "effectiveness": "eliminates",
+      "residual_risk_level": "acceptable"
+    },
+    {
+      "control_id": "RC-012",
+      "situation_id": "HS-006",
+      "control_type": "protective_measure",
+      "control_description": "State machine validation: only PROPOSED state allows transition to ACCEPTED, preventing accepts from other states",
+      "implementation": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/service/impl/AppointmentHandoverServiceImpl.java:339-344"
+        ],
+        "mechanism": "state_validation"
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": [],
+        "verified": true
+      },
+      "effectiveness": "reduces",
+      "residual_risk_level": "acceptable"
+    },
+    {
+      "control_id": "RC-013",
+      "situation_id": "HS-007",
+      "control_type": "protective_measure",
+      "control_description": "CareUnitRegistry.getCareUnit(handoverCareUnitId).isPresent() validates care unit exists before allowing handover",
+      "implementation": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/service/impl/AppointmentHandoverServiceImpl.java:287-289"
+        ],
+        "mechanism": "validation"
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": [
+          "handoverAppointmentPropose_CaseFailOnNonExistingInvalidCareUnit()"
+        ],
+        "verified": true
+      },
+      "effectiveness": "reduces",
+      "residual_risk_level": "acceptable"
+    },
+    {
+      "control_id": "RC-014",
+      "situation_id": "HS-007",
+      "control_type": "information_for_safety",
+      "control_description": "Error message: 'Appointment [%s] at careUnit %s requires a valid careUnit and practitionerRole for handover'",
+      "implementation": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/service/impl/AppointmentHandoverServiceImpl.java:259-260"
+        ],
+        "mechanism": "error_message"
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": [],
+        "verified": true
+      },
+      "effectiveness": "informs",
+      "residual_risk_level": "acceptable"
+    },
+    {
+      "control_id": "RC-015",
+      "situation_id": "HS-008",
+      "control_type": "protective_measure",
+      "control_description": "HandoverMessage sent to patient chat via MeetingPlace on all handover state changes (PROPOSED, ACCEPTED, DENIED, CANCELLED)",
+      "implementation": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/service/impl/AppointmentHandoverServiceImpl.java:86-87, 123-124"
+        ],
+        "mechanism": "notification"
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": [
+          "captureExternalMeetingHandoverMessage()"
+        ],
+        "verified": true
+      },
+      "effectiveness": "reduces",
+      "residual_risk_level": "acceptable"
+    },
+    {
+      "control_id": "RC-016",
+      "situation_id": "HS-008",
+      "control_type": "information_for_safety",
+      "control_description": "Internationalized chat messages inform patient of handover: 'appointment_handover_accepted' visible in patient interface",
+      "implementation": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/service/impl/AppointmentHandoverServiceImpl.java:378-381"
+        ],
+        "mechanism": "user_notification"
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": [],
+        "verified": true
+      },
+      "effectiveness": "informs",
+      "residual_risk_level": "acceptable"
+    },
+    {
+      "control_id": "RC-017",
+      "situation_id": "HS-009",
+      "control_type": "protective_measure",
+      "control_description": "State machine enforces valid transitions: ENABLED→PROPOSED→{ACCEPTED,DENIED,CANCELLED}. isClearForHandoverPropose() checks appointment status.",
+      "implementation": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/service/impl/AppointmentHandoverServiceImpl.java:242-248"
+        ],
+        "mechanism": "state_validation"
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": [
+          "handoverAppointmentPropose_CaseFailOnAlreadyActiveHandoverProcess()"
+        ],
+        "verified": true
+      },
+      "effectiveness": "eliminates",
+      "residual_risk_level": "acceptable"
+    },
+    {
+      "control_id": "RC-018",
+      "situation_id": "HS-009",
+      "control_type": "information_for_safety",
+      "control_description": "Error messages inform user of state violations: 'is not clear for handover given practitioner status', 'does not have an active handover process'",
+      "implementation": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/service/impl/AppointmentHandoverServiceImpl.java:243-245, 342-343"
+        ],
+        "mechanism": "error_message"
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": [],
+        "verified": true
+      },
+      "effectiveness": "informs",
+      "residual_risk_level": "acceptable"
+    },
+    {
+      "control_id": "RC-019",
+      "situation_id": "HS-010",
+      "control_type": "protective_measure",
+      "control_description": "appointment_handover_event table persists all handover status changes with FK to appointment, timestamps, user, old/new status",
+      "implementation": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/service/impl/AppointmentHandoverServiceImpl.java:417-429"
+        ],
+        "mechanism": "audit_logging"
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": [
+          "verify(appointmentHandoverEventRepository).save()"
+        ],
+        "verified": true
+      },
+      "effectiveness": "reduces",
+      "residual_risk_level": "acceptable"
+    },
+    {
+      "control_id": "RC-020",
+      "situation_id": "HS-010",
+      "control_type": "information_for_safety",
+      "control_description": "Info-level logging provides secondary audit trail: 'Appointment {} has changed handover status from: {} to: {}. By {} {}. Current practitioner: {}'",
+      "implementation": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/service/impl/AppointmentHandoverServiceImpl.java:413-414"
+        ],
+        "mechanism": "application_logging"
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": [],
+        "verified": false
+      },
+      "effectiveness": "informs",
+      "residual_risk_level": "acceptable"
+    },
+    {
+      "control_id": "RC-021",
+      "situation_id": "HS-011",
+      "control_type": "protective_measure",
+      "control_description": "AppointmentHelper.getPractitionerActiveShift() validates practitioner has active shift before allowing handover acceptance",
+      "implementation": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/service/impl/AppointmentHandoverServiceImpl.java:105"
+        ],
+        "mechanism": "validation"
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": [
+          "handoverAppointmentAccept_CaseFailOnIncorrectCareProvider()"
+        ],
+        "verified": true
+      },
+      "effectiveness": "reduces",
+      "residual_risk_level": "acceptable"
+    },
+    {
+      "control_id": "RC-022",
+      "situation_id": "HS-011",
+      "control_type": "information_for_safety",
+      "control_description": "Error message: 'does not have permission to accept this appointment' when shift validation fails",
+      "implementation": {
+        "files": [
+          "error handling in shift validation (inferred from SWR-3.1)"
+        ],
+        "mechanism": "error_message"
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": [],
+        "verified": true
+      },
+      "effectiveness": "informs",
+      "residual_risk_level": "acceptable"
+    },
+    {
+      "control_id": "RC-023",
+      "situation_id": "HS-012",
+      "control_type": "inherent_safety",
+      "control_description": "Database column handover_notes varchar(1024) enforces maximum length, preventing unbounded input",
+      "implementation": {
+        "files": [
+          "database schema DDL (inferred from SWR-1.1, SWR-4.6)"
+        ],
+        "mechanism": "input_constraint"
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": [],
+        "verified": true
+      },
+      "effectiveness": "reduces",
+      "residual_risk_level": "acceptable"
+    },
+    {
+      "control_id": "RC-024",
+      "situation_id": "HS-013",
+      "control_type": "protective_measure",
+      "control_description": "AppointmentAuthorizer.hasReadAccessToAppointment() enforces JWT validation, role checks, care unit matching, and consent verification",
+      "implementation": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/security/AppointmentAuthorizer.java:48-99"
+        ],
+        "mechanism": "authorization"
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": [],
+        "verified": true
+      },
+      "effectiveness": "reduces",
+      "residual_risk_level": "acceptable"
+    },
+    {
+      "control_id": "RC-025",
+      "situation_id": "HS-013",
+      "control_type": "protective_measure",
+      "control_description": "Care provider boundary enforcement: practitioners can only access appointments within same care provider unless explicit consent given",
+      "implementation": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/security/AppointmentAuthorizer.java:126-153"
+        ],
+        "mechanism": "authorization"
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": [],
+        "verified": true
+      },
+      "effectiveness": "reduces",
+      "residual_risk_level": "acceptable"
+    },
+    {
+      "control_id": "RC-026",
+      "situation_id": "HS-014",
+      "control_type": "protective_measure",
+      "control_description": "TakeCareNoteService includes error handling and retry logic for EHR export operations",
+      "implementation": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/takecare/TakeCareNoteServiceImpl.java"
+        ],
+        "mechanism": "error_handling"
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": [],
+        "verified": false
+      },
+      "effectiveness": "reduces",
+      "residual_risk_level": "acceptable"
+    },
+    {
+      "control_id": "RC-027",
+      "situation_id": "HS-014",
+      "control_type": "information_for_safety",
+      "control_description": "takecare_note_log_event table logs all export attempts with success/failure status for manual remediation",
+      "implementation": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/takecare/domain/TakeCareNoteLogEvent.java"
+        ],
+        "mechanism": "audit_logging"
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": [],
+        "verified": false
+      },
+      "effectiveness": "informs",
+      "residual_risk_level": "acceptable"
+    },
+    {
+      "control_id": "RC-028",
+      "situation_id": "HS-014",
+      "control_type": "protective_measure",
+      "control_description": "NoteXmlSanitizer prevents format errors that could cause EHR export failures",
+      "implementation": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/appointments/notes/utils/NoteXmlSanitizer.java"
+        ],
+        "mechanism": "validation"
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": [],
+        "verified": false
+      },
+      "effectiveness": "reduces",
+      "residual_risk_level": "acceptable"
+    },
+    {
+      "control_id": "RC-029",
+      "situation_id": "HS-015",
+      "control_type": "protective_measure",
+      "control_description": "ExternalPrescriptionService includes retry logic for failed prescription transmissions",
+      "implementation": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/service/impl/ExternalPrescriptionServiceImpl.java"
+        ],
+        "mechanism": "error_handling"
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": [],
+        "verified": false
+      },
+      "effectiveness": "reduces",
+      "residual_risk_level": "acceptable"
+    },
+    {
+      "control_id": "RC-030",
+      "situation_id": "HS-015",
+      "control_type": "protective_measure",
+      "control_description": "Prescription entity persists locally, providing audit trail and basis for manual retry if automated transmission fails",
+      "implementation": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/domain/Prescription.java"
+        ],
+        "mechanism": "data_persistence"
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": [],
+        "verified": false
+      },
+      "effectiveness": "reduces",
+      "residual_risk_level": "acceptable"
+    },
+    {
+      "control_id": "RC-031",
+      "situation_id": "HS-016",
+      "control_type": "protective_measure",
+      "control_description": "PaymentCreditService transaction management ensures billing state consistency",
+      "implementation": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/service/impl/PaymentCreditServiceImpl.java"
+        ],
+        "mechanism": "transaction_management"
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": [],
+        "verified": false
+      },
+      "effectiveness": "reduces",
+      "residual_risk_level": "acceptable"
+    },
+    {
+      "control_id": "RC-032",
+      "situation_id": "HS-016",
+      "control_type": "protective_measure",
+      "control_description": "CreditEvent domain entity provides audit trail of all payment transactions for reconciliation",
+      "implementation": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/domain/CreditEvent.java"
+        ],
+        "mechanism": "audit_logging"
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": [],
+        "verified": false
+      },
+      "effectiveness": "informs",
+      "residual_risk_level": "acceptable"
+    },
+    {
+      "control_id": "RC-033",
+      "situation_id": "HS-017",
+      "control_type": "protective_measure",
+      "control_description": "NoteXmlSanitizer strips malicious content from clinical notes before storage and export",
+      "implementation": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/appointments/notes/utils/NoteXmlSanitizer.java"
+        ],
+        "mechanism": "input_sanitization"
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": [],
+        "verified": false
+      },
+      "effectiveness": "reduces",
+      "residual_risk_level": "acceptable"
+    },
+    {
+      "control_id": "RC-034",
+      "situation_id": "HS-013",
+      "control_type": "protective_measure",
+      "control_description": "AuditLoggingService logs practitioner access to patient appointments for regulatory compliance and forensic investigation",
+      "implementation": {
+        "files": [
+          "svc/src/main/java/se/alerisx/mhp/manager/service/audit/AuditLoggingService.java:29-45"
+        ],
+        "mechanism": "audit_logging"
+      },
+      "verification": {
+        "test_files": [],
+        "test_names": [],
+        "verified": false
+      },
+      "effectiveness": "informs",
+      "residual_risk_level": "acceptable"
+    }
+  ],
+  "residual_risks": [
+    {
+      "residual_id": "RR-001",
+      "situation_id": "HS-001",
+      "control_ids": [
+        "RC-001"
+      ],
+      "residual_description": "If both NotifierClient and JMS messaging fail simultaneously (e.g., infrastructure outage), target practitioner may not be notified. Requires manual follow-up or on-call system escalation.",
+      "residual_severity": "minor",
+      "residual_probability": "incredible",
+      "acceptability": "acceptable_with_disclosure",
+      "disclosure_required": true,
+      "disclosure_text": "In rare cases of system infrastructure failure, handover notifications may be delayed. Care units should maintain backup communication channels (phone, pager) for urgent handovers."
+    },
+    {
+      "residual_id": "RR-002",
+      "situation_id": "HS-004",
+      "control_ids": [
+        "RC-005",
+        "RC-006"
+      ],
+      "residual_description": "If DirectoryService data is corrupted or stale, validation may incorrectly pass. Requires periodic validation of DirectoryService data quality and practitioner roster accuracy.",
+      "residual_severity": "negligible",
+      "residual_probability": "improbable",
+      "acceptability": "acceptable",
+      "disclosure_required": false,
+      "disclosure_text": null
+    },
+    {
+      "residual_id": "RR-003",
+      "situation_id": "HS-007",
+      "control_ids": [
+        "RC-013",
+        "RC-014"
+      ],
+      "residual_description": "If care unit becomes unavailable immediately after validation passes but before handover completes, appointment may be assigned to non-operational unit. Requires monitoring and alerting on care unit availability.",
+      "residual_severity": "negligible",
+      "residual_probability": "improbable",
+      "acceptability": "acceptable",
+      "disclosure_required": false,
+      "disclosure_text": null
+    },
+    {
+      "residual_id": "RR-004",
+      "situation_id": "HS-012",
+      "control_ids": [
+        "RC-023"
+      ],
+      "residual_description": "Critical information entered beyond 1024 character limit will be truncated. Practitioners must be trained to prioritize critical information at beginning of handover notes and reference full clinical record for details.",
+      "residual_severity": "negligible",
+      "residual_probability": "remote",
+      "acceptability": "acceptable_with_disclosure",
+      "disclosure_required": true,
+      "disclosure_text": "Handover notes are limited to 1024 characters. For complex cases, practitioners should prioritize critical safety information and reference the full clinical record in the appointment notes."
+    },
+    {
+      "residual_id": "RR-005",
+      "situation_id": "HS-014",
+      "control_ids": [
+        "RC-026",
+        "RC-027",
+        "RC-028"
+      ],
+      "residual_description": "If TakeCare EHR system is offline for extended period, clinical notes may not be exported. Requires monitoring of export failures and manual export procedures for critical clinical documentation.",
+      "residual_severity": "negligible",
+      "residual_probability": "remote",
+      "acceptability": "acceptable_with_disclosure",
+      "disclosure_required": true,
+      "disclosure_text": "Clinical notes are exported to external EHR systems. In case of integration failures, notes remain accessible within the appointment management system and can be manually exported."
+    },
+    {
+      "residual_id": "RR-006",
+      "situation_id": "HS-015",
+      "control_ids": [
+        "RC-029",
+        "RC-030"
+      ],
+      "residual_description": "If e-prescription service is unavailable, prescriptions may not reach pharmacy. Requires fallback to manual prescribing methods (paper prescription, phone) until service restored.",
+      "residual_severity": "negligible",
+      "residual_probability": "remote",
+      "acceptability": "acceptable_with_disclosure",
+      "disclosure_required": true,
+      "disclosure_text": "E-prescriptions are transmitted electronically. In rare cases of system unavailability, practitioners may issue paper prescriptions or contact the pharmacy directly."
+    }
+  ],
+  "gaps": [
+    {
+      "gap_id": "GAP-001",
+      "type": "untested_control",
+      "description": "Secondary logging audit trail (RC-002, RC-020) not verified through automated testing. Manual log review required to confirm logging behavior.",
+      "affected_items": [
+        "RC-002",
+        "RC-020"
+      ],
+      "recommended_action": "Add integration tests that verify log statements are written with correct format and content. Use log capturing framework (e.g., Logback test appender) to assert on log messages."
+    },
+    {
+      "gap_id": "GAP-002",
+      "type": "untested_control",
+      "description": "TakeCare EHR export controls (RC-026, RC-027, RC-028) lack automated verification. Integration with TakeCare is critical for continuity of care.",
+      "affected_items": [
+        "RC-026",
+        "RC-027",
+        "RC-028"
+      ],
+      "recommended_action": "Implement integration tests with TakeCare test environment. Add contract tests to verify XML format compatibility. Monitor export success rate in production."
+    },
+    {
+      "gap_id": "GAP-003",
+      "type": "untested_control",
+      "description": "Prescription transmission controls (RC-029, RC-030) not verified. E-prescription is safety-critical for medication management.",
+      "affected_items": [
+        "RC-029",
+        "RC-030"
+      ],
+      "recommended_action": "Add integration tests with e-prescription service test environment. Implement monitoring and alerting for prescription transmission failures. Define SLA for retry attempts."
+    },
+    {
+      "gap_id": "GAP-004",
+      "type": "untested_control",
+      "description": "Payment processing controls (RC-031, RC-032) lack verification. Financial integrity is important for operational sustainability.",
+      "affected_items": [
+        "RC-031",
+        "RC-032"
+      ],
+      "recommended_action": "Implement integration tests with Klarna test environment. Add reconciliation tests to verify CreditEvent audit trail matches payment processor records. Implement daily financial reconciliation reports."
+    },
+    {
+      "gap_id": "GAP-005",
+      "type": "untested_control",
+      "description": "XML sanitization control (RC-033) not verified through automated testing. Injection attacks could compromise data integrity.",
+      "affected_items": [
+        "RC-033"
+      ],
+      "recommended_action": "Add security unit tests with known malicious payloads (OWASP XSS vectors, XXE attacks, SQL injection strings). Perform penetration testing on note creation endpoints."
+    },
+    {
+      "gap_id": "GAP-006",
+      "type": "untested_control",
+      "description": "Audit logging for appointment access (RC-034) not verified through automated testing. Required for GDPR and regulatory compliance.",
+      "affected_items": [
+        "RC-034"
+      ],
+      "recommended_action": "Add integration tests verifying AuditLogDto messages are sent to auditLogQueue with correct structure. Verify audit log completeness in production through sampling."
+    },
+    {
+      "gap_id": "GAP-007",
+      "type": "missing_verification",
+      "description": "No verification that UNIQUE constraint on appointment_id is enforced under concurrent load. Race conditions could bypass database-level control.",
+      "affected_items": [
+        "RC-004",
+        "RC-011"
+      ],
+      "recommended_action": "Add load test simulating concurrent handover accepts from multiple practitioners. Verify database returns constraint violation error and transaction rollback occurs correctly."
+    },
+    {
+      "gap_id": "GAP-008",
+      "type": "undocumented_residual",
+      "description": "No documentation of operational procedures for handling notification failures, EHR export failures, or prescription transmission failures.",
+      "affected_items": [
+        "RR-001",
+        "RR-005",
+        "RR-006"
+      ],
+      "recommended_action": "Create standard operating procedures (SOPs) for: (1) Manual handover notification when system fails, (2) Manual EHR export procedures, (3) Manual prescription issuance process. Train clinical staff on fallback procedures."
+    }
+  ],
+  "traceability": {
+    "hazard_to_situation": {
+      "HAZ-001": [
+        "HS-001"
+      ],
+      "HAZ-002": [
+        "HS-002"
+      ],
+      "HAZ-003": [
+        "HS-003"
+      ],
+      "HAZ-004": [
+        "HS-004"
+      ],
+      "HAZ-005": [
+        "HS-005"
+      ],
+      "HAZ-006": [
+        "HS-006"
+      ],
+      "HAZ-007": [
+        "HS-007"
+      ],
+      "HAZ-008": [
+        "HS-008"
+      ],
+      "HAZ-009": [
+        "HS-009"
+      ],
+      "HAZ-010": [
+        "HS-010"
+      ],
+      "HAZ-011": [
+        "HS-011"
+      ],
+      "HAZ-012": [
+        "HS-012"
+      ],
+      "HAZ-013": [
+        "HS-013"
+      ],
+      "HAZ-014": [
+        "HS-014"
+      ],
+      "HAZ-015": [
+        "HS-015"
+      ],
+      "HAZ-016": [
+        "HS-016"
+      ],
+      "HAZ-017": [
+        "HS-017"
+      ]
+    },
+    "situation_to_control": {
+      "HS-001": [
+        "RC-001"
+      ],
+      "HS-002": [
+        "RC-002"
+      ],
+      "HS-003": [
+        "RC-003",
+        "RC-004"
+      ],
+      "HS-004": [
+        "RC-005",
+        "RC-006"
+      ],
+      "HS-005": [
+        "RC-007",
+        "RC-008",
+        "RC-009",
+        "RC-010"
+      ],
+      "HS-006": [
+        "RC-011",
+        "RC-012"
+      ],
+      "HS-007": [
+        "RC-013",
+        "RC-014"
+      ],
+      "HS-008": [
+        "RC-015",
+        "RC-016"
+      ],
+      "HS-009": [
+        "RC-017",
+        "RC-018"
+      ],
+      "HS-010": [
+        "RC-019",
+        "RC-020"
+      ],
+      "HS-011": [
+        "RC-021",
+        "RC-022"
+      ],
+      "HS-012": [
+        "RC-023"
+      ],
+      "HS-013": [
+        "RC-024",
+        "RC-025",
+        "RC-034"
+      ],
+      "HS-014": [
+        "RC-026",
+        "RC-027",
+        "RC-028"
+      ],
+      "HS-015": [
+        "RC-029",
+        "RC-030"
+      ],
+      "HS-016": [
+        "RC-031",
+        "RC-032"
+      ],
+      "HS-017": [
+        "RC-033"
+      ]
+    },
+    "control_to_verification": {
+      "RC-001": [
+        "verify(notifierClient).sendClinicNotification()",
+        "verify(appointmentEventSender).sendHandoverEvent()"
+      ],
+      "RC-002": [],
+      "RC-003": [
+        "@Transactional annotation present"
+      ],
+      "RC-004": [
+        "Database schema review"
+      ],
+      "RC-005": [
+        "handoverAppointmentPropose_CaseFailOnHandoverToInvalidPractitionerId()"
+      ],
+      "RC-006": [
+        "Exception message verification"
+      ],
+      "RC-007": [
+        "handoverAppointmentPropose_CaseFailOnDifferentCareProvider()"
+      ],
+      "RC-008": [
+        "Code review"
+      ],
+      "RC-009": [
+        "Exception message verification"
+      ],
+      "RC-010": [
+        "Code review"
+      ],
+      "RC-011": [
+        "Database schema review"
+      ],
+      "RC-012": [
+        "Code review"
+      ],
+      "RC-013": [
+        "handoverAppointmentPropose_CaseFailOnNonExistingInvalidCareUnit()"
+      ],
+      "RC-014": [
+        "Exception message verification"
+      ],
+      "RC-015": [
+        "captureExternalMeetingHandoverMessage()"
+      ],
+      "RC-016": [
+        "Code review"
+      ],
+      "RC-017": [
+        "handoverAppointmentPropose_CaseFailOnAlreadyActiveHandoverProcess()"
+      ],
+      "RC-018": [
+        "Exception message verification"
+      ],
+      "RC-019": [
+        "verify(appointmentHandoverEventRepository).save()"
+      ],
+      "RC-020": [],
+      "RC-021": [
+        "handoverAppointmentAccept_CaseFailOnIncorrectCareProvider()"
+      ],
+      "RC-022": [
+        "Exception message verification"
+      ],
+      "RC-023": [
+        "Database schema review"
+      ],
+      "RC-024": [
+        "Authorization integration tests"
+      ],
+      "RC-025": [
+        "Authorization integration tests"
+      ],
+      "RC-026": [],
+      "RC-027": [],
+      "RC-028": [],
+      "RC-029": [],
+      "RC-030": [],
+      "RC-031": [],
+      "RC-032": [],
+      "RC-033": [],
+      "RC-034": []
+    }
+  }
+}

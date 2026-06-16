@@ -9,7 +9,7 @@ process: "Top Management Process.canvas"
 requirements:
 owner:
 ---
-Owner [[Top management]]
+Owner [[Top Management]]
 
 Status: #Draft 
 Type: #Procedure 

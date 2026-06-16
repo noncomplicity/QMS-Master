@@ -1,0 +1,446 @@
+{
+  "extraction_metadata": {
+    "repository": "https://gitlab.com/doktor24/services/health-manager.git",
+    "commit": "16e0273739eda65f73af5410323e1caf53362f16",
+    "extracted_at": "2026-03-06T15:45:00Z",
+    "extractor_version": "2.0",
+    "standard": "IEC 62304:2006+AMD1:2015",
+    "hierarchy": {
+      "level": "item",
+      "item_id": "health-manager",
+      "item_name": "Health Manager Service",
+      "parent_module": "smart-care-plans",
+      "parent_system": "platform24"
+    }
+  },
+
+  "item_risk_contribution": {
+    "item_id": "health-manager",
+    "item_name": "Health Manager Service",
+    "safety_class": "B",
+    "safety_class_rationale": "Software manages clinical appointment workflows and patient-practitioner interactions. Failures could result in delayed care or incorrect care assignment, but direct physiological harm is unlikely as clinical decisions are made by practitioners.",
+
+    "hazard_contributions": [
+      {
+        "id": "ITEM-HM-HAZ-001",
+        "description": "Unauthorized access to patient appointment data",
+        "cause": "Authentication bypass or authorization failure in REST API",
+        "potential_harm": "Privacy breach, patient confidentiality violation",
+        "severity_contribution": "serious",
+        "affected_functions": ["AppointmentController.getAppointment", "ClinicAppointmentController.getClinicAppointments"],
+        "source": {
+          "files": [
+            "svc/src/main/java/se/alerisx/mhp/manager/controller/v1/AppointmentController.java:45-120",
+            "svc/src/main/java/se/alerisx/mhp/manager/controller/v1/clinic/ClinicAppointmentController.java:30-150"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-HM-HAZ-002",
+        "description": "Patient appointment data corruption or loss",
+        "cause": "Database transaction failure, concurrent modification, or ORM mapping errors",
+        "potential_harm": "Lost clinical context, incorrect treatment decisions based on missing data",
+        "severity_contribution": "serious",
+        "affected_functions": ["UpdateAppointmentService.update", "Hibernate entity persistence"],
+        "source": {
+          "files": [
+            "svc/src/main/java/se/alerisx/mhp/manager/service/impl/UpdateAppointmentServiceImpl.java:1-500",
+            "svc/src/main/java/se/alerisx/mhp/manager/domain/Appointment.java:1-200"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-HM-HAZ-003",
+        "description": "Handover to unavailable or incorrect practitioner",
+        "cause": "Race condition in handover acceptance, stale practitioner availability data",
+        "potential_harm": "Delayed patient care, patient assigned to wrong specialist",
+        "severity_contribution": "serious",
+        "affected_functions": ["AppointmentHandoverService.propose", "AppointmentHandoverService.accept"],
+        "source": {
+          "files": [
+            "svc/src/main/java/se/alerisx/mhp/manager/service/impl/AppointmentHandoverServiceImpl.java:1-300"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-HM-HAZ-004",
+        "description": "Critical appointment not escalated in time",
+        "cause": "Escalation rules engine failure or incorrect rule evaluation",
+        "potential_harm": "Delayed emergency care, patient deterioration",
+        "severity_contribution": "critical",
+        "affected_functions": ["EscalationService.evaluate", "easy-rules rule engine"],
+        "source": {
+          "files": [
+            "svc/src/main/java/se/alerisx/mhp/manager/service/impl/EscalationService.java:1-150",
+            "modules/escalator/src/main/java/"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-HM-HAZ-005",
+        "description": "Follow-up notification not sent to patient",
+        "cause": "Scheduled job failure, distributed lock contention, message loss",
+        "potential_harm": "Patient misses follow-up, condition worsens",
+        "severity_contribution": "serious",
+        "affected_functions": ["FollowUpMessageNotificationScheduler.sendNotifications"],
+        "source": {
+          "files": [
+            "svc/src/main/java/se/alerisx/mhp/manager/service/impl/FollowUpMessageNotificationScheduler.java:1-100"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-HM-HAZ-006",
+        "description": "Appointment scheduled at incorrect time due to timezone error",
+        "cause": "Date/time serialization error, timezone conversion failure",
+        "potential_harm": "Patient misses appointment, delayed care",
+        "severity_contribution": "minor",
+        "affected_functions": ["JSON serialization", "Date handling in DTOs"],
+        "source": {
+          "files": [
+            "dto/src/main/java/se/alerisx/mhp/manager/dto/AppointmentDTO.java",
+            "svc/src/main/java/se/alerisx/mhp/manager/mapper/"
+          ]
+        }
+      },
+      {
+        "id": "ITEM-HM-HAZ-007",
+        "description": "JMS message loss causing appointment data inconsistency",
+        "cause": "Message broker failure, listener exception, transaction rollback after publish",
+        "potential_harm": "Booking data out of sync across services, double-booking",
+        "severity_contribution": "serious",
+        "affected_functions": ["SynchronizedBookingListener.onMessage", "JMS publishers"],
+        "source": {
+          "files": [
+            "svc/src/main/java/se/alerisx/mhp/manager/listener/SynchronizedBookingListener.java:1-100"
+          ]
+        }
+      }
+    ],
+
+    "risk_controls": [
+      {
+        "id": "ITEM-HM-RC-001",
+        "description": "JWT-based authentication and role-based authorization",
+        "control_type": "inherent_safety",
+        "mitigates": ["ITEM-HM-HAZ-001"],
+        "implementation": "Spring Security with JWT validation, role-based access checks via @PreAuthorize",
+        "verification_status": "verified",
+        "verification_evidence": {
+          "test_files": ["svc/src/test/java/se/alerisx/mhp/manager/controller/v1/AppointmentControllerTest.java"],
+          "test_names": ["should reject unauthorized request"]
+        },
+        "source": {
+          "files": ["Spring Security configuration via parent starter"]
+        }
+      },
+      {
+        "id": "ITEM-HM-RC-002",
+        "description": "Database transaction management with rollback on failure",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-HM-HAZ-002"],
+        "implementation": "Spring @Transactional with default rollback on RuntimeException",
+        "verification_status": "verified",
+        "verification_evidence": {
+          "test_files": ["svc/src/test/java/se/alerisx/mhp/manager/service/impl/UpdateAppointmentServiceImplTest.java"],
+          "test_names": ["should rollback on exception"]
+        },
+        "source": {
+          "files": ["svc/src/main/java/se/alerisx/mhp/manager/service/impl/UpdateAppointmentServiceImpl.java"]
+        }
+      },
+      {
+        "id": "ITEM-HM-RC-003",
+        "description": "Optimistic locking for concurrent modification detection",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-HM-HAZ-002", "ITEM-HM-HAZ-003"],
+        "implementation": "JPA @Version annotation on entities, OptimisticLockException handling",
+        "verification_status": "partial",
+        "verification_evidence": {
+          "test_files": [],
+          "test_names": []
+        },
+        "source": {
+          "files": ["svc/src/main/java/se/alerisx/mhp/manager/domain/Appointment.java"]
+        }
+      },
+      {
+        "id": "ITEM-HM-RC-004",
+        "description": "Handover state machine validation",
+        "control_type": "inherent_safety",
+        "mitigates": ["ITEM-HM-HAZ-003"],
+        "implementation": "State transition validation before handover operations",
+        "verification_status": "verified",
+        "verification_evidence": {
+          "test_files": ["svc/src/test/java/se/alerisx/mhp/manager/service/impl/AppointmentHandoverServiceIT.java"],
+          "test_names": ["should reject invalid state transition"]
+        },
+        "source": {
+          "files": ["svc/src/main/java/se/alerisx/mhp/manager/service/impl/AppointmentHandoverServiceImpl.java"]
+        }
+      },
+      {
+        "id": "ITEM-HM-RC-005",
+        "description": "Escalation rule validation and logging",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-HM-HAZ-004"],
+        "implementation": "Rule evaluation logging, default escalation on rule engine failure",
+        "verification_status": "verified",
+        "verification_evidence": {
+          "test_files": ["modules/escalator/src/test/java/"],
+          "test_names": ["should escalate on rule engine error"]
+        },
+        "source": {
+          "files": ["modules/escalator/src/main/java/"]
+        }
+      },
+      {
+        "id": "ITEM-HM-RC-006",
+        "description": "ShedLock distributed locking for scheduled tasks",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-HM-HAZ-005"],
+        "implementation": "Database-backed distributed lock ensures exactly-once execution",
+        "verification_status": "partial",
+        "verification_evidence": {
+          "test_files": [],
+          "test_names": []
+        },
+        "source": {
+          "files": ["svc/src/main/java/se/alerisx/mhp/manager/service/impl/FollowUpMessageNotificationScheduler.java"]
+        }
+      },
+      {
+        "id": "ITEM-HM-RC-007",
+        "description": "JSR-310 date/time handling with explicit timezone",
+        "control_type": "inherent_safety",
+        "mitigates": ["ITEM-HM-HAZ-006"],
+        "implementation": "Use of LocalDateTime/ZonedDateTime, Jackson JSR-310 module",
+        "verification_status": "verified",
+        "verification_evidence": {
+          "test_files": ["dto/src/test/java/"],
+          "test_names": ["should serialize dates correctly"]
+        },
+        "source": {
+          "files": ["dto/src/main/java/se/alerisx/mhp/manager/dto/"]
+        }
+      },
+      {
+        "id": "ITEM-HM-RC-008",
+        "description": "JMS dead letter queue for failed message processing",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-HM-HAZ-007"],
+        "implementation": "Artemis DLQ configuration, message retry with backoff",
+        "verification_status": "partial",
+        "verification_evidence": {
+          "test_files": [],
+          "test_names": []
+        },
+        "source": {
+          "files": ["svc/src/main/java/se/alerisx/mhp/manager/listener/"]
+        }
+      },
+      {
+        "id": "ITEM-HM-RC-009",
+        "description": "Clinical audit logging for all patient data access",
+        "control_type": "information_for_safety",
+        "mitigates": ["ITEM-HM-HAZ-001", "ITEM-HM-HAZ-002"],
+        "implementation": "AuditLoggingService captures all clinical data operations",
+        "verification_status": "partial",
+        "verification_evidence": {
+          "test_files": [],
+          "test_names": []
+        },
+        "source": {
+          "files": ["svc/src/main/java/se/alerisx/mhp/manager/service/audit/AuditLoggingService.java"]
+        }
+      }
+    ],
+
+    "risk_controls_required_upstream": [
+      {
+        "id": "ITEM-HM-RC-UP-001",
+        "description": "Practitioner training on handover workflow",
+        "rationale": "Software validates state transitions but cannot prevent incorrect clinical decisions",
+        "recommended_level": "system",
+        "control_type": "information_for_safety",
+        "mitigates": ["ITEM-HM-HAZ-003"]
+      },
+      {
+        "id": "ITEM-HM-RC-UP-002",
+        "description": "Monitoring alerts for escalation failures",
+        "rationale": "Software logs failures but organizational response required",
+        "recommended_level": "system",
+        "control_type": "protective_measure",
+        "mitigates": ["ITEM-HM-HAZ-004"]
+      },
+      {
+        "id": "ITEM-HM-RC-UP-003",
+        "description": "JMS broker high availability configuration",
+        "rationale": "Message durability depends on infrastructure configuration",
+        "recommended_level": "module",
+        "control_type": "inherent_safety",
+        "mitigates": ["ITEM-HM-HAZ-007"]
+      }
+    ],
+
+    "failure_modes": [
+      {
+        "id": "ITEM-HM-FM-001",
+        "component": "ITEM-HM-COMP-002",
+        "failure_mode": "Service throws uncaught exception",
+        "effect": "Transaction rollback, HTTP 500 response",
+        "detection": "Exception logging, monitoring alerts",
+        "recovery": "Automatic retry by client, manual intervention for persistent issues",
+        "related_hazards": ["ITEM-HM-HAZ-002"],
+        "source": {
+          "files": ["svc/src/main/java/se/alerisx/mhp/manager/service/impl/"]
+        }
+      },
+      {
+        "id": "ITEM-HM-FM-002",
+        "component": "ITEM-HM-COMP-006",
+        "failure_mode": "JMS listener processing timeout",
+        "effect": "Message requeued, potential duplicate processing",
+        "detection": "Message age monitoring, DLQ monitoring",
+        "recovery": "Manual DLQ processing, deduplication in downstream consumers",
+        "related_hazards": ["ITEM-HM-HAZ-007"],
+        "source": {
+          "files": ["svc/src/main/java/se/alerisx/mhp/manager/listener/"]
+        }
+      },
+      {
+        "id": "ITEM-HM-FM-003",
+        "component": "ITEM-HM-COMP-003",
+        "failure_mode": "Database connection exhaustion",
+        "effect": "Connection timeout, request failures",
+        "detection": "Connection pool monitoring, health checks",
+        "recovery": "Connection pool auto-recovery, pod restart if persistent",
+        "related_hazards": ["ITEM-HM-HAZ-002"],
+        "source": {
+          "files": ["Database connection pool configuration"]
+        }
+      },
+      {
+        "id": "ITEM-HM-FM-004",
+        "component": "ITEM-HM-COMP-007",
+        "failure_mode": "Rules engine evaluation error",
+        "effect": "Appointment not escalated or incorrectly escalated",
+        "detection": "Rule evaluation logging, escalation audit trail",
+        "recovery": "Manual escalation review, rule correction",
+        "related_hazards": ["ITEM-HM-HAZ-004"],
+        "source": {
+          "files": ["modules/escalator/src/main/java/"]
+        }
+      }
+    ],
+
+    "interfaces_with_safety_impact": [
+      {
+        "id": "ITEM-HM-IF-001",
+        "interface": "ITEM-HM-EXT-001 (Bookings Service)",
+        "direction": "consumed",
+        "safety_impact": "Booking slot availability affects appointment scheduling accuracy",
+        "failure_handling": "Retry with exponential backoff, cache fallback for read operations",
+        "timeout": "5000ms",
+        "retry_policy": "3 retries with exponential backoff",
+        "source": {
+          "files": ["Service client configuration"]
+        }
+      },
+      {
+        "id": "ITEM-HM-IF-002",
+        "interface": "ITEM-HM-EXT-006 (Synchronized Booking Events)",
+        "direction": "consumed",
+        "safety_impact": "Event loss causes data inconsistency between services",
+        "failure_handling": "Dead letter queue, manual reconciliation process",
+        "timeout": "N/A (async)",
+        "retry_policy": "Artemis built-in retry",
+        "source": {
+          "files": ["svc/src/main/java/se/alerisx/mhp/manager/listener/SynchronizedBookingListener.java"]
+        }
+      },
+      {
+        "id": "ITEM-HM-IF-003",
+        "interface": "ITEM-HM-INT-003 (Handover Events)",
+        "direction": "provided",
+        "safety_impact": "Event loss causes handover notification failure",
+        "failure_handling": "Transactional outbox pattern, at-least-once delivery",
+        "timeout": "N/A (async)",
+        "retry_policy": "Artemis built-in retry",
+        "source": {
+          "files": ["svc/src/main/java/se/alerisx/mhp/manager/service/impl/AppointmentHandoverServiceImpl.java"]
+        }
+      }
+    ],
+
+    "verification_gaps": [
+      {
+        "id": "ITEM-HM-GAP-001",
+        "type": "unverified_control",
+        "description": "ITEM-HM-RC-003 (optimistic locking) lacks explicit test coverage",
+        "affected_items": ["ITEM-HM-RC-003"],
+        "recommendation": "Add concurrent modification test scenarios",
+        "priority": "medium"
+      },
+      {
+        "id": "ITEM-HM-GAP-002",
+        "type": "unverified_control",
+        "description": "ITEM-HM-RC-006 (ShedLock) lacks cluster environment tests",
+        "affected_items": ["ITEM-HM-RC-006"],
+        "recommendation": "Add multi-instance scheduling tests",
+        "priority": "medium"
+      },
+      {
+        "id": "ITEM-HM-GAP-003",
+        "type": "unverified_control",
+        "description": "ITEM-HM-RC-008 (JMS DLQ) lacks failure scenario tests",
+        "affected_items": ["ITEM-HM-RC-008"],
+        "recommendation": "Add JMS failure simulation tests",
+        "priority": "high"
+      },
+      {
+        "id": "ITEM-HM-GAP-004",
+        "type": "unverified_control",
+        "description": "ITEM-HM-RC-009 (audit logging) lacks completeness verification",
+        "affected_items": ["ITEM-HM-RC-009"],
+        "recommendation": "Add audit coverage tests for all clinical operations",
+        "priority": "medium"
+      }
+    ]
+  },
+
+  "traceability": {
+    "hazard_to_source": [
+      {
+        "hazard_id": "ITEM-HM-HAZ-001",
+        "source_files": ["svc/src/main/java/se/alerisx/mhp/manager/controller/"]
+      },
+      {
+        "hazard_id": "ITEM-HM-HAZ-002",
+        "source_files": ["svc/src/main/java/se/alerisx/mhp/manager/service/impl/", "svc/src/main/java/se/alerisx/mhp/manager/domain/"]
+      },
+      {
+        "hazard_id": "ITEM-HM-HAZ-003",
+        "source_files": ["svc/src/main/java/se/alerisx/mhp/manager/service/impl/AppointmentHandoverServiceImpl.java"]
+      },
+      {
+        "hazard_id": "ITEM-HM-HAZ-004",
+        "source_files": ["modules/escalator/src/main/java/"]
+      }
+    ],
+    "control_to_requirements": [
+      {
+        "control_id": "ITEM-HM-RC-001",
+        "requirement_ids": ["ITEM-HM-REQ-SEC-001"]
+      },
+      {
+        "control_id": "ITEM-HM-RC-002",
+        "requirement_ids": ["ITEM-HM-REQ-DATA-001"]
+      },
+      {
+        "control_id": "ITEM-HM-RC-004",
+        "requirement_ids": ["ITEM-HM-REQ-FUNC-002"]
+      }
+    ]
+  }
+}

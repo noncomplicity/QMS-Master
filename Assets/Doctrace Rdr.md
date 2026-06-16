@@ -15,14 +15,14 @@ https://docs.google.com/spreadsheets/d/1fD5oTTWFSlV-1j5VkcRXqHn3DqEC51VjDDLDu0K_
 ## System Description
 
 ## Requirements
-[[DocTrace Rdr - System requirements]]
-[[DocTrace Rdr - Navigation Requirements]]
-[[DocTrace Rdr Metadata Requriements]]
+[DocTrace Rdr - System requirements](DocTrace%20Rdr%20-%20System%20requirements.md)
+[DocTrace Rdr - Navigation Requirements](DocTrace%20Rdr%20-%20Navigation%20Requirements.md)
+[DocTrace Rdr Metadata Requriements](DocTrace%20Rdr%20Metadata%20Requriements.md)
 ## Architecture
-[[Doctrace System Architecture]]
+[Doctrace System Architecture](Doctrace%20System%20Architecture.md)
 
 0.1
 Läs in filtsruktur från repo
 Presentera .md i webportal
 
-[[agent-os]]
+[agent-os](agent-os.md)

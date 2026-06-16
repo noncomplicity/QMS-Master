@@ -1,0 +1,588 @@
+{
+  "extraction_metadata": {
+    "repository": "https://gitlab.com/doktor24/services/health-manager.git",
+    "commit": "16e0273739eda65f73af5410323e1caf53362f16",
+    "extracted_at": "2026-03-06T15:30:00Z",
+    "extractor_version": "2.0",
+    "standard": "IEC 62304:2006+AMD1:2015",
+    "test_framework": "JUnit 5",
+    "ci_system": "GitLab CI",
+    "hierarchy": {
+      "level": "item",
+      "item_id": "health-manager",
+      "item_name": "Health Manager Service",
+      "parent_module": "smart-care-plans",
+      "parent_system": "platform24"
+    }
+  },
+
+  "summary": {
+    "total_tests": 305,
+    "passed": 298,
+    "failed": 0,
+    "skipped": 7,
+    "coverage": {
+      "lines": 72.5,
+      "branches": 58.3,
+      "functions": 78.2,
+      "source": "JaCoCo"
+    },
+    "requirements_covered": 35,
+    "requirements_total": 42,
+    "components_tested": 9,
+    "components_total": 10
+  },
+
+  "unit_verification": {
+    "components_tested": [
+      {
+        "component_id": "ITEM-HM-COMP-001",
+        "component_path": "svc/src/main/java/se/alerisx/mhp/manager/controller/",
+        "test_files": [
+          "svc/src/test/java/se/alerisx/mhp/manager/controller/v1/AppointmentControllerTest.java",
+          "svc/src/test/java/se/alerisx/mhp/manager/controller/v1/PractitionerControllerTest.java",
+          "svc/src/test/java/se/alerisx/mhp/manager/controller/v1/clinic/ClinicAppointmentControllerTest.java",
+          "svc/src/test/java/se/alerisx/mhp/manager/controller/v1/clinic/ConsultationControllerTest.java"
+        ],
+        "tests": [
+          {
+            "id": "ITEM-HM-UT-001",
+            "name": "should return appointment by id",
+            "test_file": "svc/src/test/java/se/alerisx/mhp/manager/controller/v1/AppointmentControllerTest.java:45",
+            "acceptance_criteria_type": "functional",
+            "status": "passed",
+            "duration_ms": 125,
+            "assertions": 3,
+            "last_executed": "2026-03-05T10:00:00Z"
+          },
+          {
+            "id": "ITEM-HM-UT-002",
+            "name": "should reject unauthorized request",
+            "test_file": "svc/src/test/java/se/alerisx/mhp/manager/controller/v1/AppointmentControllerTest.java:67",
+            "acceptance_criteria_type": "fault_handling",
+            "status": "passed",
+            "duration_ms": 85,
+            "assertions": 2,
+            "last_executed": "2026-03-05T10:00:00Z"
+          }
+        ],
+        "coverage": {
+          "lines": 68.0,
+          "branches": 52.0,
+          "functions": 75.0
+        },
+        "acceptance_criteria_coverage": {
+          "functional": true,
+          "event_sequence": false,
+          "data_flow": true,
+          "fault_handling": true,
+          "boundary_conditions": true,
+          "memory_management": false,
+          "initialization": true
+        }
+      },
+      {
+        "component_id": "ITEM-HM-COMP-002",
+        "component_path": "svc/src/main/java/se/alerisx/mhp/manager/service/",
+        "test_files": [
+          "svc/src/test/java/se/alerisx/mhp/manager/service/impl/UpdateAppointmentServiceAcceptTest.java",
+          "svc/src/test/java/se/alerisx/mhp/manager/service/impl/UpdateAppointmentServiceUpdateTest.java",
+          "svc/src/test/java/se/alerisx/mhp/manager/service/impl/GetAppointmentServiceImplTest.java",
+          "svc/src/test/java/se/alerisx/mhp/manager/service/impl/ConsultationServiceImplTest.java",
+          "svc/src/test/java/se/alerisx/mhp/manager/service/impl/DataErasureServiceImplTest.java"
+        ],
+        "tests": [
+          {
+            "id": "ITEM-HM-UT-010",
+            "name": "should update appointment status to ACCEPTED",
+            "test_file": "svc/src/test/java/se/alerisx/mhp/manager/service/impl/UpdateAppointmentServiceAcceptTest.java:52",
+            "acceptance_criteria_type": "functional",
+            "status": "passed",
+            "duration_ms": 245,
+            "assertions": 5,
+            "last_executed": "2026-03-05T10:00:00Z"
+          },
+          {
+            "id": "ITEM-HM-UT-011",
+            "name": "should reject invalid state transition",
+            "test_file": "svc/src/test/java/se/alerisx/mhp/manager/service/impl/UpdateAppointmentServiceUpdateTest.java:78",
+            "acceptance_criteria_type": "boundary",
+            "status": "passed",
+            "duration_ms": 156,
+            "assertions": 3,
+            "last_executed": "2026-03-05T10:00:00Z"
+          },
+          {
+            "id": "ITEM-HM-UT-012",
+            "name": "should handle null input gracefully",
+            "test_file": "svc/src/test/java/se/alerisx/mhp/manager/service/impl/GetAppointmentServiceImplTest.java:34",
+            "acceptance_criteria_type": "fault_handling",
+            "status": "passed",
+            "duration_ms": 45,
+            "assertions": 2,
+            "last_executed": "2026-03-05T10:00:00Z"
+          }
+        ],
+        "coverage": {
+          "lines": 78.5,
+          "branches": 65.2,
+          "functions": 82.0
+        },
+        "acceptance_criteria_coverage": {
+          "functional": true,
+          "event_sequence": true,
+          "data_flow": true,
+          "fault_handling": true,
+          "boundary_conditions": true,
+          "memory_management": false,
+          "initialization": true
+        }
+      },
+      {
+        "component_id": "ITEM-HM-COMP-003",
+        "component_path": "svc/src/main/java/se/alerisx/mhp/manager/repository/",
+        "test_files": [
+          "svc/src/test/java/se/alerisx/mhp/manager/repository/QueryableAppointmentRepositoryTest.java"
+        ],
+        "tests": [
+          {
+            "id": "ITEM-HM-UT-020",
+            "name": "should find appointments by care unit",
+            "test_file": "svc/src/test/java/se/alerisx/mhp/manager/repository/QueryableAppointmentRepositoryTest.java:45",
+            "acceptance_criteria_type": "functional",
+            "status": "passed",
+            "duration_ms": 320,
+            "assertions": 4,
+            "last_executed": "2026-03-05T10:00:00Z"
+          }
+        ],
+        "coverage": {
+          "lines": 65.0,
+          "branches": 48.0,
+          "functions": 70.0
+        },
+        "acceptance_criteria_coverage": {
+          "functional": true,
+          "event_sequence": false,
+          "data_flow": true,
+          "fault_handling": true,
+          "boundary_conditions": true,
+          "memory_management": false,
+          "initialization": false
+        }
+      },
+      {
+        "component_id": "ITEM-HM-COMP-005",
+        "component_path": "dto/src/main/java/se/alerisx/mhp/manager/dto/",
+        "test_files": [
+          "dto/src/test/java/se/alerisx/mhp/manager/dto/clinic/list/GetClinicAppointmentBillingListDTOTest.java"
+        ],
+        "tests": [
+          {
+            "id": "ITEM-HM-UT-030",
+            "name": "should serialize DTO correctly",
+            "test_file": "dto/src/test/java/se/alerisx/mhp/manager/dto/clinic/list/GetClinicAppointmentBillingListDTOTest.java:25",
+            "acceptance_criteria_type": "data_flow",
+            "status": "passed",
+            "duration_ms": 35,
+            "assertions": 3,
+            "last_executed": "2026-03-05T10:00:00Z"
+          }
+        ],
+        "coverage": {
+          "lines": 45.0,
+          "branches": 30.0,
+          "functions": 55.0
+        },
+        "acceptance_criteria_coverage": {
+          "functional": true,
+          "event_sequence": false,
+          "data_flow": true,
+          "fault_handling": false,
+          "boundary_conditions": false,
+          "memory_management": false,
+          "initialization": true
+        }
+      },
+      {
+        "component_id": "ITEM-HM-COMP-007",
+        "component_path": "modules/escalator/",
+        "test_files": [
+          "modules/escalator/src/test/java/"
+        ],
+        "tests": [
+          {
+            "id": "ITEM-HM-UT-040",
+            "name": "should escalate appointment based on priority rules",
+            "test_file": "modules/escalator/src/test/java/se/platform24/escalator/EscalationRulesTest.java:35",
+            "acceptance_criteria_type": "functional",
+            "status": "passed",
+            "duration_ms": 156,
+            "assertions": 5,
+            "last_executed": "2026-03-05T10:00:00Z"
+          }
+        ],
+        "coverage": {
+          "lines": 85.0,
+          "branches": 72.0,
+          "functions": 90.0
+        },
+        "acceptance_criteria_coverage": {
+          "functional": true,
+          "event_sequence": true,
+          "data_flow": true,
+          "fault_handling": true,
+          "boundary_conditions": true,
+          "memory_management": false,
+          "initialization": true
+        }
+      },
+      {
+        "component_id": "ITEM-HM-COMP-008",
+        "component_path": "svc/src/main/java/se/alerisx/mhp/manager/takecare/",
+        "test_files": [
+          "svc/src/test/java/se/alerisx/mhp/manager/takecare/impl/TakeCareObjectBuilderImplTest.java",
+          "svc/src/test/java/se/alerisx/mhp/manager/takecare/impl/TakeCareMapperSpecRegistryImplTest.java"
+        ],
+        "tests": [
+          {
+            "id": "ITEM-HM-UT-050",
+            "name": "should build TakeCare note object",
+            "test_file": "svc/src/test/java/se/alerisx/mhp/manager/takecare/impl/TakeCareObjectBuilderImplTest.java:42",
+            "acceptance_criteria_type": "functional",
+            "status": "passed",
+            "duration_ms": 89,
+            "assertions": 4,
+            "last_executed": "2026-03-05T10:00:00Z"
+          }
+        ],
+        "coverage": {
+          "lines": 70.0,
+          "branches": 55.0,
+          "functions": 75.0
+        },
+        "acceptance_criteria_coverage": {
+          "functional": true,
+          "event_sequence": false,
+          "data_flow": true,
+          "fault_handling": true,
+          "boundary_conditions": false,
+          "memory_management": false,
+          "initialization": true
+        }
+      },
+      {
+        "component_id": "ITEM-HM-COMP-009",
+        "component_path": "svc/src/main/java/se/alerisx/mhp/manager/service/clinicpages/",
+        "test_files": [
+          "svc/src/test/java/se/alerisx/mhp/manager/listings/ListingServiceImplTest.java"
+        ],
+        "tests": [
+          {
+            "id": "ITEM-HM-UT-060",
+            "name": "should build consultation list query",
+            "test_file": "svc/src/test/java/se/alerisx/mhp/manager/listings/ListingServiceImplTest.java:55",
+            "acceptance_criteria_type": "functional",
+            "status": "passed",
+            "duration_ms": 245,
+            "assertions": 6,
+            "last_executed": "2026-03-05T10:00:00Z"
+          }
+        ],
+        "coverage": {
+          "lines": 62.0,
+          "branches": 45.0,
+          "functions": 68.0
+        },
+        "acceptance_criteria_coverage": {
+          "functional": true,
+          "event_sequence": false,
+          "data_flow": true,
+          "fault_handling": false,
+          "boundary_conditions": true,
+          "memory_management": false,
+          "initialization": false
+        }
+      }
+    ],
+    "untested_components": ["ITEM-HM-COMP-010"]
+  },
+
+  "integration_verification": {
+    "integration_tests": [
+      {
+        "id": "ITEM-HM-IT-001",
+        "name": "AppointmentControllerIT - full appointment lifecycle",
+        "test_file": "svc/src/test/java/se/alerisx/mhp/manager/controller/v1/AppointmentControllerIT.java:45",
+        "integrated_components": ["ITEM-HM-COMP-001", "ITEM-HM-COMP-002", "ITEM-HM-COMP-003"],
+        "coverage_type": "functionality",
+        "status": "passed",
+        "duration_ms": 3500,
+        "last_executed": "2026-03-05T10:30:00Z"
+      },
+      {
+        "id": "ITEM-HM-IT-002",
+        "name": "HandoverServiceIT - handover workflow",
+        "test_file": "svc/src/test/java/se/alerisx/mhp/manager/service/impl/AppointmentHandoverServiceIT.java:32",
+        "integrated_components": ["ITEM-HM-COMP-002", "ITEM-HM-COMP-003", "ITEM-HM-COMP-006"],
+        "coverage_type": "functionality",
+        "status": "passed",
+        "duration_ms": 4200,
+        "last_executed": "2026-03-05T10:30:00Z"
+      },
+      {
+        "id": "ITEM-HM-IT-003",
+        "name": "ClinicAppointmentListIT - list pagination",
+        "test_file": "svc/src/test/java/se/alerisx/mhp/manager/controller/v1/clinic/ClinicAppointmentListIT.java:28",
+        "integrated_components": ["ITEM-HM-COMP-001", "ITEM-HM-COMP-002", "ITEM-HM-COMP-009"],
+        "coverage_type": "interface",
+        "status": "passed",
+        "duration_ms": 2800,
+        "last_executed": "2026-03-05T10:30:00Z"
+      }
+    ],
+    "internal_interface_coverage": [
+      {
+        "interface_id": "ITEM-HM-INT-001",
+        "tests": ["ITEM-HM-IT-001"],
+        "coverage_status": "covered"
+      },
+      {
+        "interface_id": "ITEM-HM-INT-002",
+        "tests": ["ITEM-HM-IT-003"],
+        "coverage_status": "covered"
+      },
+      {
+        "interface_id": "ITEM-HM-INT-003",
+        "tests": ["ITEM-HM-IT-002"],
+        "coverage_status": "covered"
+      },
+      {
+        "interface_id": "ITEM-HM-INT-004",
+        "tests": [],
+        "coverage_status": "partial"
+      },
+      {
+        "interface_id": "ITEM-HM-INT-005",
+        "tests": [],
+        "coverage_status": "missing"
+      }
+    ],
+    "regression_tests": {
+      "test_ids": ["ITEM-HM-IT-001", "ITEM-HM-IT-002", "ITEM-HM-IT-003"],
+      "execution_frequency": "per-commit",
+      "last_full_run": "2026-03-05T10:30:00Z"
+    }
+  },
+
+  "requirement_verification": {
+    "requirements_tested": [
+      {
+        "requirement_id": "ITEM-HM-REQ-FUNC-001",
+        "tests": [
+          {
+            "test_id": "ITEM-HM-UT-010",
+            "test_type": "unit",
+            "status": "passed"
+          },
+          {
+            "test_id": "ITEM-HM-IT-001",
+            "test_type": "integration",
+            "status": "passed"
+          }
+        ],
+        "coverage_status": "covered",
+        "verification_status": "passed"
+      },
+      {
+        "requirement_id": "ITEM-HM-REQ-FUNC-002",
+        "tests": [
+          {
+            "test_id": "ITEM-HM-IT-002",
+            "test_type": "integration",
+            "status": "passed"
+          }
+        ],
+        "coverage_status": "covered",
+        "verification_status": "passed"
+      },
+      {
+        "requirement_id": "ITEM-HM-REQ-INT-001",
+        "tests": [
+          {
+            "test_id": "ITEM-HM-IT-001",
+            "test_type": "integration",
+            "status": "passed"
+          }
+        ],
+        "coverage_status": "covered",
+        "verification_status": "passed"
+      }
+    ],
+    "untested_requirements": [
+      {
+        "requirement_id": "ITEM-HM-REQ-FUNC-017",
+        "reason": "no_test_exists"
+      },
+      {
+        "requirement_id": "ITEM-HM-REQ-FUNC-018",
+        "reason": "no_test_exists"
+      }
+    ]
+  },
+
+  "risk_verification": {
+    "risk_controls_tested": [
+      {
+        "hazard_id": "ITEM-HM-HAZ-001",
+        "risk_control_id": "ITEM-HM-RC-001",
+        "tests": ["ITEM-HM-UT-002"],
+        "verification_status": "verified"
+      },
+      {
+        "hazard_id": "ITEM-HM-HAZ-002",
+        "risk_control_id": "ITEM-HM-RC-002",
+        "tests": ["ITEM-HM-IT-001"],
+        "verification_status": "verified"
+      }
+    ]
+  },
+
+  "anomalies": [
+    {
+      "id": "ITEM-HM-ANO-001",
+      "source_test": "ITEM-HM-IT-003",
+      "discovery_phase": "integration",
+      "description": "Pagination returns incorrect count for filtered queries",
+      "severity": "minor",
+      "status": "resolved",
+      "problem_report": "HM-1234",
+      "resolution": "Fixed count query to apply same filters",
+      "discovered_at": "2026-02-15T09:00:00Z",
+      "resolved_at": "2026-02-18T14:00:00Z"
+    },
+    {
+      "id": "ITEM-HM-ANO-002",
+      "source_test": "ITEM-HM-UT-011",
+      "discovery_phase": "unit",
+      "description": "State machine allows invalid FULFILLED to PROPOSED transition",
+      "severity": "major",
+      "status": "resolved",
+      "problem_report": "HM-1189",
+      "resolution": "Added state transition validation",
+      "discovered_at": "2026-01-20T11:00:00Z",
+      "resolved_at": "2026-01-22T16:00:00Z"
+    }
+  ],
+
+  "test_environment": {
+    "ci_pipeline": {
+      "system": "GitLab CI",
+      "workflow_file": ".gitlab-ci.yml",
+      "triggers": ["push", "merge_request"],
+      "test_stages": ["test", "integration-test", "verify"]
+    },
+    "runtime_environment": {
+      "os": "Linux (GitLab runners)",
+      "runtime_versions": {
+        "Java": "21",
+        "Maven": "3.9.x"
+      },
+      "test_tools": [
+        {
+          "name": "JUnit 5",
+          "version": "5.10.x",
+          "purpose": "Unit and integration testing"
+        },
+        {
+          "name": "Mockito",
+          "version": "5.x",
+          "purpose": "Mocking framework"
+        },
+        {
+          "name": "Testcontainers",
+          "version": "1.19.8",
+          "purpose": "Database integration testing"
+        },
+        {
+          "name": "JaCoCo",
+          "version": "0.8.12",
+          "purpose": "Code coverage analysis"
+        },
+        {
+          "name": "H2 Database",
+          "version": "1.4.200",
+          "purpose": "In-memory test database"
+        }
+      ]
+    }
+  },
+
+  "gaps": [
+    {
+      "id": "ITEM-HM-VER-GAP-001",
+      "type": "untested_component",
+      "description": "Audit logging component (ITEM-HM-COMP-010) has no dedicated tests",
+      "affected_items": ["ITEM-HM-COMP-010"],
+      "iec_62304_clause": "5.5",
+      "recommendation": "Add unit tests for audit logging service",
+      "priority": "medium"
+    },
+    {
+      "id": "ITEM-HM-VER-GAP-002",
+      "type": "missing_interface_test",
+      "description": "Referral API (ITEM-HM-INT-005) lacks integration tests",
+      "affected_items": ["ITEM-HM-INT-005"],
+      "iec_62304_clause": "5.6",
+      "recommendation": "Add integration tests for referral workflow",
+      "priority": "medium"
+    },
+    {
+      "id": "ITEM-HM-VER-GAP-003",
+      "type": "missing_acceptance_criteria",
+      "description": "Memory management tests not applicable (Java garbage collection)",
+      "affected_items": ["ITEM-HM-COMP-002"],
+      "iec_62304_clause": "5.5.4",
+      "recommendation": "Document as N/A for Java applications",
+      "priority": "low"
+    },
+    {
+      "id": "ITEM-HM-VER-GAP-004",
+      "type": "untested_requirement",
+      "description": "7 requirements lack verification tests",
+      "affected_items": ["ITEM-HM-REQ-FUNC-017", "ITEM-HM-REQ-FUNC-018"],
+      "iec_62304_clause": "5.7.4",
+      "recommendation": "Add tests or document alternative verification method",
+      "priority": "high"
+    }
+  ],
+
+  "traceability": {
+    "to_components": [
+      {
+        "test_id": "ITEM-HM-UT-010",
+        "component_ids": ["ITEM-HM-COMP-002"]
+      },
+      {
+        "test_id": "ITEM-HM-IT-001",
+        "component_ids": ["ITEM-HM-COMP-001", "ITEM-HM-COMP-002", "ITEM-HM-COMP-003"]
+      }
+    ],
+    "to_requirements": [
+      {
+        "test_id": "ITEM-HM-UT-010",
+        "requirement_ids": ["ITEM-HM-REQ-FUNC-001"]
+      },
+      {
+        "test_id": "ITEM-HM-IT-002",
+        "requirement_ids": ["ITEM-HM-REQ-FUNC-002"]
+      }
+    ],
+    "to_risks": [
+      {
+        "test_id": "ITEM-HM-UT-002",
+        "hazard_ids": ["ITEM-HM-HAZ-001"]
+      }
+    ]
+  }
+}

@@ -1,0 +1,226 @@
+{
+  "metadata": {
+    "system_id": "Triage24",
+    "system_name": "Digital Triage System",
+    "organization": "Platform24",
+    "created_by": "Jakob Dumky",
+    "created_at": "2026-03-06",
+    "approved_by": null,
+    "approved_at": null,
+    "status": "draft",
+    "source_documents": [
+      "Risk Management Procedure",
+      "Platform24 Risk Management Plan",
+      "D1884 - Policy for Establishing Criteria for Risk Acceptability"
+    ],
+    "standards_reference": "ISO 14971:2019, IEC 62304:2015"
+  },
+
+  "probability_model": {
+    "description": "Platform24 uses a two-factor probability model: P1 (probability that sequence of events leads to hazardous situation) and P2 (probability that hazardous situation results in harm). Combined probability P = P1 x P2.",
+    "p1_description": "Probability that the module/component contributes to a hazardous situation through identified sequence of events",
+    "p2_description": "Probability that exposure to the hazardous situation results in harm"
+  },
+
+  "severity_definitions": [
+    {
+      "level": "S1",
+      "name": "Negligible",
+      "code": "negligible",
+      "description": "Inconvenience or temporary discomfort. No injury or health deterioration.",
+      "examples": [
+        "Minor delay in accessing triage service",
+        "Need to restart interview due to technical error",
+        "Temporary confusion about UI navigation"
+      ],
+      "clinical_interpretation": "No clinical intervention required. Patient experience affected but no safety impact."
+    },
+    {
+      "level": "S2",
+      "name": "Minor",
+      "code": "minor",
+      "description": "Temporary injury or impairment not requiring professional medical intervention.",
+      "examples": [
+        "Minor delay in care that does not affect clinical outcome",
+        "Patient anxiety due to unclear information",
+        "Unnecessary self-care guidance for condition that would resolve naturally"
+      ],
+      "clinical_interpretation": "May cause patient distress but no medical intervention needed. Condition resolves without treatment."
+    },
+    {
+      "level": "S3",
+      "name": "Serious",
+      "code": "serious",
+      "description": "Injury or impairment requiring professional medical intervention but fully recoverable.",
+      "examples": [
+        "Patient directed to lower urgency care when higher urgency was appropriate, but treated in time",
+        "Delayed treatment of non-urgent condition causing temporary worsening",
+        "Incorrect triage leading to unnecessary emergency visit"
+      ],
+      "clinical_interpretation": "Medical intervention required but full recovery expected. May result in extended treatment or hospital stay."
+    },
+    {
+      "level": "S4",
+      "name": "Critical",
+      "code": "critical",
+      "description": "Permanent impairment or life-threatening injury.",
+      "examples": [
+        "Urgent condition triaged as non-urgent, leading to delayed critical care",
+        "Wrong patient receives care intended for another",
+        "Emergency condition not identified by triage"
+      ],
+      "clinical_interpretation": "Risk of permanent impairment, disability, or life-threatening deterioration. Immediate escalation required."
+    },
+    {
+      "level": "S5",
+      "name": "Catastrophic",
+      "code": "catastrophic",
+      "description": "Death or irreversible, life-altering condition.",
+      "examples": [
+        "Life-threatening emergency not identified, patient does not call 112",
+        "Systematic triage failure affecting multiple patients",
+        "Critical data corruption leading to untraceable patient harm"
+      ],
+      "clinical_interpretation": "Risk of death or permanent life-altering injury. Unacceptable without extraordinary justification."
+    }
+  ],
+
+  "probability_definitions": [
+    {
+      "level": "P1",
+      "name": "Incredible",
+      "code": "incredible",
+      "range": "<10^-6 per patient triage",
+      "percentage": "<0.0001%",
+      "description": "Probability so remote that it can be disregarded. Multiple independent failures required.",
+      "estimation_guidance": "Multiple fail-safes in place, all must fail simultaneously. No historical occurrence. Theoretical possibility only."
+    },
+    {
+      "level": "P2",
+      "name": "Remote",
+      "code": "remote",
+      "range": "10^-6 to 10^-4 per patient triage",
+      "percentage": "0.0001% to 0.01%",
+      "description": "Very unlikely to occur during device lifetime. May occur once in many million uses.",
+      "estimation_guidance": "No known occurrences in similar systems. Strong mitigations in place with verified effectiveness."
+    },
+    {
+      "level": "P3",
+      "name": "Occasional",
+      "code": "occasional",
+      "range": "10^-4 to 10^-2 per patient triage",
+      "percentage": "0.01% to 1%",
+      "description": "May occur several times during device lifetime. Statistically possible in large user base.",
+      "estimation_guidance": "May have occurred in similar systems. Some mitigations in place but not fully verified. Moderate complexity in failure path."
+    },
+    {
+      "level": "P4",
+      "name": "Probable",
+      "code": "probable",
+      "range": "10^-2 to 10^-1 per patient triage",
+      "percentage": "1% to 10%",
+      "description": "Likely to occur during device operation. Expected to occur regularly.",
+      "estimation_guidance": "Has occurred in testing or similar systems. Limited mitigations. Simple failure path with few controls."
+    },
+    {
+      "level": "P5",
+      "name": "Frequent",
+      "code": "frequent",
+      "range": ">10^-1 per patient triage",
+      "percentage": ">10%",
+      "description": "Expected to occur frequently. High likelihood in normal operation.",
+      "estimation_guidance": "Observed in testing. No effective mitigations. Direct path to hazardous situation with minimal controls."
+    }
+  ],
+
+  "risk_matrix": {
+    "description": "Risk evaluated as Low, Medium, or High based on combined probability and severity. Platform24 uses three-level acceptance: Low (acceptable), Medium (ALARP), High (unacceptable).",
+    "low": {
+      "cells": ["S1P1", "S1P2", "S1P3", "S1P4", "S1P5", "S2P1", "S2P2", "S2P3", "S3P1", "S3P2", "S4P1"],
+      "color": "green",
+      "action_required": "Acceptable when risk has been reduced as far as possible and controls are verified as effective. Document rationale."
+    },
+    "medium": {
+      "cells": ["S2P4", "S2P5", "S3P3", "S3P4", "S4P2", "S4P3", "S5P1", "S5P2"],
+      "color": "yellow",
+      "action_required": "Acceptable when justified by evidence that all reasonable mitigations implemented and verified, and further reduction would compromise essential functionality. Document benefit-risk analysis."
+    },
+    "high": {
+      "cells": ["S3P5", "S4P4", "S4P5", "S5P3", "S5P4", "S5P5"],
+      "color": "red",
+      "action_required": "Unacceptable. Must be reduced through additional design or process controls. If not feasible, escalate to CTO, CMO, CPO, PRRC for documented benefit-risk justification."
+    }
+  },
+
+  "risk_control_priority": {
+    "description": "Risk controls applied in priority order per ISO 14971",
+    "priority_order": [
+      {
+        "priority": 1,
+        "type": "inherent_safety",
+        "name": "Inherent safety by design",
+        "description": "Architectural or code-level measures that prevent hazards",
+        "examples": ["Input validation", "Type-safe interfaces", "Mandatory fields", "Fail-safe states", "Interview locking on alarming exit"]
+      },
+      {
+        "priority": 2,
+        "type": "protective_measure",
+        "name": "Protective measures",
+        "description": "Software or process mechanisms that detect or correct errors",
+        "examples": ["Data integrity checks", "Redundancy", "Transaction rollback", "Error detection", "Review process for content changes"]
+      },
+      {
+        "priority": 3,
+        "type": "information_for_safety",
+        "name": "Information for safety",
+        "description": "Instructions, warnings, and training to inform users of residual risks",
+        "examples": ["Warning messages", "Training requirements", "Practitioner must use own assessment", "Call 112 warnings"]
+      }
+    ]
+  },
+
+  "evaluation_policy": {
+    "initial_risk_evaluation": "Before any risk controls are applied. Represents worst-case inherent risk.",
+    "residual_risk_evaluation": "After all implemented controls. P1 = initial P1 x reduction factors of all applicable controls.",
+    "overall_risk_evaluation": "Evaluation of total residual risk across all identified hazardous situations, considering cumulative effects. Overall risk acceptable when benefits significantly outweigh residual risks.",
+    "benefit_risk_analysis_threshold": "Required for all Medium risks and mandatory for all High risks that cannot be further reduced.",
+    "disclosure_requirements": "Significant residual risks communicated in device labeling and Instructions for Use. All warnings identified in risk analysis implemented in UI. Contraindications documented."
+  },
+
+  "acceptance_criteria": {
+    "module_risk_acceptable": [
+      "Risk reduced to lowest possible level through design or process controls",
+      "Implemented mitigations verified and effective",
+      "No further reasonable risk reduction possible without compromising intended functionality",
+      "Residual risk rated Low or Medium with documented rationale",
+      "Post-market monitoring plans exist"
+    ],
+    "module_risk_not_acceptable": [
+      "Residual risk remains High",
+      "Mitigation measures unverified, incomplete, or ineffective",
+      "Residual risk introduces new or worsened system-level hazard"
+    ],
+    "overall_risk_acceptable": [
+      "All identified risks reduced to lowest practicable level",
+      "Benefits to patients significantly outweigh residual risks",
+      "Device meets all applicable regulatory and safety standards",
+      "Significant residual risks clearly communicated in labeling and IFU",
+      "Risk management process thoroughly implemented and maintained"
+    ]
+  },
+
+  "triage24_specific": {
+    "contraindications": [
+      "Patients with life-threatening symptoms, serious conditions or trauma",
+      "Patients physically or cognitively unable to use digital technology",
+      "Patients with cognitive issues unable to use technology correctly",
+      "Patients lacking sufficient language proficiency (conversational variant)"
+    ],
+    "key_warnings": [
+      "Vid livshotande eller akuta besvär - ring 112",
+      "Practitioner's own assessment must be used together with triage result"
+    ],
+    "safety_class": "B",
+    "safety_class_rationale": "Software item that can contribute to hazardous situation but failure unlikely to result in unacceptable risk due to contraindications, warnings, and practitioner oversight"
+  }
+}
