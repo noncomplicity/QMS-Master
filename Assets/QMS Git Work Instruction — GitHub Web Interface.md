@@ -1,9 +1,9 @@
 ---
 id: 5edb1fc
 title: "QMS Git Work Instruction — GitHub Web Interface"
-version: 2
+version: 3
 author: "Jakob"
-effective_date: 2026-03-04
+effective_date: 2026-06-16
 type:
 process: "Document and Record Control"
 requirements: "ISO 13485_2016 - 4.2.4 ISO 13485_2016 - 4.2.5"

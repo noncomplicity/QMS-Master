@@ -1,9 +1,9 @@
 ---
-id:
-title: "Generate Instructions for Use"
-version:
-author:
-effective_date:
+id: 725af57
+title: "generation 82304 ifu"
+version: 1
+author: "Jakob"
+effective_date: 2026-06-16
 type: "Prompt"
 category: "generation"
 standard: "IEC 82304-1"
@@ -35,11 +35,11 @@ Generate a markdown document with the following structure, populating content fr
 
 ```markdown
 ---
-id:
-title: "Instructions for Use - [Product Name]"
-version:
-author:
-effective_date:
+id: 725af57
+title: "generation 82304 ifu"
+version: 1
+author: "Jakob"
+effective_date: 2026-06-16
 type: "InstructionsForUse"
 process: "[Document and Record Control](../Canvases/Document%20and%20Record%20Control.canvas)"
 requirements:

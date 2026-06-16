@@ -1,9 +1,9 @@
 ---
 id: 313586c
 title: "Clinical Evaluation Procedure"
-version: 5
+version: 6
 author: "Jakob"
-effective_date: 2026-03-04
+effective_date: 2026-06-16
 type: "Procedure"
 process: "Clinical Management Process.canvas"
 requirements: "MDCG 2020-1"

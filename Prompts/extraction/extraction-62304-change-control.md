@@ -1,9 +1,9 @@
 ---
-id:
-title: "Extract Change Control and Problem Resolution Evidence"
-version:
-author:
-effective_date:
+id: 725af57
+title: "extraction 62304 change control"
+version: 1
+author: "Jakob"
+effective_date: 2026-06-16
 type: "Prompt"
 category: "extraction"
 standard: "IEC 62304"

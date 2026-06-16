@@ -1,9 +1,9 @@
 ---
-id:
-title: "Generate Software Architecture Description"
-version:
-author:
-effective_date:
+id: 725af57
+title: "generation 62304 sad"
+version: 1
+author: "Jakob"
+effective_date: 2026-06-16
 type: "Prompt"
 category: "generation"
 standard: "IEC 62304"
@@ -79,11 +79,11 @@ Generate a markdown document with this structure:
 
 ```markdown
 ---
-id:
-title: "Software Architecture Description - [Product Name]"
-version:
-author:
-effective_date:
+id: 725af57
+title: "generation 62304 sad"
+version: 1
+author: "Jakob"
+effective_date: 2026-06-16
 type: "Specification"
 document_id: "SAD-[product]-[version]"
 software_safety_class: "A | B | C"

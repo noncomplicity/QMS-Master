@@ -1,9 +1,9 @@
 ---
-id:
-title: "Aggregate CF Risk Controls to Service Requirements"
-version:
-author:
-effective_date:
+id: 725af57
+title: "module aggregation cf risk controls"
+version: 1
+author: "Jakob"
+effective_date: 2026-06-16
 type: "Prompt"
 category: "aggregation"
 level: "module"

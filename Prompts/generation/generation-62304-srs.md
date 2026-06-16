@@ -1,9 +1,9 @@
 ---
-id:
-title: "Generate Software Requirements Specification"
-version:
-author:
-effective_date:
+id: 725af57
+title: "generation 62304 srs"
+version: 1
+author: "Jakob"
+effective_date: 2026-06-16
 type: "Prompt"
 category: "generation"
 standard: "IEC 62304"
@@ -79,11 +79,11 @@ Generate a markdown document with this structure:
 
 ```markdown
 ---
-id:
-title: "Software Requirements Specification - [Product Name]"
-version:
-author:
-effective_date:
+id: 725af57
+title: "generation 62304 srs"
+version: 1
+author: "Jakob"
+effective_date: 2026-06-16
 type: "Specification"
 document_id: "SRS-[product]-[version]"
 software_safety_class: "A | B | C"

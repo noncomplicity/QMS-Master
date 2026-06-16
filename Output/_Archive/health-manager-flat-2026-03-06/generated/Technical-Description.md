@@ -1,9 +1,9 @@
 ---
-id:
-title: "Technical Description - health-manager"
-version:
-author:
-effective_date:
+id: 725af57
+title: "Technical Description"
+version: 1
+author: "Jakob"
+effective_date: 2026-06-16
 type: "TechnicalDescription"
 process: "[Document and Record Control](../../../Canvases/Document%20and%20Record%20Control.canvas)"
 requirements:

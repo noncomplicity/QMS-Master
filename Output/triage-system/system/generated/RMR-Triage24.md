@@ -1,9 +1,9 @@
 ---
-id:
-title: "Risk Management Report - Triage24"
-version:
-author:
-effective_date:
+id: 725af57
+title: "RMR Triage24"
+version: 1
+author: "Jakob"
+effective_date: 2026-06-16
 type: "Report"
 document_id: "RMR-Triage24-1.0"
 process: "[Risk Management Process](../../Canvases/Risk%20Management%20Process.canvas)"

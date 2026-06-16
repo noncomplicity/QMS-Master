@@ -1,9 +1,9 @@
 ---
-id:
-title: "Item Risk Contribution - Health Manager Service"
-version:
-author:
-effective_date:
+id: 725af57
+title: "Item Risk Contribution"
+version: 1
+author: "Jakob"
+effective_date: 2026-06-16
 type: "RiskContribution"
 document_id: "ITEM-RISK-HM-1.0"
 level: "item"

@@ -1,9 +1,9 @@
 ---
-id:
-title: "Generate Item Requirements Document"
-version:
-author:
-effective_date:
+id: 725af57
+title: "item generation 62304 requirements"
+version: 1
+author: "Jakob"
+effective_date: 2026-06-16
 type: "Prompt"
 category: "generation"
 level: "item"
@@ -53,11 +53,11 @@ Generate a markdown document following the output structure below. The document 
 
 ```markdown
 ---
-id:
-title: "Item Requirements - [Item Name]"
-version:
-author:
-effective_date:
+id: 725af57
+title: "item generation 62304 requirements"
+version: 1
+author: "Jakob"
+effective_date: 2026-06-16
 type: "Requirements"
 document_id: "ITEM-REQ-[item-id]-[version]"
 level: "item"

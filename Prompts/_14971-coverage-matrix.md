@@ -1,9 +1,9 @@
 ---
-id:
-title: "ISO 14971 Prompt Coverage Matrix"
-version:
-author:
-effective_date:
+id: 725af57
+title: "_14971 coverage matrix"
+version: 1
+author: "Jakob"
+effective_date: 2026-06-16
 type: "Index"
 process: "[Risk Management Process](../Canvases/Risk%20Management%20Process.canvas)"
 requirements:

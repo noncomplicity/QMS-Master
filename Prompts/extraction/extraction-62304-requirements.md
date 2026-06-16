@@ -1,9 +1,9 @@
 ---
-id:
-title: "Extract Software Requirements from Code"
-version:
-author:
-effective_date:
+id: 725af57
+title: "extraction 62304 requirements"
+version: 1
+author: "Jakob"
+effective_date: 2026-06-16
 type: "Prompt"
 category: "extraction"
 standard: "IEC 62304"

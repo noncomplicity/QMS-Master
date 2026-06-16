@@ -1,9 +1,9 @@
 ---
-id:
-title: "Master Orchestration Prompt"
-version:
-author:
-effective_date:
+id: 725af57
+title: "_master orchestration"
+version: 1
+author: "Jakob"
+effective_date: 2026-06-16
 type: "Prompt"
 category: "orchestration"
 level: "system"

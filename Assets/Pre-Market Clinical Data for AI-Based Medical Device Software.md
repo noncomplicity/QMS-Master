@@ -1,9 +1,9 @@
 ---
 id: 4168666
 title: "Pre Market Clinical Data for AI Based Medical Device Software"
-version: 6
+version: 7
 author: "Jakob"
-effective_date: 2026-03-04
+effective_date: 2026-06-16
 type: "StandardOperatingProcedure"
 process: "Clinical Management Process"
 requirements:

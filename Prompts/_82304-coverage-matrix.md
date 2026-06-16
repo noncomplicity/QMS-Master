@@ -1,9 +1,9 @@
 ---
-id:
-title: "IEC 82304-1 Prompt Coverage Matrix"
-version:
-author:
-effective_date:
+id: 725af57
+title: "_82304 coverage matrix"
+version: 1
+author: "Jakob"
+effective_date: 2026-06-16
 type: "Index"
 process: "[Software Development Process](../Canvases/Software%20Development%20Process.canvas)"
 requirements:

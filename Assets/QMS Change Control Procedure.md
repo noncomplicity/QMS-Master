@@ -1,9 +1,9 @@
 ---
 id: 5edb1fc
 title: "QMS Change Control Procedure"
-version: 2
+version: 3
 author: "Jakob"
-effective_date: 2026-03-04
+effective_date: 2026-06-16
 type: "StandardOperatingProcedure"
 process: "Document and Record Control"
 requirements: "Requirements/ISO 13485_2016 - 4.1.4 Requirements/ISO 13485_2016 - 4.2.4 Requirements/ISO 13485_2016 - 7.3.9 Requirements/ISO 13485_2016 - 8.5.6 Requirements/EU MDR_2017_745 - Article 10 Requirements/EU MDR_2017_745 - Annex IX"

@@ -1,9 +1,9 @@
 ---
 id: 313586c
-title: "Verification title: "Verification title: Validation Procedure" Validation Procedure"
-version: 3
+title: "Verification title: "Verification title: "Verification title: Validation Procedure" Validation Procedure" Validation Procedure"
+version: 4
 author: "Jakob"
-effective_date: 2026-03-04
+effective_date: 2026-06-16
 type:
 process: "Product Management Process.canvas"
 requirements:

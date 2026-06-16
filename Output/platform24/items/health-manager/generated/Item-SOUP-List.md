@@ -1,9 +1,9 @@
 ---
-id:
-title: "Item SOUP List - Health Manager Service"
-version:
-author:
-effective_date:
+id: 725af57
+title: "Item SOUP List"
+version: 1
+author: "Jakob"
+effective_date: 2026-06-16
 type: "SOUPList"
 document_id: "ITEM-SOUP-HM-1.0"
 level: "item"

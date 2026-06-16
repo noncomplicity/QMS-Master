@@ -1,9 +1,9 @@
 ---
-id:
-title: "Code-as-Truth Documentation Flow Diagram"
-version:
-author:
-effective_date:
+id: 725af57
+title: "_documentation flow diagram"
+version: 1
+author: "Jakob"
+effective_date: 2026-06-16
 type: "Index"
 process: "[Document and Record Control](../Canvases/Document%20and%20Record%20Control.canvas)"
 requirements:

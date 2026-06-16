@@ -1,9 +1,9 @@
 ---
-id:
-title: "Generate Risk Management Plan"
-version:
-author:
-effective_date:
+id: 725af57
+title: "generation 14971 rmp"
+version: 1
+author: "Jakob"
+effective_date: 2026-06-16
 type: "Prompt"
 category: "generation"
 standard: "ISO 14971"
@@ -73,11 +73,11 @@ Generate a markdown document with this structure:
 
 ```markdown
 ---
-id:
-title: "Risk Management Plan - [Product Name]"
-version:
-author:
-effective_date:
+id: 725af57
+title: "generation 14971 rmp"
+version: 1
+author: "Jakob"
+effective_date: 2026-06-16
 type: "Plan"
 document_id: "RMP-[product]-[version]"
 regulatory_class: "[MDR Class | FDA Class]"

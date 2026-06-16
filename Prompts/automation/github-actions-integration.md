@@ -1,9 +1,9 @@
 ---
-id:
-title: "GitHub Actions Integration for Code-as-Truth"
-version:
-author:
-effective_date:
+id: 725af57
+title: "github actions integration"
+version: 1
+author: "Jakob"
+effective_date: 2026-06-16
 type: "Specification"
 category: "automation"
 process: "[Document and Record Control](../../Canvases/Document%20and%20Record%20Control.canvas)"

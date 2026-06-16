@@ -1,9 +1,9 @@
 ---
-id:
-title: "Extract Software Item Architecture"
-version:
-author:
-effective_date:
+id: 725af57
+title: "item extraction 62304 architecture"
+version: 1
+author: "Jakob"
+effective_date: 2026-06-16
 type: "Prompt"
 category: "extraction"
 level: "item"

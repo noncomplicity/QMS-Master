@@ -1,9 +1,9 @@
 ---
-id:
-title: "Generate Software Release Notes"
-version:
-author:
-effective_date:
+id: 725af57
+title: "generation 62304 release notes"
+version: 1
+author: "Jakob"
+effective_date: 2026-06-16
 type: "Prompt"
 category: "generation"
 standard: "IEC 62304"
@@ -71,11 +71,11 @@ The Software Release Notes document the software release per IEC 62304 clause 5.
 
 ```markdown
 ---
-id:
-title: "Software Release Notes - [Product Name] v[X.Y.Z]"
-version:
-author:
-effective_date:
+id: 725af57
+title: "generation 62304 release notes"
+version: 1
+author: "Jakob"
+effective_date: 2026-06-16
 type: "Report"
 document_id: "RN-[product]-[version]"
 software_safety_class: "A | B | C"

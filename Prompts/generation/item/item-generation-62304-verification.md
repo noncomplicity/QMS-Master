@@ -1,9 +1,9 @@
 ---
-id:
-title: "Generate Item Verification Document"
-version:
-author:
-effective_date:
+id: 725af57
+title: "item generation 62304 verification"
+version: 1
+author: "Jakob"
+effective_date: 2026-06-16
 type: "Prompt"
 category: "generation"
 level: "item"
@@ -54,11 +54,11 @@ Generate a markdown document following the output structure below. The document 
 
 ```markdown
 ---
-id:
-title: "Item Verification - [Item Name]"
-version:
-author:
-effective_date:
+id: 725af57
+title: "item generation 62304 verification"
+version: 1
+author: "Jakob"
+effective_date: 2026-06-16
 type: "Verification"
 document_id: "ITEM-VER-[item-id]-[version]"
 level: "item"

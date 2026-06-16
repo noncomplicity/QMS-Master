@@ -1,9 +1,9 @@
 ---
-id:
-title: "Generate Software Risk Management File"
-version:
-author:
-effective_date:
+id: 725af57
+title: "generation 62304 risk file"
+version: 1
+author: "Jakob"
+effective_date: 2026-06-16
 type: "Prompt"
 category: "generation"
 standard: "IEC 62304"
@@ -58,11 +58,11 @@ The Software Risk Management File documents software-specific risk management ac
 
 ```markdown
 ---
-id:
-title: "Software Risk Management File - [Product Name]"
-version:
-author:
-effective_date:
+id: 725af57
+title: "generation 62304 risk file"
+version: 1
+author: "Jakob"
+effective_date: 2026-06-16
 type: "Report"
 document_id: "SRMF-[product]-[version]"
 software_safety_class: "B | C"

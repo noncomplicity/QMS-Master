@@ -1,9 +1,9 @@
 ---
-id:
-title: "Generate Risk Management Report"
-version:
-author:
-effective_date:
+id: 725af57
+title: "generation 14971 rmr"
+version: 1
+author: "Jakob"
+effective_date: 2026-06-16
 type: "Prompt"
 category: "generation"
 standard: "ISO 14971"
@@ -68,11 +68,11 @@ Generate a markdown document with this structure:
 
 ```markdown
 ---
-id:
-title: "Risk Management Report - [Product Name]"
-version:
-author:
-effective_date:
+id: 725af57
+title: "generation 14971 rmr"
+version: 1
+author: "Jakob"
+effective_date: 2026-06-16
 type: "Report"
 document_id: "RMR-[product]-[version]"
 process: "[Risk Management Process](../../Canvases/Risk%20Management%20Process.canvas)"

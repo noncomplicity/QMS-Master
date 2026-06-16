@@ -1,9 +1,9 @@
 ---
-id:
-title: "Generate Software Verification Report"
-version:
-author:
-effective_date:
+id: 725af57
+title: "generation 62304 verification report"
+version: 1
+author: "Jakob"
+effective_date: 2026-06-16
 type: "Prompt"
 category: "generation"
 standard: "IEC 62304"
@@ -64,11 +64,11 @@ The Software Verification Report documents evidence of verification activities p
 
 ```markdown
 ---
-id:
-title: "Software Verification Report - [Product Name]"
-version:
-author:
-effective_date:
+id: 725af57
+title: "generation 62304 verification report"
+version: 1
+author: "Jakob"
+effective_date: 2026-06-16
 type: "Report"
 document_id: "SVR-[product]-[version]"
 software_safety_class: "A | B | C"

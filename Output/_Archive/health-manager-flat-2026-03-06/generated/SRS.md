@@ -1,9 +1,9 @@
 ---
-id:
-title: "Software Requirements Specification - health-manager"
-version:
-author:
-effective_date:
+id: 725af57
+title: "SRS"
+version: 1
+author: "Jakob"
+effective_date: 2026-06-16
 type: "Specification"
 document_id: "SRS-health-manager-1.0"
 software_safety_class: "C"

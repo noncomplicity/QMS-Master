@@ -1,9 +1,9 @@
 ---
 id: tr-13485-samd
-title: "Technical Report - Implementation of ISO 13485 for SaMD"
+title: "Technical Report   Implementation of ISO 13485 for SaMD"
 version: 1
 author: "Jakob"
-effective_date:
+effective_date: 2026-06-16
 type: "TechnicalReport"
 process: "Management Process"
 requirements: "ISO 13485:2016 EU MDR 2017/745 IEC 62304 ISO 14971 IEC 62366-1"

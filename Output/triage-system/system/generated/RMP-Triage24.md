@@ -1,9 +1,9 @@
 ---
-id:
-title: "Risk Management Plan - Triage24"
-version:
-author:
-effective_date:
+id: 725af57
+title: "RMP Triage24"
+version: 1
+author: "Jakob"
+effective_date: 2026-06-16
 type: "Plan"
 document_id: "RMP-Triage24-1.0"
 regulatory_class: "MDR Class IIa"

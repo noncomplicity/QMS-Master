@@ -1,9 +1,9 @@
 ---
-id:
-title: "Item Architecture - Health Manager Service"
-version:
-author:
-effective_date:
+id: 725af57
+title: "Item Architecture"
+version: 1
+author: "Jakob"
+effective_date: 2026-06-16
 type: "Architecture"
 document_id: "ITEM-ARCH-HM-1.0"
 level: "item"

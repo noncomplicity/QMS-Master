@@ -1,9 +1,9 @@
 ---
-id:
-title: "Item Verification - Health Manager Service"
-version:
-author:
-effective_date:
+id: 725af57
+title: "Item Verification"
+version: 1
+author: "Jakob"
+effective_date: 2026-06-16
 type: "Verification"
 document_id: "ITEM-VER-HM-1.0"
 level: "item"

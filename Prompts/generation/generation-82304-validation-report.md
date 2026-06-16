@@ -1,9 +1,9 @@
 ---
-id:
-title: "Generate Validation Report"
-version:
-author:
-effective_date:
+id: 725af57
+title: "generation 82304 validation report"
+version: 1
+author: "Jakob"
+effective_date: 2026-06-16
 type: "Prompt"
 category: "generation"
 standard: "IEC 82304-1"
@@ -71,11 +71,11 @@ Generate a markdown document with this structure:
 
 ```markdown
 ---
-id:
-title: "Validation Report - [Product Name]"
-version:
-author:
-effective_date:
+id: 725af57
+title: "generation 82304 validation report"
+version: 1
+author: "Jakob"
+effective_date: 2026-06-16
 type: "Report"
 document_id: "VAL-RPT-[product]-[version]"
 process: "[Document and Record Control](../Canvases/Document%20and%20Record%20Control.canvas)"

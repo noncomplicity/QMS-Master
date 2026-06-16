@@ -1,9 +1,9 @@
 ---
-id:
-title: "Generate Risk Analysis Document"
-version:
-author:
-effective_date:
+id: 725af57
+title: "generation 14971 rma"
+version: 1
+author: "Jakob"
+effective_date: 2026-06-16
 type: "Prompt"
 category: "generation"
 standard: "ISO 14971"
@@ -77,11 +77,11 @@ Generate a markdown document with this structure:
 
 ```markdown
 ---
-id:
-title: "Risk Analysis - [Product Name]"
-version:
-author:
-effective_date:
+id: 725af57
+title: "generation 14971 rma"
+version: 1
+author: "Jakob"
+effective_date: 2026-06-16
 type: "Report"
 document_id: "RA-[product]-[version]"
 process: "[Risk Management Process](../../Canvases/Risk%20Management%20Process.canvas)"

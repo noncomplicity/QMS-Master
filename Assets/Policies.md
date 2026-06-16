@@ -1,9 +1,9 @@
 ---
 id: 313586c
 title: "Policies"
-version: 2
+version: 3
 author: "Jakob"
-effective_date: 2026-03-04
+effective_date: 2026-06-16
 type:
 process:
 requirements:

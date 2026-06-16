@@ -1,9 +1,9 @@
 ---
-id:
-title: "Generate Item SOUP List Document"
-version:
-author:
-effective_date:
+id: 725af57
+title: "item generation 62304 soup list"
+version: 1
+author: "Jakob"
+effective_date: 2026-06-16
 type: "Prompt"
 category: "generation"
 level: "item"
@@ -54,11 +54,11 @@ Generate a markdown document following the output structure below. The document 
 
 ```markdown
 ---
-id:
-title: "Item SOUP List - [Item Name]"
-version:
-author:
-effective_date:
+id: 725af57
+title: "item generation 62304 soup list"
+version: 1
+author: "Jakob"
+effective_date: 2026-06-16
 type: "SOUPList"
 document_id: "ITEM-SOUP-[item-id]-[version]"
 level: "item"

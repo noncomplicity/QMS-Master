@@ -1,9 +1,9 @@
 ---
-id:
-title: "Item Requirements - Health Manager Service"
-version:
-author:
-effective_date:
+id: 725af57
+title: "Item Requirements"
+version: 1
+author: "Jakob"
+effective_date: 2026-06-16
 type: "Requirements"
 document_id: "ITEM-REQ-HM-1.0"
 level: "item"

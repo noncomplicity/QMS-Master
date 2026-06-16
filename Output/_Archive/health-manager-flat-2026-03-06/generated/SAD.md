@@ -1,9 +1,9 @@
 ---
-id:
-title: "Software Architecture Description - health-manager"
-version:
-author:
-effective_date:
+id: 725af57
+title: "SAD"
+version: 1
+author: "Jakob"
+effective_date: 2026-06-16
 type: "Specification"
 document_id: "SAD-health-manager-1.0"
 software_safety_class: "B"

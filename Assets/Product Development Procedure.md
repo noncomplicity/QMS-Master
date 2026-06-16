@@ -1,9 +1,9 @@
 ---
 id: 313586c
 title: "Product Development Procedure"
-version: 3
+version: 4
 author: "Jakob"
-effective_date: 2026-03-04
+effective_date: 2026-06-16
 type:
 process: "Product Management Process.canvas"
 requirements:

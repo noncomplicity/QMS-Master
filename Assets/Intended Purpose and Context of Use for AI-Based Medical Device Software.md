@@ -1,9 +1,9 @@
 ---
 id: 4168666
 title: "Intended Purpose and Context of Use for AI Based Medical Device Software"
-version: 4
+version: 5
 author: "Jakob"
-effective_date: 2026-03-04
+effective_date: 2026-06-16
 type: "StandardOperatingProcedure"
 process: "Clinical Management Process"
 requirements:

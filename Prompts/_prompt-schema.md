@@ -1,9 +1,9 @@
 ---
-id:
-title: "Code-as-Truth Prompt Schema"
-version:
-author:
-effective_date:
+id: 725af57
+title: "_prompt schema"
+version: 1
+author: "Jakob"
+effective_date: 2026-06-16
 type: "Specification"
 process: "[Document and Record Control](../Canvases/Document%20and%20Record%20Control.canvas)"
 requirements:
@@ -194,11 +194,11 @@ All prompts follow this structure:
 
 ```yaml
 ---
-id:
-title: "Extract Software Item Requirements"
-version:
-author:
-effective_date:
+id: 725af57
+title: "_prompt schema"
+version: 1
+author: "Jakob"
+effective_date: 2026-06-16
 type: "Prompt"
 category: "extraction"
 level: "item"
@@ -217,11 +217,11 @@ owner: "[Head of Quality Management](../../Assets/Head%20of%20Quality%20Manageme
 
 ```yaml
 ---
-id:
-title: "Aggregate System Risk File"
-version:
-author:
-effective_date:
+id: 725af57
+title: "_prompt schema"
+version: 1
+author: "Jakob"
+effective_date: 2026-06-16
 type: "Prompt"
 category: "aggregation"
 level: "system"
